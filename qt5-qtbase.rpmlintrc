@@ -1,0 +1,13 @@
+# For builds outside the build system
+addFilter("E: no-packager-tag")
+# False positives on *.pro files
+addFilter("E: wrong-script-interpreter")
+addFilter("E: script-without-shebang")
+addFilter("E: non-executable-script")
+# Qt creates debuginfo files itself
+addFilter("E: empty-debuginfo-package")
+addFilter("E: hardcoded-library-path")
+addFilter("E: binary-or-shlib-defines-rpath")
+addFilter("E: devel-file-in-non-devel-package")
+# False positives
+addFilter("E: no-dependency-on")

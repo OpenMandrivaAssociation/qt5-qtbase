@@ -1,0 +1,40 @@
+# Qt5 macros, test version
+%_qt5_datadir %{_datadir}/qt5
+%_qt5_bindir %{_libdir}/qt5/bin
+%_qt5_docdir %{_docdir}/qt5
+%_qt5_libdir %{_libdir}
+%_qt5_includedir %{_includedir}/qt5
+%_qt5_plugindir %{_libdir}/qt5/plugins
+%_qt5_demodir %{_libdir}/qt5/demos
+%_qt5_exampledir %{_libdir}/qt5/examples
+%_qt5_importdir %{_libdir}/qt5/imports
+%_qt5_translationsdir %{_datadir}/qt5/translations
+
+%qmake_qt5 \
+  CPPFLAGS="${CPPFLAGS:-%optflags -DPIC -fPIC}" ; export CPPFLAGS ; \
+  %{_bindir}/qmake-qt5 \\\
+    %if "%{_lib}" != "lib" \
+       libsuff=64 \\\
+    %endif \
+    QMAKE_CFLAGS="${CFLAGS:-%optflags -DPIC -fPIC}" \\\
+    QMAKE_CXXFLAGS="${CXXFLAGS:-%optflags -DPIC -fPIC}" \\\
+    QMAKE_CXXFLAGS_RELEASE= \\\
+    QMAKE_LFLAGS="%{?ldflags}"
+
+%cmake_qt5 \
+  QTDIR="%{_libdir}/qt5" ; export QTDIR ; \
+  PATH="%{_qt5_bindir}:$PATH" ; export PATH ; \
+  CPPFLAGS="${CPPFLAGS:-%optflags -DPIC -fPIC}" ; export CPPFLAGS ; \
+  %setup_compile_flags \
+  mkdir -p build \
+  cd build \
+  %__cmake .. \\\
+  %if "%{_lib}" != "lib" \
+    -DLIB_SUFFIX=64 \\\
+  %endif \
+  -DCMAKE_INSTALL_PREFIX=%{_prefix} \\\
+  -DCMAKE_INSTALL_LIBDIR:PATH=%{_libdir} \\\
+  -DCMAKE_MODULE_LINKER_FLAGS="%(echo %ldflags|sed -e 's#-Wl,--no-undefined##')" \\\
+  -DDBUS_SERVICES_DIR=%{_datadir}/dbus-1/services \\\
+  -DDBUS_INTERFACES_DIR=%{_datadir}/dbus-1/interfaces
+  
