@@ -819,6 +819,7 @@ Development files for version 5 of the QtXml library.
 %package devel
 Summary:	Meta-package for installing all Qt 5 development files
 Group:		Development/KDE and Qt
+Provides:	qt5-devel
 Requires:	%{qtbootstrapd} = %{EVRD}
 Requires:	%{qtconcurrentd} = %{EVRD}
 Requires:	%{qtcored} = %{EVRD}
