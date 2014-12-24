@@ -39,8 +39,6 @@
 %define qtsqld %mklibname qt%{api}sql -d
 %define qtwidgets %mklibname qt%{api}widgets %{major}
 %define qtwidgetsd %mklibname qt%{api}widgets -d
-%define qtwebsockets %mklibname qt%{api}websockets %{major}
-%define qtwebsocketsd %mklibname qt%{api}websockets -d
 %define qtxml %mklibname qt%{api}xml %{major}
 %define qtxmld %mklibname qt%{api}xml -d
 %define qttest %mklibname qt%{api}test %{major}
@@ -832,7 +830,6 @@ Requires:	%{qtprintsupportd} = %{EVRD}
 Requires:	%{qtsqld} = %{EVRD}
 Requires:	%{qtwidgetsd} = %{EVRD}
 Requires:	%{qtxmld} = %{EVRD}
-Requires:	%{qtwebsocketsd} = %{EVRD}
 Requires:	qmake%{api} = %{EVRD}
 Requires:	qlalr%{api} = %{EVRD}
 Requires:	%{name}-macros = %{EVRD}
