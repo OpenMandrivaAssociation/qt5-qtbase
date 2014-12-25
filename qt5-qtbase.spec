@@ -2,7 +2,6 @@
 %define beta %{nil}
 %define api 5
 %define major 5
-%define qgstmajor 1
 
 %define _qt_prefix %{_libdir}/qt%{api}
 %define _qt_bindir %{_qt_prefix}/bin
@@ -65,7 +64,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.0
-Release:	1
+Release:	4
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
@@ -149,7 +148,7 @@ BuildRequires:	flex bison gperf
 BuildRequires:	gdb
 %if %{with docs}
 BuildRequires:	qdoc5
-BuildRequires:	qt5-tools
+BuildRequires:	qt5-qttools
 %endif
 
 %description
