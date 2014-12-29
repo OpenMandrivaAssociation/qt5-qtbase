@@ -971,10 +971,10 @@ sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
 sed -i 's!X11R6/!!g' mkspecs/linux-g++*/qmake.conf
 
 # move some bundled libs to ensure they're not accidentally used
-#pushd qtbase/src/3rdparty
-#mkdir UNUSED
-#mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
-#popd
+pushd src/3rdparty
+mkdir UNUSED
+mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
+popd
 
 %build
 # build with python2
