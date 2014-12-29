@@ -64,7 +64,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.0
-Release:	4
+Release:	5
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
@@ -698,6 +698,7 @@ Summary:	SQLite 3.x support for the QtSql library v5
 Group:		System/Libraries
 Requires:	%{qtsql} = %{EVRD}
 Provides:	%{name}-database-plugin-sqlite = %{EVRD}
+%rename		qt5-database-plugin-sqlite = %{EVRD}
 BuildRequires:	pkgconfig(sqlite3)
 
 %description -n %{qtsql}-sqlite
