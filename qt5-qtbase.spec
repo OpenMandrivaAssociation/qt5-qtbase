@@ -64,7 +64,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.0
-Release:	6
+Release:	7
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
@@ -817,9 +817,8 @@ Development files for version 5 of the QtXml library.
 # qt extras
 #----------------------------------------------------------------------------
 %package devel
-Summary:	Meta-package for installing all Qt 5 development files
+Summary:	Meta-package for installing all Qt 5 Base development files
 Group:		Development/KDE and Qt
-Provides:	qt5-devel
 Requires:	%{qtbootstrapd} = %{EVRD}
 Requires:	%{qtconcurrentd} = %{EVRD}
 Requires:	%{qtcored} = %{EVRD}
@@ -833,12 +832,56 @@ Requires:	%{qtwidgetsd} = %{EVRD}
 Requires:	%{qtxmld} = %{EVRD}
 Requires:	qmake%{api} = %{EVRD}
 Requires:	qlalr%{api} = %{EVRD}
-Requires:	%{name}-macros = %{EVRD}
+Requires:	qt5-macros = %{EVRD}
 
 %description devel
-Meta-package for installing all Qt 5 development files.
+Meta-package for installing all Qt 5 Base development files.
 
 %files devel
+# Intentionally empty, we just pull in dependencies
+
+#----------------------------------------------------------------------------
+# qt extras
+#----------------------------------------------------------------------------
+%package -n qt5-devel
+Summary:	Meta-package for installing all Qt 5 development files
+Group:		Development/KDE and Qt
+Requires:	%{name}-devel = %{EVRD}
+Requires:	pkgconfig(Enginio) >= 1.1.0
+Requires:	pkgconfig(Qt5Bluetooth) = %{version}
+Requires:	pkgconfig(Qt5Location) = %{version}
+Requires:	pkgconfig(Qt5Positioning) = %{version}
+Requires:	pkgconfig(Qt5Sensors) = %{version}
+Requires:	pkgconfig(Qt5Test) = %{version}
+Requires:	pkgconfig(Qt5CLucene) = %{version}
+Requires:	pkgconfig(Qt5Declarative) = %{version}
+Requires:	pkgconfig(Qt5DesignerComponents) = %{version}
+Requires:	pkgconfig(Qt5Designer) = %{version}
+Requires:	pkgconfig(Qt5Help) = %{version}
+Requires:	pkgconfig(Qt5Multimedia) = %{version}
+Requires:	pkgconfig(Qt5MultimediaWidgets) = %{version}
+Requires:	pkgconfig(Qt5Nfc) = %{version}
+Requires:	pkgconfig(Qt5Qml) = %{version}
+Requires:	pkgconfig(Qt5Quick) = %{version}
+Requires:	pkgconfig(Qt5QuickParticles) = %{version}
+Requires:	pkgconfig(Qt5QuickTest) = %{version}
+Requires:	pkgconfig(Qt5QuickWidgets) = %{version}
+Requires:	pkgconfig(Qt5Script) = %{version}
+Requires:	pkgconfig(Qt5ScriptTools) = %{version}
+Requires:	pkgconfig(Qt5Svg) = %{version}
+Suggests:	pkgconfig(Qt5WaylandClient) = %{version}
+Suggests:	pkgconfig(Qt5WaylandCompositor) = %{version}
+Requires:	pkgconfig(Qt5WebEngine) = %{version}
+Requires:	pkgconfig(Qt5WebKit) = %{version}
+Requires:	pkgconfig(Qt5WebKitWidgets) = %{version}
+Requires:	pkgconfig(Qt5WebChannel) = %{version}
+Requires:	pkgconfig(Qt5WebSockets) = %{version}
+Requires:	pkgconfig(Qt5XmlPatterns) = %{version}
+
+%description -n qt5-devel
+Meta-package for installing all Qt 5 development files.
+
+%files -n qt5-devel
 # Intentionally empty, we just pull in dependencies
 
 #----------------------------------------------------------------------------
@@ -846,73 +889,64 @@ Meta-package for installing all Qt 5 development files.
 #----------------------------------------------------------------------------
 
 %if %{with docs}
-%package doc
+%package -n qt5-doc
 Summary:	Qt QCH documentation
 Group:		Books/Computer books
 BuildArch:	noarch
+# Was introduced by mistake
+%rename %{name}-doc
 
-%description doc
+%description -n qt5-doc
 QCH documentation for the Qt toolkit.
 
-%files doc
+%files -n qt5-doc
 %{_qt_docdir}/*.qch
 %endif
 
 #----------------------------------------------------------------------------
 
-%package examples
+%package -n qt5-examples
 Summary:	Example applications for %{name}
 Group:		Development/KDE and Qt
+# Was introduced by mistake
+%rename %{name}-examples
 
-%description examples
+%description -n qt5-examples
 Example applications for %{name}.
 
-%files examples
+%files -n qt5-examples
 %{_qt_exampledir}
 
 #----------------------------------------------------------------------------
 
-%package fonts
-Summary:	Fonts for use with some %{name} output plugins
-Group:		System/Libraries
-
-%description fonts
-Fonts for use with some %{name} output plugins.
-
-These fonts are required for various non-X11 output
-plugins (framebuffer device etc.).
-
-They are not required for the normal X11 output.
-
-# FIXME re-add when Qt/E is fixed
-#%%files fonts
-#%%{_qt_libdir}/fonts
-#----------------------------------------------------------------------------
-
-%package macros
+%package -n qt5-macros
 Summary:	Base macros for Qt 5
 Group:		Development/KDE and Qt
+# Was introduced by mistake
+%rename %{name}-macros
 
-%description macros
+%description -n qt5-macros
 Base macros for Qt 5.
 
-%files macros
+%files -n qt5-macros
 %{_sysconfdir}/rpm/macros.d/qt5.macros
 
 #----------------------------------------------------------------------------
 %if %{with gtk}
-%package platformtheme-gtk2
+%package -n qt5-platformtheme-gtk2
 Summary:	GTK 2.x platform theme for Qt 5
 Group:		Graphical desktop/KDE
 Requires:	%{qtgui} = %{EVRD}
 BuildRequires:	pkgconfig(gtk+-x11-2.0)
+# Was introduced by mistake
+%rename %{name}-platformtheme-gtk2
 
-%description platformtheme-gtk2
+%description -n qt5-platformtheme-gtk2
 GTK 2.x platform theme for Qt 5. This plugin allows Qt to render
 controls using GTK 2.x themes - making it integrate better with GTK
 based desktops.
 
-%files platformtheme-gtk2
+%files -n qt5-platformtheme-gtk2
 %{_qt_plugindir}/platformthemes/libqgtk2.so
 %endif
 #----------------------------------------------------------------------------
