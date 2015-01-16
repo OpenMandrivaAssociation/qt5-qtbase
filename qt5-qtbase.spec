@@ -64,13 +64,14 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.0
-Release:	8
+Release:	9
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
 Source0:	http://download.qt-project.org/official_releases/qt/%{qtmajor}.%{qtminor}/%{version}/submodules/%qttarballdir.tar.xz
 Source1:	qt5.macros
 Source100:	%{name}.rpmlintrc
+Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 
 BuildRequires:	jpeg-devel
 # Build scripts
@@ -993,6 +994,7 @@ Qt LALR parser generator
 
 %prep
 %setup -q -n %qttarballdir
+%apply_patches
 
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
@@ -1069,6 +1071,7 @@ export PATH=`pwd`/pybin:$PATH
 	-icu \
 	-no-strip \
 	-no-pch \
+	-nomake tests \
 	-dbus-linked \
 %ifarch %ix86 x86_64
 	-reduce-relocations \
