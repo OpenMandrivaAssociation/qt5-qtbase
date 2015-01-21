@@ -64,7 +64,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.0
-Release:	9
+Release:	10
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
@@ -872,7 +872,9 @@ Requires:	pkgconfig(Qt5ScriptTools) = %{version}
 Requires:	pkgconfig(Qt5Svg) = %{version}
 Suggests:	pkgconfig(Qt5WaylandClient) = %{version}
 Suggests:	pkgconfig(Qt5WaylandCompositor) = %{version}
+%ifnarch %arm
 Requires:	pkgconfig(Qt5WebEngine) = %{version}
+%endif
 Requires:	pkgconfig(Qt5WebKit) = %{version}
 Requires:	pkgconfig(Qt5WebKitWidgets) = %{version}
 Requires:	pkgconfig(Qt5WebChannel) = %{version}
