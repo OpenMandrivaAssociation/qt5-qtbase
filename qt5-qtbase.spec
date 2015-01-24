@@ -64,7 +64,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.0
-Release:	11
+Release:	12
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
@@ -72,6 +72,7 @@ Source0:	http://download.qt-project.org/official_releases/qt/%{qtmajor}.%{qtmino
 Source1:	qt5.macros
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
+Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
 
 BuildRequires:	jpeg-devel
 # Build scripts
