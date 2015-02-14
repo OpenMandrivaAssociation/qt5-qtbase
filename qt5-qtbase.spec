@@ -64,7 +64,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.0
-Release:	12
+Release:	13
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
@@ -1092,6 +1092,7 @@ export PATH=`pwd`/pybin:$PATH
 	-fontconfig \
 	-accessibility \
 	-eglfs \
+    -opengl es2 \
 	-gnumake \
 	-pkg-config \
 	-kms \
@@ -1106,11 +1107,6 @@ export PATH=`pwd`/pybin:$PATH
 	-xrandr \
 	-xrender \
 	-xkb \
-%ifarch %arm
-	-opengl es2 \
-%else
-	-opengl desktop \
-%endif
 	-confirm-license \
 	-system-proxies \
 	-glib \
