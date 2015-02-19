@@ -1092,13 +1092,10 @@ export PATH=`pwd`/pybin:$PATH
 %endif
 	-fontconfig \
 	-accessibility \
-    -egl \
-    -eglfs \
 %ifarch %armx
-	-eglfs -kms \
-	-opengl es2 \
+	-opengl es2 -egl -eglfs -kms \
 %else
-	-opengl desktop \
+	-opengl desktop -egl -eglfs -kms \
 %endif
 	-gnumake \
 	-pkg-config \
@@ -1121,7 +1118,6 @@ export PATH=`pwd`/pybin:$PATH
 	-pulseaudio \
 	-alsa \
 	-linuxfb \
-	-kms \
 	-evdev \
 	-silent \
 	-system-xkbcommon \
