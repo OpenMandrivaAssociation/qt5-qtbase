@@ -76,6 +76,11 @@ Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
 
+# FIXME this is broken -- but currently required because QtGui
+# and friends prefer linking to system QtCore over linking to the
+# just built QtCore. This should be fixed properly in the Makefiles.
+BuildConflicts: %mklibname -d qt5core
+
 BuildRequires:	jpeg-devel
 # Build scripts
 BuildRequires:	python >= 3.0 python2
