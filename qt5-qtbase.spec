@@ -58,13 +58,13 @@
 
 %define qtmajor 5
 %define qtminor 4
-%define qtsubminor 0
+%define qtsubminor 1
 %define qtversion %{qtmajor}.%{qtminor}.%{qtsubminor}
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.4.0
-Release:	14
+Version:	5.4.1
+Release:	1
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
