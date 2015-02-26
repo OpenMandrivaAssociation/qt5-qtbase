@@ -43,6 +43,8 @@
 %define qttest %mklibname qt%{api}test %{major}
 %define qttestd %mklibname qt%{api}test -d
 
+%bcond_without bootstrap
+
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
 %bcond_with docs
@@ -849,6 +851,7 @@ Meta-package for installing all Qt 5 Base development files.
 Summary:	Meta-package for installing all Qt 5 development files
 Group:		Development/KDE and Qt
 Requires:	%{name}-devel = %{EVRD}
+%if !%{with bootstrap}
 Requires:	pkgconfig(Enginio) >= 1.1.0
 Requires:	pkgconfig(Qt5Bluetooth) = %{version}
 Requires:	pkgconfig(Qt5Location) = %{version}
@@ -881,6 +884,7 @@ Requires:	pkgconfig(Qt5WebKitWidgets) = %{version}
 Requires:	pkgconfig(Qt5WebChannel) = %{version}
 Requires:	pkgconfig(Qt5WebSockets) = %{version}
 Requires:	pkgconfig(Qt5XmlPatterns) = %{version}
+%endif
 
 %description -n qt5-devel
 Meta-package for installing all Qt 5 development files.
