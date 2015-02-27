@@ -43,7 +43,7 @@
 %define qttest %mklibname qt%{api}test %{major}
 %define qttestd %mklibname qt%{api}test -d
 
-%bcond_without bootstrap
+%bcond_with bootstrap
 
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
@@ -66,7 +66,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.1
-Release:	1
+Release:	2
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
