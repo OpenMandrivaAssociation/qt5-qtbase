@@ -66,7 +66,7 @@
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.4.1
-Release:	2
+Release:	3
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
@@ -75,11 +75,13 @@ Source1:	qt5.macros
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
+# FIXME this is bad, but works...
+Patch2:		qtbase-5.4.1-workaround-imageformats-plugin-loader.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
 # just built QtCore. This should be fixed properly in the Makefiles.
-BuildConflicts: %mklibname -d qt5core
+BuildConflicts: %mklibname -d qt5core != %{version}
 
 BuildRequires:	jpeg-devel
 # Build scripts
