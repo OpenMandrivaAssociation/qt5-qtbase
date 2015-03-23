@@ -1,5 +1,5 @@
 %define debug_package %{nil}
-%define beta %{nil}
+%define beta alpha
 %define api 5
 %define major 5
 
@@ -26,6 +26,8 @@
 %define qtcored %mklibname qt%{api}core -d
 %define qtdbus %mklibname qt%{api}dbus %{major}
 %define qtdbusd %mklibname qt%{api}dbus -d
+%define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
+%define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 %define qtgui %mklibname qt%{api}gui %{major}
 %define qtguid %mklibname qt%{api}gui -d
 %define qtnetwork %mklibname qt%{api}network %{major}
@@ -36,12 +38,14 @@
 %define qtprintsupportd %mklibname qt%{api}printsupport -d
 %define qtsql %mklibname qt%{api}sql %{major}
 %define qtsqld %mklibname qt%{api}sql -d
-%define qtwidgets %mklibname qt%{api}widgets %{major}
-%define qtwidgetsd %mklibname qt%{api}widgets -d
-%define qtxml %mklibname qt%{api}xml %{major}
-%define qtxmld %mklibname qt%{api}xml -d
 %define qttest %mklibname qt%{api}test %{major}
 %define qttestd %mklibname qt%{api}test -d
+%define qtwidgets %mklibname qt%{api}widgets %{major}
+%define qtwidgetsd %mklibname qt%{api}widgets -d
+%define qtxcbqpa %mklibname qt%{api}xcbqpa %{major}
+%define qtxcbqpad %mklibname qt%{api}xcbqpa -d
+%define qtxml %mklibname qt%{api}xml %{major}
+%define qtxmld %mklibname qt%{api}xml -d
 
 %bcond_with bootstrap
 
@@ -56,32 +60,39 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 
-%define qttarballdir qtbase-opensource-src-%{qtversion}
-
-%define qtmajor 5
-%define qtminor 4
-%define qtsubminor 1
+%define qtmajor %(echo %{version} |cut -d. -f1)
+%define qtminor %(echo %{version} |cut -d. -f2)
+%define qtsubminor %(echo %{version} |cut -d. -f3)
 %define qtversion %{qtmajor}.%{qtminor}.%{qtsubminor}
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.4.1
-Release:	3
+Version:	5.5.0
+%if "%{beta}" != ""
+Release:	0.%{beta}.1
+Source0:	http://download.qt-project.org/development_releases/qt/%{qtmajor}.%{qtminor}/%{version}-%{beta}/submodules/%qttarballdir.tar.xz
+%define qttarballdir qtbase-opensource-src-%{qtversion}-%{beta}
+%else
+Release:	1
+Source0:	http://download.qt-project.org/official_releases/qt/%{qtmajor}.%{qtminor}/%{version}/submodules/%qttarballdir.tar.xz
+%define qttarballdir qtbase-opensource-src-%{qtversion}
+%endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://qt-project.org/
-Source0:	http://download.qt-project.org/official_releases/qt/%{qtmajor}.%{qtminor}/%{version}/submodules/%qttarballdir.tar.xz
 Source1:	qt5.macros
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
-Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
+# FIXME check if this has been fixed in 5.5.0 or if the patch needs to
+# be updated
+#Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
 # FIXME this is bad, but works...
 Patch2:		qtbase-5.4.1-workaround-imageformats-plugin-loader.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
 # just built QtCore. This should be fixed properly in the Makefiles.
-BuildConflicts: %mklibname -d qt5core != %{version}
+BuildConflicts: %{mklibname -d qt5core} != %{version}
 
 BuildRequires:	jpeg-devel
 # Build scripts
@@ -273,6 +284,7 @@ Development files for version 5 of the QtCore library.
 %dir %{_qt_libdir}/cmake/Qt%{api}
 %dir %{_qt_libdir}/pkgconfig
 
+#----------------------------------------------------------------------------
 %package -n %{qtdbus}
 Summary:	Qt DBus connector library
 Group:		System/Libraries
@@ -309,6 +321,40 @@ Development files for version 5 of the QtDBus library.
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}DBus.pc
 %endif
+
+#----------------------------------------------------------------------------
+%package -n %{qtegldeviceintegration}
+Summary:	Qt EGL Device integration library
+Group:		System/Libraries
+
+%description -n %{qtegldeviceintegration}
+Qt EGL Device integration library
+
+%files -n %{qtegldeviceintegration}
+%{_qt_libdir}/libQt%{api}EglDeviceIntegration.so.%{major}*
+%if "%{_qt_libdir}" != "%{_libdir}"
+%{_libdir}/libQt%{api}EglDeviceIntegration.so.%{major}*
+%endif
+%{_qt_plugindir}/egldeviceintegrations
+
+#----------------------------------------------------------------------------
+
+%package -n %{qtegldeviceintegrationd}
+Summary:	Development files for version 5 of the QtEGLDeviceIntegration library
+Group:		Development/KDE and Qt
+Requires:	%{qtegldeviceintegration} = %{EVRD}
+
+%description -n %{qtegldeviceintegrationd}
+Development files for version 5 of the QtEGLDeviceIntegration library.
+
+%files -n %{qtegldeviceintegrationd}
+%{_qt_libdir}/libQt%{api}EglDeviceIntegration.so
+%{_qt_libdir}/libQt%{api}EglDeviceIntegration.prl
+%{_qt_libdir}/pkgconfig/Qt%{api}EglDeviceIntegration.pc
+%if "%{_qt_libdir}" != "%{_libdir}"
+%{_libdir}/pkgconfig/Qt%{api}EglDeviceIntegration.pc
+%endif
+
 
 #----------------------------------------------------------------------------
 
@@ -355,8 +401,8 @@ Requires:	%{qtgui}-minimal = %{EVRD}
 Requires:	%{qtgui}-offscreen = %{EVRD}
 Requires:	%{qtgui}-x11 = %{EVRD}
 Requires:	%{qtgui}-eglfs = %{EVRD}
-Requires:	%{qtgui}-kms = %{EVRD}
 Requires:	%{qtgui}-minimalegl = %{EVRD}
+Obsoletes:	%{qtgui}-kms < %{EVRD}
 %if %{with gtk}
 Requires:	%{name}-platformtheme-gtk2 = %{EVRD}
 %endif
@@ -475,20 +521,6 @@ EGL fullscreen output driver for QtGui v5.
 
 %files -n %{qtgui}-eglfs
 %{_qt_plugindir}/platforms/libqeglfs.so
-
-#----------------------------------------------------------------------------
-
-%package -n %{qtgui}-kms
-Summary:	KMS output driver for QtGui v5
-Group:		System/Libraries
-Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
-
-%description -n %{qtgui}-kms
-KMS output driver for QtGui v5.
-
-%files -n %{qtgui}-kms
-%{_qt_plugindir}/platforms/libqkms.so
 
 #----------------------------------------------------------------------------
 
@@ -791,6 +823,40 @@ Development files for version 5 of the QtWidgets library.
 %endif
 
 #----------------------------------------------------------------------------
+%package -n %{qtxcbqpa}
+Summary:	Qt XCB QPA library
+Group:		System/Libraries
+
+%description -n %{qtxcbqpa}
+Qt XCB QPA library
+
+%files -n %{qtxcbqpa}
+%{_qt_libdir}/libQt%{api}XcbQpa.so.%{major}*
+%if "%{_qt_libdir}" != "%{_libdir}"
+%{_libdir}/libQt%{api}XcbQpa.so.%{major}*
+%endif
+%{_qt_plugindir}/xcbglintegrations
+
+#----------------------------------------------------------------------------
+
+%package -n %{qtxcbqpad}
+Summary:	Development files for version 5 of the QtXcbQpa library
+Group:		Development/KDE and Qt
+Requires:	%{qtxcbqpa} = %{EVRD}
+
+%description -n %{qtxcbqpad}
+Development files for version 5 of the QtXcbQpa library.
+
+%files -n %{qtxcbqpad}
+%{_qt_libdir}/libQt%{api}XcbQpa.so
+%{_qt_libdir}/libQt%{api}XcbQpa.prl
+%{_qt_libdir}/pkgconfig/Qt%{api}XcbQpa.pc
+%if "%{_qt_libdir}" != "%{_libdir}"
+%{_libdir}/pkgconfig/Qt%{api}XcbQpa.pc
+%endif
+
+
+#----------------------------------------------------------------------------
 %package -n %{qtxml}
 Summary:	Qt XML library
 Group:		System/Libraries
@@ -834,12 +900,14 @@ Requires:	%{qtbootstrapd} = %{EVRD}
 Requires:	%{qtconcurrentd} = %{EVRD}
 Requires:	%{qtcored} = %{EVRD}
 Requires:	%{qtdbusd} = %{EVRD}
+Requires:	%{qtegldeviceintegrationd} = %{EVRD}
 Requires:	%{qtguid} = %{EVRD}
 Requires:	%{qtnetworkd} = %{EVRD}
 Requires:	%{qtopengld} = %{EVRD}
 Requires:	%{qtprintsupportd} = %{EVRD}
 Requires:	%{qtsqld} = %{EVRD}
 Requires:	%{qtwidgetsd} = %{EVRD}
+Requires:	%{qtxcbqpad} = %{EVRD}
 Requires:	%{qtxmld} = %{EVRD}
 Requires:	qmake%{api} = %{EVRD}
 Requires:	qlalr%{api} = %{EVRD}
