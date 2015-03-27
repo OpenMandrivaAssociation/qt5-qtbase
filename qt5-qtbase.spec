@@ -47,7 +47,7 @@
 %define qtxml %mklibname qt%{api}xml %{major}
 %define qtxmld %mklibname qt%{api}xml -d
 
-%bcond_without bootstrap
+%bcond_with bootstrap
 
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
@@ -69,7 +69,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.5.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.2
+Release:	0.%{beta}.3
 Source0:	http://download.qt-project.org/development_releases/qt/%{qtmajor}.%{qtminor}/%{version}-%{beta}/submodules/%qttarballdir.tar.xz
 %define qttarballdir qtbase-opensource-src-%{qtversion}-%{beta}
 %else
