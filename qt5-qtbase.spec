@@ -69,7 +69,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.5.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.3
+Release:	0.%{beta}.4
 Source0:	http://download.qt-project.org/development_releases/qt/%{qtmajor}.%{qtminor}/%{version}-%{beta}/submodules/%qttarballdir.tar.xz
 %define qttarballdir qtbase-opensource-src-%{qtversion}-%{beta}
 %else
@@ -1096,6 +1096,8 @@ mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 popd
 
 %build
+# (tpg) build with LLVM/clang
+export QMAKE_CXX=clang++
 # build with python2
 mkdir pybin
 ln -s %{_bindir}/python2 pybin/python
