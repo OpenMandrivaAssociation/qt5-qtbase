@@ -1096,8 +1096,6 @@ mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 popd
 
 %build
-# (tpg) build with LLVM/clang
-export QMAKE_CXX=clang++
 # build with python2
 mkdir pybin
 ln -s %{_bindir}/python2 pybin/python
@@ -1133,13 +1131,13 @@ export PATH=`pwd`/pybin:$PATH
 	-no-sql-tds \
 	-system-sqlite \
 %ifarch x86_64
-	-platform linux-g++-64 \
+	-platform linux-clang-libc++ \
 %endif
 %ifarch %{ix86}
-	-platform linux-g++-32 \
+	-platform linux-clang-libc++ \
 %endif
 %ifarch %{armx}
-	-platform linux-g++ \
+	-platform linux-clang-libc++ \
 %endif
 	-system-zlib \
 	-system-libpng \
