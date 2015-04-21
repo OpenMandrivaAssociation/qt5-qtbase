@@ -1131,13 +1131,13 @@ export PATH=`pwd`/pybin:$PATH
 	-no-sql-tds \
 	-system-sqlite \
 %ifarch x86_64
-	-platform linux-clang-libc++ \
+	-platform linux-g++-64 \
 %endif
 %ifarch %{ix86}
-	-platform linux-clang-libc++ \
+	-platform linux-g++-32 \
 %endif
 %ifarch %{armx}
-	-platform linux-clang-libc++ \
+	-platform linux-g++ \
 %endif
 	-system-zlib \
 	-system-libpng \
