@@ -69,7 +69,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.5.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.5
+Release:	0.%{beta}.6
 Source0:	http://download.qt-project.org/development_releases/qt/%{qtmajor}.%{qtminor}/%{version}-%{beta}/submodules/%qttarballdir.tar.xz
 %define qttarballdir qtbase-opensource-src-%{qtversion}-%{beta}
 %else
@@ -912,6 +912,7 @@ Requires:	%{qtxmld} = %{EVRD}
 Requires:	qmake%{api} = %{EVRD}
 Requires:	qlalr%{api} = %{EVRD}
 Requires:	qt5-macros = %{EVRD}
+Provides:	%{name}-devel = %{EVRD}
 
 %description devel
 Meta-package for installing all Qt 5 Base development files.
