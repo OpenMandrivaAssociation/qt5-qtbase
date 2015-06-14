@@ -69,7 +69,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.5.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.2
+Release:	0.%{beta}.3
 Source0:	http://download.qt-project.org/development_releases/qt/%{qtmajor}.%{qtminor}/%{version}-%{beta}/submodules/%qttarballdir.tar.xz
 %define qttarballdir qtbase-opensource-src-%{qtversion}-%{beta}
 %else
