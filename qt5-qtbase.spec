@@ -515,6 +515,7 @@ Summary:	EGL fullscreen output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
 Provides:	qt5-output-driver = %{EVRD}
+Provides:	qt5-output-driver-eglfs = %{EVRD}
 
 %description -n %{qtgui}-eglfs
 EGL fullscreen output driver for QtGui v5.
