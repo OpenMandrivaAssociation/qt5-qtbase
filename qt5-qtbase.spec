@@ -70,12 +70,12 @@ Name:		qt5-qtbase
 Version:	5.5.0
 %if "%{beta}" != ""
 Release:	1.%{beta}.1
-Source0:	http://download.qt-project.org/development_releases/qt/%{qtmajor}.%{qtminor}/%{version}-%{beta}/submodules/%qttarballdir.tar.xz
-%define qttarballdir qtbase-opensource-src-%{qtversion}-%{beta}
+%define qttarballdir qtbase-opensource-src-%{version}-%{beta}
+Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
-Source0:	http://download.qt-project.org/official_releases/qt/%{qtmajor}.%{qtminor}/%{version}/submodules/%qttarballdir.tar.xz
-%define qttarballdir qtbase-opensource-src-%{qtversion}
+Release:	1
+%define qttarballdir qtbase-opensource-src-%{version}
+Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
