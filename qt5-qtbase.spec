@@ -73,7 +73,7 @@ Release:	1.%{beta}.1
 Source0:	http://download.qt-project.org/development_releases/qt/%{qtmajor}.%{qtminor}/%{version}-%{beta}/submodules/%qttarballdir.tar.xz
 %define qttarballdir qtbase-opensource-src-%{qtversion}-%{beta}
 %else
-Release:	1
+Release:	2
 Source0:	http://download.qt-project.org/official_releases/qt/%{qtmajor}.%{qtminor}/%{version}/submodules/%qttarballdir.tar.xz
 %define qttarballdir qtbase-opensource-src-%{qtversion}
 %endif
