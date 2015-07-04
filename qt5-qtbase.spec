@@ -79,7 +79,7 @@ Source0:	http://download.qt-project.org/official_releases/qt/%{qtmajor}.%{qtmino
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
-Url:		http://qt-project.org/
+Url:		http://www.qt.io
 Source1:	qt5.macros
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
