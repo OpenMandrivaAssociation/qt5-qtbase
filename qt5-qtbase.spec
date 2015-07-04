@@ -1,5 +1,5 @@
 %define debug_package %{nil}
-%define beta
+%define beta %nil
 %define api 5
 %define major 5
 
