@@ -1188,6 +1188,8 @@ export PATH=`pwd`/pybin:$PATH
 	-nomake tests \
 	-dbus-linked \
 %ifarch %ix86
+	-no-sse2 \
+	-no-sse3 \
     -no-ssse3 \
     -no-sse4.1 \
     -no-sse4.2 \
