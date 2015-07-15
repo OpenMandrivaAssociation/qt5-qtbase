@@ -59,6 +59,7 @@
 # Our cairo actually isn't built with --enable-qt because nothing uses that combo.
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
+%bcond_without clang
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
 %define qtminor %(echo %{version} |cut -d. -f2)
@@ -69,11 +70,11 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.5.0
 %if "%{beta}" != ""
-Release:	1.%{beta}.1
+Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -88,6 +89,7 @@ Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 #Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
 # FIXME this is bad, but works...
 Patch2:		qtbase-5.4.1-workaround-imageformats-plugin-loader.patch
+Patch3:		qlalr-fix-build-with-clang.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -1087,9 +1089,31 @@ sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix
 
 sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|gcc-nm|llvm-nm|g" mkspecs/common/clang.conf
+
+# Make sure we have -flto in the linker flags if we have it in the compiler
+# flags...
+cat >>mkspecs/common/clang.conf <<'EOF'
+QMAKE_LFLAGS += $$QMAKE_CXXFLAGS
+QMAKE_LFLAGS_RELEASE += $$QMAKE_CXXFLAGS_RELEASE
+QMAKE_LFLAGS_DEBUG += $$QMAKE_CXXFLAGS_DEBUG
+EOF
+cat >>mkspecs/common/g++-unix.conf <<'EOF'
+QMAKE_LFLAGS += $$QMAKE_CXXFLAGS
+QMAKE_LFLAGS_RELEASE += $$QMAKE_CXXFLAGS_RELEASE
+QMAKE_LFLAGS_DEBUG += $$QMAKE_CXXFLAGS_DEBUG
+EOF
 
 # drop weird X11R6 lib from path in *.pc files
 sed -i 's!X11R6/!!g' mkspecs/linux-g++*/qmake.conf
+
+# There's a bogus /lib and /usr/lib hardcode in configure...
+%if "%{_lib}" != "lib"
+sed -i -e 's,/lib\\,/%{_lib}\\,g' configure
+%endif
+
+# Pass CXXFLAGS to CXX even while linking -- for LTO
+sed -i -e 's,\$(CXX) -o,\$(CXX) \$(CXXFLAGS) -o,' qmake/Makefile.unix
 
 # move some bundled libs to ensure they're not accidentally used
 pushd src/3rdparty
@@ -1132,6 +1156,7 @@ export PATH=`pwd`/pybin:$PATH
 	-no-sql-sqlite2 \
 	-no-sql-tds \
 	-system-sqlite \
+%if %{without clang}
 %ifarch x86_64
 	-platform linux-g++-64 \
 %endif
@@ -1140,6 +1165,9 @@ export PATH=`pwd`/pybin:$PATH
 %endif
 %ifarch %{armx}
 	-platform linux-g++ \
+%endif
+%else
+	-platform linux-clang \
 %endif
 	-system-zlib \
 	-system-libpng \
