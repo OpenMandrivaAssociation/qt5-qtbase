@@ -167,6 +167,8 @@ BuildRequires:	pkgconfig(atspi-2)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(libcap)
+BuildRequires:	pkgconfig(libproxy-1.0)
+BuildRequires:	pkgconfig(libinput)
 BuildRequires:	flex bison gperf
 # Used for CPU feature detection in configure step
 BuildRequires:	gdb
