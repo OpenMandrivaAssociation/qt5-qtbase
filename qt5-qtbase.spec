@@ -65,6 +65,7 @@
 %define qtminor %(echo %{version} |cut -d. -f2)
 %define qtsubminor %(echo %{version} |cut -d. -f3)
 %define qtversion %{qtmajor}.%{qtminor}.%{qtsubminor}
+%define _disable_lto 1
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
