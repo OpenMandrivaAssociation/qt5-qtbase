@@ -1150,7 +1150,7 @@ export PATH=`pwd`/pybin:$PATH
 	-accessibility \
 	-no-sql-db2 \
 	-no-sql-ibase \
-	-plugin-sql-mysql \
+	-no-sql-mysql \
 	-no-sql-oci \
 	-plugin-sql-odbc \
 	-plugin-sql-psql \
@@ -1243,7 +1243,6 @@ export PATH=`pwd`/pybin:$PATH
 	-system-xkbcommon \
 	-no-separate-debug-info \
 	-no-strip \
-    -no-use-gold-linker \
 %if "%{_qt_libdir}" == "%{_libdir}"
 	-no-rpath \
 %endif
