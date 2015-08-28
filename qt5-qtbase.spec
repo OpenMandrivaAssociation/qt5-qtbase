@@ -700,7 +700,7 @@ Summary:	MySQL support for the QtSql library v5
 Group:		System/Libraries
 Requires:	%{qtsql} = %{EVRD}
 Provides:	%{name}-database-plugin-mysql = %{EVRD}
-BuildRequires:	mysql-devel
+#BuildRequires:	mysql-devel
 
 %description -n %{qtsql}-mysql
 MySQL support for the QtSql library v5.
