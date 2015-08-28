@@ -59,7 +59,7 @@
 # Our cairo actually isn't built with --enable-qt because nothing uses that combo.
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
-%bcond_without clang
+%bcond_with clang
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
 %define qtminor %(echo %{version} |cut -d. -f2)
