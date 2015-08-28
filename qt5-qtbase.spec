@@ -47,7 +47,7 @@
 %define qtxml %mklibname qt%{api}xml %{major}
 %define qtxmld %mklibname qt%{api}xml -d
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
@@ -59,7 +59,7 @@
 # Our cairo actually isn't built with --enable-qt because nothing uses that combo.
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
-%bcond_with clang
+%bcond_without clang
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
 %define qtminor %(echo %{version} |cut -d. -f2)
@@ -1243,6 +1243,7 @@ export PATH=`pwd`/pybin:$PATH
 	-system-xkbcommon \
 	-no-separate-debug-info \
 	-no-strip \
+    -no-use-gold-linker \
 %if "%{_qt_libdir}" == "%{_libdir}"
 	-no-rpath \
 %endif
