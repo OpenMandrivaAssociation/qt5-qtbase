@@ -60,6 +60,7 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 %bcond_without clang
+%bcond_with mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
 %define qtminor %(echo %{version} |cut -d. -f2)
@@ -675,7 +676,9 @@ Requires:	%{qtsql} = %{EVRD}
 # We need all the QtSql plugins because the plugin related cmake files in
 # %{_qt_libdir}/cmake/Qt%{api}Sql cause fatal errors if the plugins aren't
 # installed.
+%if %{with mysql}
 Requires:	%{qtsql}-mysql = %{EVRD}
+%endif
 Requires:	%{qtsql}-odbc = %{EVRD}
 Requires:	%{qtsql}-postgresql = %{EVRD}
 Requires:	%{qtsql}-sqlite = %{EVRD}
@@ -695,6 +698,7 @@ Development files for version 5 of the QtSql library.
 
 #----------------------------------------------------------------------------
 
+%if %{with mysql}
 %package -n %{qtsql}-mysql
 Summary:	MySQL support for the QtSql library v5
 Group:		System/Libraries
@@ -707,7 +711,7 @@ MySQL support for the QtSql library v5.
 
 %files -n %{qtsql}-mysql
 %{_qt_plugindir}/sqldrivers/libqsqlmysql.so
-
+%endif
 #----------------------------------------------------------------------------
 
 %package -n %{qtsql}-odbc
@@ -1150,7 +1154,11 @@ export PATH=`pwd`/pybin:$PATH
 	-accessibility \
 	-no-sql-db2 \
 	-no-sql-ibase \
+%if %{with mysql}
 	-plugin-sql-mysql \
+%else
+	-no-sql-mysql \
+%endif
 	-no-sql-oci \
 	-plugin-sql-odbc \
 	-plugin-sql-psql \
@@ -1189,12 +1197,12 @@ export PATH=`pwd`/pybin:$PATH
 	-dbus-linked \
 %ifarch %{ix86}
 	-no-sse2 \
-    -no-sse3 \
-    -no-ssse3 \
-    -no-sse4.1 \
-    -no-sse4.2 \
-    -no-avx \
-    -no-avx2 \
+	-no-sse3 \
+	-no-ssse3 \
+	-no-sse4.1 \
+	-no-sse4.2 \
+	-no-avx \
+	-no-avx2 \
 %endif
 %ifarch %ix86 x86_64
 	-reduce-relocations \
@@ -1248,7 +1256,9 @@ export PATH=`pwd`/pybin:$PATH
 %endif
 	-v \
 	-I %{_includedir}/iodbc \
+%if %{with mysql}
 	-I %{_includedir}/mysql \
+%endif
 	-I %{_includedir}/vg
 
 
