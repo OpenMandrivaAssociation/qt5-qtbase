@@ -1261,8 +1261,9 @@ export PATH=`pwd`/pybin:$PATH
 %endif
 	-I %{_includedir}/vg
 
+cat mkspecs/qmodule.pri
 
-%make STRIP=/bin/true || make STRIP=/bin/true
+%make -j1 STRIP=/bin/true || make -j1 STRIP=/bin/true
 
 %if %{with docs}
 %make docs
