@@ -1088,6 +1088,12 @@ Qt LALR parser generator
 %setup -q -n %qttarballdir
 %apply_patches
 
+%ifarch %{ix85}
+# in mkspec/qmodule.prl for i586 there is still sse2 enabled
+# this may sounds like LLVM/clang is now building by default for i686
+%global optflags %{optflags} -march=i586
+%endif
+
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 
@@ -1204,7 +1210,7 @@ export PATH=`pwd`/pybin:$PATH
 	-no-avx \
 	-no-avx2 \
 %endif
-%ifarch %ix86 x86_64
+%ifarch %{ix86} x86_64
 	-reduce-relocations \
 %else
 	-no-reduce-relocations \
@@ -1261,9 +1267,7 @@ export PATH=`pwd`/pybin:$PATH
 %endif
 	-I %{_includedir}/vg
 
-cat mkspecs/qmodule.prl
-
-%make -j1 STRIP=/bin/true || make -j1 STRIP=/bin/true
+%make STRIP=/bin/true || make STRIP=/bin/true
 
 %if %{with docs}
 %make docs
