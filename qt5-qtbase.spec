@@ -1091,7 +1091,7 @@ Qt LALR parser generator
 %ifarch %{ix85}
 # in mkspec/qmodule.prl for i586 there is still sse2 enabled
 # this may sounds like LLVM/clang is now building by default for i686
-%global optflags %{optflags} -march=i586
+%global optflags %{optflags} -mno-sse2
 %endif
 
 # respect cflags
