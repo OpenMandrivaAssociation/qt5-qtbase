@@ -1247,7 +1247,7 @@ export PATH=`pwd`/pybin:$PATH
 	-alsa \
 	-linuxfb \
 	-evdev \
-	-silent \
+	-verbose \
 	-system-xkbcommon \
 	-no-separate-debug-info \
 	-no-strip \
