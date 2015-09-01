@@ -59,7 +59,11 @@
 # Our cairo actually isn't built with --enable-qt because nothing uses that combo.
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
+ifarch %{ix86}
+%bcond_with clang
+%else
 %bcond_without clang
+%endif
 %bcond_with mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
@@ -1087,13 +1091,6 @@ Qt LALR parser generator
 %prep
 %setup -q -n %qttarballdir
 %apply_patches
-
-%ifarch %{ix86}
-# in mkspec/qmodule.prl for i586 there is still sse2 enabled
-# this may sounds like LLVM/clang is now building by default for i686
-export CFG_ARCH=i386
-export CFG_CPUFEATURES=""
-%endif
 
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
