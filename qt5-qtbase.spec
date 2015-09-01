@@ -59,7 +59,8 @@
 # Our cairo actually isn't built with --enable-qt because nothing uses that combo.
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
-ifarch %{ix86}
+
+%ifarch %{ix86}
 %bcond_with clang
 %else
 %bcond_without clang
