@@ -65,7 +65,7 @@
 %else
 %bcond_without clang
 %endif
-%bcond_with mysql
+%bcond_without mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
 %define qtminor %(echo %{version} |cut -d. -f2)
@@ -80,7 +80,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	6
+Release:	7
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
