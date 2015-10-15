@@ -64,7 +64,6 @@
 %bcond_with clang
 %else
 %bcond_without clang
-%define _disable_lto 1
 %endif
 %bcond_without mysql
 
@@ -75,13 +74,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.5.0
+Version:	5.5.1
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	8
+Release:	1
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -102,11 +101,7 @@ Patch3:		qlalr-fix-build-with-clang.patch
 Patch4:		qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
 Patch5:		qtbase-opensource-src-5.5.1-qdbusconnection_no_debug.patch
 Patch6:		qtbase-opensource-src-5.5-disconnect_displays.patch
-Patch7:		qtbase-opensource-src-5.4.1-QTBUG-33093.patch
-Patch8:		qtbase-opensource-src-5.4.1-QTBUG-45484.patch
 Patch9:		qtbase-opensource-src-5.4.0-QTBUG-43057.patch
-Patch10:	0123-xcb-set-SM_CLIENT_ID-property.patch
-Patch11:	0055-Respect-manual-set-icon-themes.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -115,7 +110,8 @@ BuildConflicts: %{mklibname -d qt5core} != %{version}
 
 BuildRequires:	jpeg-devel
 # Build scripts
-BuildRequires:	python >= 3.0 python2
+BuildRequires:	python >= 3.0
+BuildRequires:	python2
 BuildRequires:	pkgconfig(libpng)
 BuildRequires:	pkgconfig(zlib)
 # CUPS
