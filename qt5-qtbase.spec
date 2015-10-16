@@ -95,7 +95,6 @@ Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 #Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
 # FIXME this is bad, but works...
 Patch2:		qtbase-5.4.1-workaround-imageformats-plugin-loader.patch
-Patch3:		qlalr-fix-build-with-clang.patch
 
 # Fedora patches
 Patch4:		qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
