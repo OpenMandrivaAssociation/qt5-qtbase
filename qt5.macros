@@ -23,10 +23,10 @@
     QMAKE_LFLAGS="$LDFLAGS"
 
 %cmake_qt5 \
+  %setup_compile_flags \
   QTDIR="%{_libdir}/qt5" ; export QTDIR ; \
   PATH="%{_qt5_bindir}:$PATH" ; export PATH ; \
   CPPFLAGS="${CPPFLAGS:-$CPPFLAGS -DPIC -fPIC}" ; export CPPFLAGS ; \
-  %setup_compile_flags \
   mkdir -p build \
   cd build \
   %__cmake .. \\\
