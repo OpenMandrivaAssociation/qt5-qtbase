@@ -11,20 +11,21 @@
 %_qt5_translationsdir %{_datadir}/qt5/translations
 
 %qmake_qt5 \
-  CPPFLAGS="${CPPFLAGS:-%optflags -DPIC -fPIC}" ; export CPPFLAGS ; \
+  %setup_compile_flags \
+  CPPFLAGS="${CPPFLAGS:-$CPPFLAGS -DPIC -fPIC}" ; export CPPFLAGS ; \
   %{_bindir}/qmake-qt5 \\\
     %if "%{_lib}" != "lib" \
        libsuff=64 \\\
     %endif \
-    QMAKE_CFLAGS="${CFLAGS:-%optflags -DPIC -fPIC}" \\\
-    QMAKE_CXXFLAGS="${CXXFLAGS:-%optflags -DPIC -fPIC}" \\\
+    QMAKE_CFLAGS="${CFLAGS:-$CFLAGS -DPIC -fPIC}" \\\
+    QMAKE_CXXFLAGS="${CXXFLAGS:-$CXXFLAGS -DPIC -fPIC}" \\\
     QMAKE_CXXFLAGS_RELEASE= \\\
-    QMAKE_LFLAGS="%{?ldflags}"
+    QMAKE_LFLAGS="$LDFLAGS"
 
 %cmake_qt5 \
   QTDIR="%{_libdir}/qt5" ; export QTDIR ; \
   PATH="%{_qt5_bindir}:$PATH" ; export PATH ; \
-  CPPFLAGS="${CPPFLAGS:-%optflags -DPIC -fPIC}" ; export CPPFLAGS ; \
+  CPPFLAGS="${CPPFLAGS:-$CPPFLAGS -DPIC -fPIC}" ; export CPPFLAGS ; \
   %setup_compile_flags \
   mkdir -p build \
   cd build \
