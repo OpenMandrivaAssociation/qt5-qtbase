@@ -80,7 +80,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
+Release:	4
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -99,7 +99,11 @@ Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 # Fedora patches
 Patch4:		qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
 Patch5:		qtbase-opensource-src-5.5.1-qdbusconnection_no_debug.patch
+# Qt5 application crashes when connecting/disconnecting displays
+# https://bugzilla.redhat.com/show_bug.cgi?id=1083664
 Patch6:		qtbase-opensource-src-5.5-disconnect_displays.patch
+# Followup https://codereview.qt-project.org/#/c/138201/ adapted for 5.5
+Patch8:		138201.patch
 Patch9:		qtbase-opensource-src-5.4.0-QTBUG-43057.patch
 
 # FIXME this is broken -- but currently required because QtGui
