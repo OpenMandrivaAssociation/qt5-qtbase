@@ -80,7 +80,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	5
+Release:	6
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -88,6 +88,9 @@ License:	LGPLv3+
 Group:		Development/KDE and Qt
 Url:		http://www.qt.io
 Source1:	qt5.macros
+# (tpg) Use software rendering in case when OpenGL supported by graphics card is older than 2.
+# needs xinitrc
+Source2:	10-qt5-check-opengl.xsetup
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 # FIXME check if this has been fixed in 5.5.0 or if the patch needs to
@@ -519,11 +522,14 @@ Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
 Provides:	qt5-output-driver = %{EVRD}
 Provides:	qt5-output-driver-default = %{EVRD}
+# (tpg) this is needed for %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
+Requires:	glxinfo
 
 %description -n %{qtgui}-x11
 X11 output driver for QtGui v5.
 
 %files -n %{qtgui}-x11
+%{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
 %{_qt_plugindir}/platforms/libqxcb.so
 %{_qt_plugindir}/platforminputcontexts/libibusplatforminputcontextplugin.so
 %{_qt_plugindir}/platforminputcontexts/libcomposeplatforminputcontextplugin.so
@@ -1358,3 +1364,5 @@ for prl_file in libQt5*.prl ; do
   fi
 done
 popd
+
+install -p -m755 -D %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
