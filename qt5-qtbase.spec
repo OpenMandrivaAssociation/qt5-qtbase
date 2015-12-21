@@ -524,6 +524,7 @@ Provides:	qt5-output-driver = %{EVRD}
 Provides:	qt5-output-driver-default = %{EVRD}
 # (tpg) this is needed for %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
 Requires:	glxinfo
+Requires:	dri-drivers >= 11.1.0-3
 
 %description -n %{qtgui}-x11
 X11 output driver for QtGui v5.
