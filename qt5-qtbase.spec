@@ -80,7 +80,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	7
+Release:	8
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -98,6 +98,7 @@ Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 #Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
 # FIXME this is bad, but works...
 #Patch2:		qtbase-5.4.1-workaround-imageformats-plugin-loader.patch
+Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 
 # Fedora patches
 Patch4:		qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch

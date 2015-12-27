@@ -1,0 +1,11 @@
+--- qtbase-opensource-src-5.5.1/src/corelib/global/qglobal.h.omv~	2015-12-27 17:09:16.250794560 +0100
++++ qtbase-opensource-src-5.5.1/src/corelib/global/qglobal.h	2015-12-27 17:10:01.226908619 +0100
+@@ -1063,7 +1063,7 @@ Q_CORE_EXPORT int qrand();
+ #define QT_MODULE(x)
+ 
+ #if !defined(QT_BOOTSTRAPPED) && defined(QT_REDUCE_RELOCATIONS) && defined(__ELF__) && \
+-    (!defined(__PIC__) || (defined(__PIE__) && defined(Q_CC_GNU) && Q_CC_GNU >= 500))
++    (!defined(__PIC__) || (defined(__PIE__) && defined(Q_CC_GNU) && Q_CC_GNU >= 500) || (defined(__PIE__) && defined(__clang__)))
+ #  error "You must build your code with position independent code if Qt was built with -reduce-relocations. "\
+          "Compile your code with -fPIC (-fPIE is not enough)."
+ #endif
