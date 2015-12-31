@@ -20,12 +20,12 @@
     %if "%{_lib}" != "lib" \
        libsuff=64 \\\
     %endif \
-    QMAKE_CFLAGS="${CFLAGS:%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_CFLAGS_RELEASE="${CFLAGS:%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_CXXFLAGS="${CXXFLAGS:%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_CXXFLAGS_RELEASE="${CXXFLAGS:%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_LFLAGS="${LDFLAGS:-%{ldflags}}" \\\
-    QMAKE_LFLAGS_RELEASE="${LDFLAGS:-%{ldflags}}"
+    QMAKE_CFLAGS="${CFLAGS:-%{optflags} -DPIC -fPIC}" \\\
+    QMAKE_CFLAGS_RELEASE="${CFLAGS:-%{optflags} -DPIC -fPIC}" \\\
+    QMAKE_CXXFLAGS="${CXXFLAGS:-%{optflags} -DPIC -fPIC}" \\\
+    QMAKE_CXXFLAGS_RELEASE="${CXXFLAGS:-%{optflags} -DPIC -fPIC}" \\\
+    QMAKE_LFLAGS="${LDFLAGS:-%{ldflags} -DPIC -fPIC -Wl,-Bsymbolic-functions}" \\\
+    QMAKE_LFLAGS_RELEASE="${LDFLAGS:-%{ldflags} -DPIC -fPIC -Wl,-Bsymbolic-functions}"
 
 %cmake_qt5 \
   %setup_compile_flags \
