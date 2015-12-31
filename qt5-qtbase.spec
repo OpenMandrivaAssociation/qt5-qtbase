@@ -80,7 +80,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	10
+Release:	9
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1111,14 +1111,14 @@ Qt LALR parser generator
 %setup -q -n %qttarballdir
 %apply_patches
 
-# respect cflags and ldflags
+# respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
+
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
+
 sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|gcc-nm|llvm-nm|g" mkspecs/common/clang.conf
-sed -e "s|^QMAKE_CFLAGS_RELEASE .*$|QMAKE_CFLAGS_RELEASE    += %{optflags}| " -i mkspecs/common/gcc-base.conf mkspecs/common/gcc-base-unix.conf
-sed -e "s|^QMAKE_LFLAGS_RELEASE .*$|QMAKE_LFLAGS_RELEASE    += %{ldflags}| " -i mkspecs/common/gcc-base.conf mkspecs/common/gcc-base-unix.conf
 
 # Make sure we have -flto in the linker flags if we have it in the compiler
 # flags...

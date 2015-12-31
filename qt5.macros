@@ -20,12 +20,12 @@
     %if "%{_lib}" != "lib" \
        libsuff=64 \\\
     %endif \
-    QMAKE_CFLAGS="${CFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_CFLAGS_RELEASE="${CFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_CXXFLAGS="${CXXFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_CXXFLAGS_RELEASE="${CXXFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-    QMAKE_LFLAGS="${LDFLAGS:-%{ldflags} -DPIC -fPIC -Wl,-Bsymbolic-functions}" \\\
-    QMAKE_LFLAGS_RELEASE="${LDFLAGS:-%{ldflags} -DPIC -fPIC -Wl,-Bsymbolic-functions}"
+    QMAKE_CFLAGS="${CFLAGS:-$CFLAGS -DPIC -fPIC}" \\\
+    QMAKE_CFLAGS_RELEASE="${CFLAGS:-$CFLAGS -DPIC -fPIC}" \\\
+    QMAKE_CXXFLAGS="${CXXFLAGS:-$CXXFLAGS -DPIC -fPIC}" \\\
+    QMAKE_CXXFLAGS_RELEASE="${CXXFLAGS:-$CXXFLAGS -DPIC -fPIC}" \\\
+    QMAKE_LFLAGS="$LDFLAGS" \\\
+    QMAKE_LFLAGS_RELEASE="$LDFLAGS"
 
 %cmake_qt5 \
   %setup_compile_flags \
@@ -46,15 +46,15 @@
   -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \\\
   -DLIB_INSTALL_DIR:PATH=%{_lib} \\\
   -DSYSCONF_INSTALL_DIR:PATH=%{_sysconfdir} \\\
-  -DCMAKE_C_FLAGS="${CFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-  -DCMAKE_C_FLAGS_RELEASE="${CFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-  -DCMAKE_C_FLAGS_RELWITHDEBINFO="${CFLAGS:-%{optflags}}" \\\
-  -DCMAKE_CXX_FLAGS="${CXXFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-  -DCMAKE_CXX_FLAGS_RELEASE="${CXXFLAGS:-%{optflags} -DPIC -fPIC}" \\\
-  -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="${CXXFLAGS:-%{optflags}}" \\\
-  -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS:-%{ldflags} -DPIC -fPIC -Wl,-Bsymbolic-functions}" \\\
-  -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS:-%{ldflags} -DPIC -fPIC -Wl,-Bsymbolic-functions}" \\\
-  -DCMAKE_MODULE_LINKER_FLAGS="%(echo ${LDFLAGS:-%{ldflags} -DPIC -fPIC -Wl,-Bsymbolic-functions}|sed -e 's#-Wl,--no-undefined##')" \\\
+  -DCMAKE_C_FLAGS="${CFLAGS}" \\\
+  -DCMAKE_C_FLAGS_RELEASE="${CFLAGS}" \\\
+  -DCMAKE_C_FLAGS_RELWITHDEBINFO="${CFLAGS}" \\\
+  -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \\\
+  -DCMAKE_CXX_FLAGS_RELEASE="${CXXFLAGS}" \\\
+  -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="${CXXFLAGS}" \\\
+  -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS}" \\\
+  -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" \\\
+  -DCMAKE_MODULE_LINKER_FLAGS="%(echo ${LDFLAGS}|sed -e 's#-Wl,--no-undefined##')" \\\
   -DDBUS_SERVICES_DIR=%{_datadir}/dbus-1/services \\\
   -DDBUS_INTERFACES_DIR=%{_datadir}/dbus-1/interfaces
-
+  
