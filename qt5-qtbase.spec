@@ -1,3 +1,10 @@
+# cb 05/01/2016
+# because the docdir is under /usr/share/doc
+# all files there get marked as doc so that when they are installed
+# on abf using --excludedocs option they are missing, causing qt5-qtdoc to fail
+# this makes sure the files dont get marked as docs
+%define _no_default_doc_files 1
+
 %define debug_package %{nil}
 %define beta %nil
 %define api 5
@@ -80,7 +87,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	10
+Release:	11
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
