@@ -80,7 +80,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	9
+Release:	10
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -288,6 +288,7 @@ Obsoletes:	%{_lib}qt5v8-devel < 5.2.0
 Development files for version 5 of the QtCore library.
 
 %files -n %{qtcored}
+%dir %{_qt_docdir}
 %{_qt_docdir}/global
 %{_bindir}/moc-qt%{api}
 %{_qt_bindir}/moc
