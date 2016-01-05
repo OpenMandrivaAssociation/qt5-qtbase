@@ -11,3 +11,6 @@ addFilter("E: binary-or-shlib-defines-rpath")
 addFilter("E: devel-file-in-non-devel-package")
 # False positives
 addFilter("E: no-dependency-on")
+# The files it complains about are not really documentation anyway
+addFilter("E: not-listed-as-documentation")
+
