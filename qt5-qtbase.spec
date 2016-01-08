@@ -87,7 +87,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	11
+Release:	12
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1235,7 +1235,8 @@ export PATH=`pwd`/pybin:$PATH
 	-no-avx \
 	-no-avx2 \
 %endif
-%ifarch %{ix86} x86_64
+%if 0
+#arch %{ix86} x86_64
 	-reduce-relocations \
 %else
 	-no-reduce-relocations \
