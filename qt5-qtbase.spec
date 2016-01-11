@@ -87,7 +87,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	12
+Release:	13
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -420,6 +420,7 @@ Qt GUI library.
 Summary:	Development files for version 5 of the QtGui library
 Group:		Development/KDE and Qt
 Requires:	%{qtgui} = %{EVRD}
+Requires:	%{qtxcbqpa} = %{EVRD}
 # We need all the Platform plugins because the plugin related cmake files in
 # %{_qt_libdir}/cmake/Qt%{api}Gui cause fatal errors if the plugins aren't
 # installed.
@@ -1121,12 +1122,15 @@ Qt LALR parser generator
 
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
-
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
-
 sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
+%if !%{without clang}
 sed -i -e "s|gcc-nm|llvm-nm|g" mkspecs/common/clang.conf
+# drop flags that clang doesn't recognize
+sed -i -e "s|-fvar-tracking-assignments||g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-frecord-gcc-switches||g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-Wp,-D_FORTIFY_SOURCE=2||g" mkspecs/common/gcc-base.conf
 
 # Make sure we have -flto in the linker flags if we have it in the compiler
 # flags...
@@ -1140,6 +1144,7 @@ QMAKE_LFLAGS += $$QMAKE_CXXFLAGS
 QMAKE_LFLAGS_RELEASE += $$QMAKE_CXXFLAGS_RELEASE
 QMAKE_LFLAGS_DEBUG += $$QMAKE_CXXFLAGS_DEBUG
 EOF
+%endif
 
 # drop weird X11R6 lib from path in *.pc files
 sed -i 's!X11R6/!!g' mkspecs/linux-g++*/qmake.conf
