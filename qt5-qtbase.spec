@@ -116,6 +116,8 @@ Patch6:		qtbase-opensource-src-5.5-disconnect_displays.patch
 # Followup https://codereview.qt-project.org/#/c/138201/ adapted for 5.5
 Patch8:		138201.patch
 Patch9:		qtbase-opensource-src-5.4.0-QTBUG-43057.patch
+# Make VLC happy - https://codereview.qt-project.org/#/c/139066/3
+Patch10:	qtbase-qtbug-48321.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
