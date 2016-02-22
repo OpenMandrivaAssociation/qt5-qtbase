@@ -1,0 +1,120 @@
+diff --git a/src/widgets/widgets/qlineedit_p.cpp b/src/widgets/widgets/qlineedit_p.cpp
+index 6645a37..e24cc8a 100644
+--- a/src/widgets/widgets/qlineedit_p.cpp
++++ b/src/widgets/widgets/qlineedit_p.cpp
+@@ -329,7 +329,7 @@ void QLineEditIconButton::actionEvent(QActionEvent *e)
+     switch (e->type()) {
+     case QEvent::ActionChanged: {
+         const QAction *action = e->action();
+-        if (isVisible() != action->isVisible()) {
++        if (isVisibleTo(parentWidget()) != action->isVisible()) {
+             setVisible(action->isVisible());
+             if (QLineEdit *le = qobject_cast<QLineEdit *>(parentWidget()))
+                 static_cast<QLineEditPrivate *>(qt_widget_private(le))->positionSideWidgets();
+@@ -433,13 +433,13 @@ void QLineEditPrivate::positionSideWidgets()
+         QRect widgetGeometry(QPoint(QLineEditIconButton::IconMargin, (contentRect.height() - iconSize.height()) / 2), iconSize);
+         foreach (const SideWidgetEntry &e, leftSideWidgetList()) {
+             e.widget->setGeometry(widgetGeometry);
+-            if (e.widget->isVisible())
++            if (e.action->isVisible())
+                 widgetGeometry.moveLeft(widgetGeometry.left() + delta);
+         }
+         widgetGeometry.moveLeft(contentRect.width() - iconSize.width() - QLineEditIconButton::IconMargin);
+         foreach (const SideWidgetEntry &e, rightSideWidgetList()) {
+             e.widget->setGeometry(widgetGeometry);
+-            if (e.widget->isVisible())
++            if (e.action->isVisible())
+                 widgetGeometry.moveLeft(widgetGeometry.left() - delta);
+         }
+     }
+diff --git a/tests/auto/widgets/widgets/qlineedit/tst_qlineedit.cpp b/tests/auto/widgets/widgets/qlineedit/tst_qlineedit.cpp
+index e6d63ee..1a5acbd 100644
+--- a/tests/auto/widgets/widgets/qlineedit/tst_qlineedit.cpp
++++ b/tests/auto/widgets/widgets/qlineedit/tst_qlineedit.cpp
+@@ -4319,10 +4319,10 @@ void tst_QLineEdit::clearButtonVisibleAfterSettingText_QTBUG_45518()
+ #endif // QT_BUILD_INTERNAL
+ }
+ 
+-static inline QIcon sideWidgetTestIcon()
++static inline QIcon sideWidgetTestIcon(Qt::GlobalColor color = Qt::yellow)
+ {
+     QImage image(QSize(20, 20), QImage::Format_ARGB32);
+-    image.fill(Qt::yellow);
++    image.fill(color);
+     return QIcon(QPixmap::fromImage(image));
+ }
+ 
+@@ -4360,6 +4360,15 @@ void tst_QLineEdit::sideWidgets()
+     lineEdit->addAction(iconAction);
+ }
+ 
++template <class T> T *findAssociatedWidget(const QAction *a)
++{
++    foreach (QWidget *w, a->associatedWidgets()) {
++        if (T *result = qobject_cast<T *>(w))
++            return result;
++    }
++    return Q_NULLPTR;
++}
++
+ void tst_QLineEdit::sideWidgetsActionEvents()
+ {
+     // QTBUG-39660, verify whether action events are handled by the widget.
+@@ -4369,27 +4378,43 @@ void tst_QLineEdit::sideWidgetsActionEvents()
+     l->addWidget(lineEdit);
+     l->addSpacerItem(new QSpacerItem(0, 50, QSizePolicy::Ignored, QSizePolicy::Fixed));
+     QAction *iconAction = lineEdit->addAction(sideWidgetTestIcon(), QLineEdit::LeadingPosition);
++    QAction *iconAction1 = lineEdit->addAction(sideWidgetTestIcon(Qt::red), QLineEdit::LeadingPosition);
++    QAction *iconAction2 = lineEdit->addAction(sideWidgetTestIcon(Qt::blue), QLineEdit::LeadingPosition);
++    QAction *iconAction3 = lineEdit->addAction(sideWidgetTestIcon(Qt::yellow), QLineEdit::LeadingPosition);
++    iconAction3->setVisible(false);
++
+     testWidget.move(300, 300);
+     testWidget.show();
+     QVERIFY(QTest::qWaitForWindowExposed(&testWidget));
+ 
+-    QWidget *toolButton = Q_NULLPTR;
+-    foreach (QWidget *w, iconAction->associatedWidgets()) {
+-        if (qobject_cast<QToolButton *>(w)) {
+-            toolButton = w;
+-            break;
+-        }
+-    }
+-    QVERIFY(toolButton);
++    QWidget *toolButton1 = findAssociatedWidget<QToolButton>(iconAction1);
++    QWidget *toolButton2 = findAssociatedWidget<QToolButton>(iconAction2);
++    QWidget *toolButton3 = findAssociatedWidget<QToolButton>(iconAction3);
++
++    QVERIFY(toolButton1);
++    QVERIFY(toolButton2);
++    QVERIFY(toolButton3);
++
++    QVERIFY(!toolButton3->isVisible()); // QTBUG-48899 , action hidden before show().
++
++    QVERIFY(toolButton1->isVisible());
++    QVERIFY(toolButton1->isEnabled());
++
++    QVERIFY(toolButton2->isVisible());
++    QVERIFY(toolButton2->isEnabled());
++
++    const int toolButton1X = toolButton1->x();
++    const int toolButton2X = toolButton2->x();
++    QVERIFY(toolButton1X < toolButton2X); // QTBUG-48806, positioned beside each other.
+ 
+-    QVERIFY(toolButton->isVisible());
+-    QVERIFY(toolButton->isEnabled());
++    iconAction1->setEnabled(false);
++    QVERIFY(!toolButton1->isEnabled());
+ 
+-    iconAction->setEnabled(false);
+-    QVERIFY(!toolButton->isEnabled());
++    iconAction1->setVisible(false);
++    QVERIFY(!toolButton1->isVisible());
+ 
+-    iconAction->setVisible(false);
+-    QVERIFY(!toolButton->isVisible());
++    // QTBUG-39660, button 2 takes position of invisible button 1.
++    QCOMPARE(toolButton2->x(), toolButton1X);
+ }
+ 
+ Q_DECLARE_METATYPE(Qt::AlignmentFlag)

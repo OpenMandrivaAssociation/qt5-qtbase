@@ -118,6 +118,9 @@ Patch8:		138201.patch
 Patch9:		qtbase-opensource-src-5.4.0-QTBUG-43057.patch
 # Make VLC happy - https://codereview.qt-project.org/#/c/139066/3
 Patch10:	qtbase-qtbug-48321.patch
+# Followup https://codereview.qt-project.org/#/c/138201/ adapted for 5.5
+Patch11:	0084-Fix-crash-because-of-NULL-screen-in-QXcbWindow.patch
+Patch12:	qt5-qtbase-qlineedit-fix-visibility-of-side-widgets.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -1233,7 +1236,7 @@ export PATH=`pwd`/pybin:$PATH
 	-no-pch \
 	-nomake tests \
 	-dbus-linked \
-%ifarch %{ix86}
+%ifarch %{ix86} %{armx}
 	-no-sse2 \
 	-no-sse3 \
 	-no-ssse3 \
