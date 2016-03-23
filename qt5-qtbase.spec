@@ -1310,8 +1310,11 @@ rm -f %{buildroot}%{_qt_libdir}/libQt%{api}MultimediaQuick_p.so %{buildroot}%{_q
 rm -f %{buildroot}%{_qt_translationsdir}/qtconfig_*.qm
 # Let's make life easier for packagers
 mkdir -p %{buildroot}%{_bindir}
-for i in qmake moc uic rcc qdbuscpp2xml qdbusxml2cpp fixqt4headers.pl; do
+for i in qmake moc uic rcc qdbuscpp2xml qdbusxml2cpp; do
 	ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i-qt%{api}
+done
+for i in fixqt4headers.pl; do
+	ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i
 done
 
 %if "%{_qt_libdir}" != "%{_libdir}"
