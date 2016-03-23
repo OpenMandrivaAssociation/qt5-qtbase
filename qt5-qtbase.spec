@@ -81,13 +81,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.5.1
+Version:	5.6.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	15
+Release:	1
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -100,27 +100,24 @@ Source1:	qt5.macros
 Source2:	10-qt5-check-opengl.xsetup
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
-# FIXME check if this has been fixed in 5.5.0 or if the patch needs to
+# FIXME check if this has been fixed in 5.6.0 or if the patch needs to
 # be updated
 #Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
-# FIXME this is bad, but works...
-#Patch2:		qtbase-5.4.1-workaround-imageformats-plugin-loader.patch
+# https://codereview.qt-project.org/#/c/151459/
+Patch2:		qt-5.6.0-qdbus-deadlock.patch
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
+# https://codereview.qt-project.org/#/c/151496/
+Patch4:		qtdbus-signal-hooks.patch
+# https://codereview.qt-project.org/#/c/151340/
+Patch5:		qtdbus-handle-disconnection.patch
 
 # Fedora patches
-Patch4:		qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
-Patch5:		qtbase-opensource-src-5.5.1-qdbusconnection_no_debug.patch
-# Qt5 application crashes when connecting/disconnecting displays
-# https://bugzilla.redhat.com/show_bug.cgi?id=1083664
-Patch6:		qtbase-opensource-src-5.5-disconnect_displays.patch
-# Followup https://codereview.qt-project.org/#/c/138201/ adapted for 5.5
-Patch8:		138201.patch
-Patch9:		qtbase-opensource-src-5.4.0-QTBUG-43057.patch
-# Make VLC happy - https://codereview.qt-project.org/#/c/139066/3
-Patch10:	qtbase-qtbug-48321.patch
-# Followup https://codereview.qt-project.org/#/c/138201/ adapted for 5.5
-Patch11:	0084-Fix-crash-because-of-NULL-screen-in-QXcbWindow.patch
-Patch12:	qt5-qtbase-qlineedit-fix-visibility-of-side-widgets.patch
+Patch100:	http://pkgs.fedoraproject.org/cgit/rpms/qt5-qtbase.git/plain/qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
+Patch101:	http://pkgs.fedoraproject.org/cgit/rpms/qt5-qtbase.git/plain/qt5-qtbase-5.6.0-el6-sqrt.patch
+Patch102:	http://pkgs.fedoraproject.org/cgit/rpms/qt5-qtbase.git/plain/0076-QListView-fix-skipping-indexes-in-selectedIndexes.patch
+Patch103:	http://pkgs.fedoraproject.org/cgit/rpms/qt5-qtbase.git/tree/qtbase-opensource-src-5.6.0-alsa-1.1.patch
+Patch104:	http://pkgs.fedoraproject.org/cgit/rpms/qt5-qtbase.git/plain/qtbase-opensource-src-5.6.0-arm.patch
+Patch105:	http://pkgs.fedoraproject.org/cgit/rpms/qt5-qtbase.git/plain/qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
