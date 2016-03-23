@@ -223,10 +223,6 @@ Development files for version 5 if the QtBootstrap library.
 %files -n %{qtbootstrapd}
 %{_qt_libdir}/libQt%{api}Bootstrap.a
 %{_qt_libdir}/libQt%{api}Bootstrap.prl
-%{_qt_libdir}/pkgconfig/Qt%{api}Bootstrap.pc
-%if "%{_qt_libdir}" != "%{_libdir}"
-%{_libdir}/pkgconfig/Qt%{api}Bootstrap.pc
-%endif
 
 #----------------------------------------------------------------------------
 
@@ -384,11 +380,6 @@ Development files for version 5 of the QtEGLDeviceIntegration library.
 %files -n %{qtegldeviceintegrationd}
 %{_qt_libdir}/libQt%{api}EglDeviceIntegration.so
 %{_qt_libdir}/libQt%{api}EglDeviceIntegration.prl
-%{_qt_libdir}/pkgconfig/Qt%{api}EglDeviceIntegration.pc
-%if "%{_qt_libdir}" != "%{_libdir}"
-%{_libdir}/pkgconfig/Qt%{api}EglDeviceIntegration.pc
-%endif
-
 
 #----------------------------------------------------------------------------
 
@@ -460,10 +451,8 @@ Development files for version 5 of the QtGui library.
 %{_qt_libdir}/libQt%{api}PlatformSupport.prl
 %{_qt_libdir}/cmake/Qt%{api}Gui
 %{_qt_libdir}/pkgconfig/Qt%{api}Gui.pc
-%{_qt_libdir}/pkgconfig/Qt%{api}PlatformSupport.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Gui.pc
-%{_libdir}/pkgconfig/Qt%{api}PlatformSupport.pc
 %endif
 
 #----------------------------------------------------------------------------
@@ -893,10 +882,6 @@ Development files for version 5 of the QtXcbQpa library.
 %files -n %{qtxcbqpad}
 %{_qt_libdir}/libQt%{api}XcbQpa.so
 %{_qt_libdir}/libQt%{api}XcbQpa.prl
-%{_qt_libdir}/pkgconfig/Qt%{api}XcbQpa.pc
-%if "%{_qt_libdir}" != "%{_libdir}"
-%{_libdir}/pkgconfig/Qt%{api}XcbQpa.pc
-%endif
 
 
 #----------------------------------------------------------------------------
@@ -1031,6 +1016,18 @@ QCH documentation for the Qt toolkit.
 %endif
 
 #----------------------------------------------------------------------------
+%package -n qt5-porting-tools
+Summary:	Tools that help porting code from Qt 4.x to 5.x
+Group:		Development/Tools
+
+%description -n qt5-porting-tools
+Tools that help porting code from Qt 4.x to 5.x
+
+%files -n qt5-porting-tools
+%{_qt_bindir}/fixqt4headers.pl
+%{_bindir}/fixqt4headers.pl
+
+#----------------------------------------------------------------------------
 
 %package -n qt5-examples
 Summary:	Example applications for %{name}
@@ -1076,17 +1073,6 @@ based desktops.
 %files -n qt5-platformtheme-gtk2
 %{_qt_plugindir}/platformthemes/libqgtk2.so
 %endif
-#----------------------------------------------------------------------------
-
-%package -n qdoc%{api}
-Summary:	Qt documentation generator, version 5
-Group:		Development/KDE and Qt
-
-%description -n qdoc%{api}
-Qt documentation generator, version 5.
-
-%files -n qdoc%{api}
-%{_qt_bindir}/qdoc
 
 #----------------------------------------------------------------------------
 
@@ -1324,7 +1310,7 @@ rm -f %{buildroot}%{_qt_libdir}/libQt%{api}MultimediaQuick_p.so %{buildroot}%{_q
 rm -f %{buildroot}%{_qt_translationsdir}/qtconfig_*.qm
 # Let's make life easier for packagers
 mkdir -p %{buildroot}%{_bindir}
-for i in qmake moc uic rcc qdbuscpp2xml qdbusxml2cpp; do
+for i in qmake moc uic rcc qdbuscpp2xml qdbusxml2cpp fixqt4headers.pl; do
 	ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i-qt%{api}
 done
 
