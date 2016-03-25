@@ -1,0 +1,103 @@
+From 4f577051676ad8ff161d481030f016d0c6bb324f Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@kdab.com>
+Date: Sat, 5 Mar 2016 00:34:01 +0100
+Subject: [PATCH 177/328] Fix GCC 6 -Wunused-functions warnings
+
+GCC 6 is able to identify member functions that are unused.
+
+Remove them.
+
+Change-Id: Ic77548164b38a1cd3c957d2c57a5bccb979bc02e
+Reviewed-by: Olivier Goffart (Woboq GmbH) <ogoffart@woboq.com>
+---
+ src/gui/painting/qpathclipper.cpp       |  8 --------
+ src/widgets/dialogs/qcolordialog.cpp    | 15 ---------------
+ src/widgets/widgets/qcalendarwidget.cpp |  6 ------
+ 3 files changed, 29 deletions(-)
+
+diff --git a/src/gui/painting/qpathclipper.cpp b/src/gui/painting/qpathclipper.cpp
+index 3a686bd..a5557c9 100644
+--- a/src/gui/painting/qpathclipper.cpp
++++ b/src/gui/painting/qpathclipper.cpp
+@@ -252,8 +252,6 @@ class SegmentTree
+ public:
+     SegmentTree(QPathSegments &segments);
+ 
+-    QRectF boundingRect() const;
+-
+     void produceIntersections(int segment);
+ 
+ private:
+@@ -304,12 +302,6 @@ SegmentTree::SegmentTree(QPathSegments &segments)
+     m_tree[0] = root;
+ }
+ 
+-QRectF SegmentTree::boundingRect() const
+-{
+-    return QRectF(QPointF(m_bounds.x1, m_bounds.y1),
+-                  QPointF(m_bounds.x2, m_bounds.y2));
+-}
+-
+ static inline qreal coordinate(const QPointF &pos, int axis)
+ {
+     return axis == 0 ? pos.x() : pos.y();
+diff --git a/src/widgets/dialogs/qcolordialog.cpp b/src/widgets/dialogs/qcolordialog.cpp
+index 468bffe..9a8bfc5 100644
+--- a/src/widgets/dialogs/qcolordialog.cpp
++++ b/src/widgets/dialogs/qcolordialog.cpp
+@@ -190,7 +190,6 @@ public:
+     QSize sizeHint() const Q_DECL_OVERRIDE;
+ 
+     virtual void setCellBrush(int row, int col, const QBrush &);
+-    QBrush cellBrush(int row, int col);
+ 
+     inline int cellWidth() const
+         { return cellw; }
+@@ -459,20 +458,6 @@ void QWellArray::setCellBrush(int row, int col, const QBrush &b)
+         d->brush[row*numCols()+col] = b;
+ }
+ 
+-/*
+-  Returns the brush set for the cell at \a row, \a column. If no brush is
+-  set, Qt::NoBrush is returned.
+-*/
+-
+-QBrush QWellArray::cellBrush(int row, int col)
+-{
+-    if (d && row >= 0 && row < numRows() && col >= 0 && col < numCols())
+-        return d->brush[row*numCols()+col];
+-    return Qt::NoBrush;
+-}
+-
+-
+-
+ /*!\reimp
+ */
+ 
+diff --git a/src/widgets/widgets/qcalendarwidget.cpp b/src/widgets/widgets/qcalendarwidget.cpp
+index 48b224f..89cde85 100644
+--- a/src/widgets/widgets/qcalendarwidget.cpp
++++ b/src/widgets/widgets/qcalendarwidget.cpp
+@@ -654,7 +654,6 @@ public:
+     int dateEditAcceptDelay() const;
+     void setDateEditAcceptDelay(int delay);
+ 
+-    QDate date() const;
+     void setDate(const QDate &date);
+ 
+     bool eventFilter(QObject *o, QEvent *e) Q_DECL_OVERRIDE;
+@@ -690,11 +689,6 @@ void QCalendarTextNavigator::setWidget(QWidget *widget)
+     m_widget = widget;
+ }
+ 
+-QDate QCalendarTextNavigator::date() const
+-{
+-    return m_date;
+-}
+-
+ void QCalendarTextNavigator::setDate(const QDate &date)
+ {
+     m_date = date;
+-- 
+1.9.3
+

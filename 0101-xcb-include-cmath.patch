@@ -1,0 +1,28 @@
+From 9868d8af8316c01f28255110c28e11344ea6f7a5 Mon Sep 17 00:00:00 2001
+From: Shawn Rutledge <shawn.rutledge@digia.com>
+Date: Thu, 18 Feb 2016 14:06:02 +0100
+Subject: [PATCH 101/328] xcb: include <cmath>
+
+Fix trouble compiling with gcc 4.4.7 on Centos 6
+
+Change-Id: Id81bd570e896507a07388257c4f75f80b4b468fd
+Reviewed-by: Friedemann Kleint <Friedemann.Kleint@theqtcompany.com>
+---
+ src/plugins/platforms/xcb/qxcbconnection_xi2.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp b/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
+index 969b6de..81cdaa5 100644
+--- a/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
++++ b/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
+@@ -38,6 +38,7 @@
+ #include "qtouchdevice.h"
+ #include <qpa/qwindowsysteminterface.h>
+ #include <QDebug>
++#include <cmath>
+ 
+ #ifdef XCB_USE_XINPUT2
+ 
+-- 
+1.9.3
+
