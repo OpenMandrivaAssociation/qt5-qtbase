@@ -108,25 +108,24 @@ Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 
 ### Fedora patches
 Patch100:	qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
-Patch101:	qt5-qtbase-5.6.0-el6-sqrt.patch
-Patch102:	qtbase-opensource-src-5.6.0-arm.patch
-Patch103:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
+Patch101:	qtbase-opensource-src-5.6.0-arm.patch
+Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 # https://codereview.qt-project.org/#/c/151496/
-Patch104:	QTBUG-51648-QtDBus-clean-up-signal-hooks-and-object-tree-in-clos.patch
+Patch103:	QTBUG-51648-QtDBus-clean-up-signal-hooks-and-object-tree-in-clos.patch
 # https://codereview.qt-project.org/#/c/151340/
-Patch105:	QTBUG-51649-QtDBus-finish-all-pending-call-with-error-if-disconn.patch
+Patch104:	QTBUG-51649-QtDBus-finish-all-pending-call-with-error-if-disconn.patch
 # recently passed code review, not integrated yet
 # https://codereview.qt-project.org/126102/
-Patch106:	moc-get-the-system-defines-from-the-compiler-itself.patch
+Patch105:	moc-get-the-system-defines-from-the-compiler-itself.patch
 # Item views, https://bugreports.qt.io/browse/QTBUG-48870
-Patch107:	0058-QtGui-Avoid-rgba64-rgba32-conversion-on-every-pixel-.patch
-Patch108:	0076-QListView-fix-skipping-indexes-in-selectedIndexes.patch
-Patch109:	0101-xcb-include-cmath.patch
-Patch110:	0177-Fix-GCC-6-Wunused-functions-warnings.patch
-Patch111:	0178-qt_common.prf-when-looking-for-GCC-4.6-match-GCC-6-t.patch
-Patch112:	0201-alsatest-Fix-the-check-to-treat-alsalib-1.1.x-as-cor.patch
-Patch113:	0221-QObject-fix-GCC-6-warning-about-qt_static_metacall-s.patch
-Patch114:	0293-Fix-QtDBus-deadlock-inside-kded-kiod.patch
+Patch106:	0058-QtGui-Avoid-rgba64-rgba32-conversion-on-every-pixel-.patch
+Patch107:	0076-QListView-fix-skipping-indexes-in-selectedIndexes.patch
+Patch108:	0101-xcb-include-cmath.patch
+Patch109:	0177-Fix-GCC-6-Wunused-functions-warnings.patch
+Patch110:	0178-qt_common.prf-when-looking-for-GCC-4.6-match-GCC-6-t.patch
+Patch111:	0201-alsatest-Fix-the-check-to-treat-alsalib-1.1.x-as-cor.patch
+Patch112:	0221-QObject-fix-GCC-6-warning-about-qt_static_metacall-s.patch
+Patch113:	0293-Fix-QtDBus-deadlock-inside-kded-kiod.patch
 ### END OF FEDORA PATCHES
 
 # FIXME this is broken -- but currently required because QtGui
