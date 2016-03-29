@@ -1261,7 +1261,7 @@ export PATH=`pwd`/pybin:$PATH
 	-fontconfig \
 	-accessibility \
 %ifarch %armx
-	-opengl es2 -egl -eglfs -kms \
+	-opengl desktop -egl -eglfs -kms \
 %else
 	-opengl desktop -egl -eglfs -kms \
 %endif
