@@ -87,7 +87,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2.1
+Release:	3
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -276,6 +276,7 @@ Development files for version 5 of the QtConcurrent library.
 Summary:	Qt Core library
 Group:		System/Libraries
 Suggests:	%{name}-qtcore-i18n = %{EVRD}
+Suggests:	qt5-qtchooser = %{EVRD}
 Obsoletes:	%{_lib}qt5v85 < 5.1.0-8
 Obsoletes:	%{_lib}qt5v8_5 < 5.2.0
 
@@ -288,6 +289,16 @@ Qt Core library.
 %{_libdir}/libQt%{api}Core.so.%{major}*
 %endif
 %dir %{_qt_plugindir}
+
+#----------------------------------------------------------------------------
+%package -n qt5-qtchooser
+Summary:	qtchooser integration for Qt 5.x
+Group:		System/Libraries
+
+%description -n qt5-qtchooser
+qtchooser integration for Qt 5.x
+
+%files -n qt5-qtchooser
 %{_sysconfdir}/xdg/qtchooser/*.conf
 
 #----------------------------------------------------------------------------
