@@ -87,7 +87,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
+Release:	4
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -126,6 +126,10 @@ Patch110:	0178-qt_common.prf-when-looking-for-GCC-4.6-match-GCC-6-t.patch
 Patch111:	0201-alsatest-Fix-the-check-to-treat-alsalib-1.1.x-as-cor.patch
 Patch112:	0221-QObject-fix-GCC-6-warning-about-qt_static_metacall-s.patch
 Patch113:	0293-Fix-QtDBus-deadlock-inside-kded-kiod.patch
+Patch114:	0415-QtDBus-clean-up-signal-hooks-and-object-tree-in-clos.patch
+Patch115:	0508-xcb-Fix-drag-and-drop-to-applications-like-Emacs-and.patch
+Patch116:	0537-QtDBus-finish-all-pending-call-with-error-if-disconn.patch
+Patch117:	0554-xcb-Fix-drag-and-drop-to-Emacs.patch
 ### END OF FEDORA PATCHES
 
 # FIXME this is broken -- but currently required because QtGui
