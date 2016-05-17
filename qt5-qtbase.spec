@@ -126,7 +126,6 @@ Patch110:	0178-qt_common.prf-when-looking-for-GCC-4.6-match-GCC-6-t.patch
 Patch111:	0201-alsatest-Fix-the-check-to-treat-alsalib-1.1.x-as-cor.patch
 Patch112:	0221-QObject-fix-GCC-6-warning-about-qt_static_metacall-s.patch
 Patch113:	0293-Fix-QtDBus-deadlock-inside-kded-kiod.patch
-Patch114:	0415-QtDBus-clean-up-signal-hooks-and-object-tree-in-clos.patch
 Patch115:	0508-xcb-Fix-drag-and-drop-to-applications-like-Emacs-and.patch
 Patch116:	0537-QtDBus-finish-all-pending-call-with-error-if-disconn.patch
 Patch117:	0554-xcb-Fix-drag-and-drop-to-Emacs.patch
@@ -884,7 +883,7 @@ Summary:	Qt XCB QPA library
 Group:		System/Libraries
 
 %description -n %{qtxcbqpa}
-Qt XCB QPA library
+Qt XCB QPA library.
 
 %files -n %{qtxcbqpa}
 %{_qt_libdir}/libQt%{api}XcbQpa.so.%{major}*
@@ -1121,7 +1120,7 @@ Group:		Development/KDE and Qt
 Provides:	qlalr = %{EVRD}
 
 %description -n qlalr%{api}
-Qt LALR parser generator
+Qt LALR parser generator.
 
 %files -n qlalr%{api}
 %{_qt_bindir}/qlalr
