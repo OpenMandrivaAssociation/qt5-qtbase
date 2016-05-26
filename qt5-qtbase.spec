@@ -191,7 +191,6 @@ BuildRequires:	pkgconfig(xkbfile)
 BuildRequires:	pkgconfig(xkbcommon) >= 0.4.1
 BuildRequires:	pkgconfig(xkbcommon-x11) >= 0.4.1
 BuildRequires:	pkgconfig(libsystemd)
-BuildRequires:	pkgconfig(libsystemd-journal)
 BuildRequires:	pkgconfig(mtdev)
 BuildRequires:	pkgconfig(harfbuzz)
 # For proper font access
