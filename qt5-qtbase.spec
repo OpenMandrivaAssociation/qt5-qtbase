@@ -105,6 +105,8 @@ Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 #Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
+# (tpg) support for systemd-230
+Patch4:		qtbase-opensource-src-5.6.0-Search-for-libsystemd-first.patch
 
 ### Fedora patches
 Patch100:	qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
