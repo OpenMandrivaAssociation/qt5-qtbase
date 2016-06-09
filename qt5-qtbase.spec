@@ -393,8 +393,8 @@ Development files for version 5 of the QtEGLDeviceIntegration library.
 Summary:	Qt GUI library
 Group:		System/Libraries
 Suggests:	qt5-style-plugins
-Requires:	qt5-output-driver = %{EVRD}
-Suggests:	qt5-output-driver-default = %{EVRD}
+Requires:	%{_lib}qt5-output-driver = %{EVRD}
+Suggests:	%{_lib}qt5-output-driver-default = %{EVRD}
 
 %description -n %{qtgui}
 Qt GUI library.
@@ -467,7 +467,7 @@ Development files for version 5 of the QtGui library.
 Summary:	DirectFB output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
 
 %description -n %{qtgui}-directfb
 DirectFB output driver for QtGui v5.
@@ -482,7 +482,7 @@ DirectFB output driver for QtGui v5.
 Summary:	Linux Framebuffer output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
 
 %description -n %{qtgui}-linuxfb
 Linux Framebuffer output driver for QtGui v5.
@@ -499,7 +499,7 @@ Linux Framebuffer output driver for QtGui v5.
 Summary:	Minimal (Framebuffer based) output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
 
 %description -n %{qtgui}-minimal
 Minimal (Framebuffer based) output driver for QtGui v5.
@@ -513,7 +513,7 @@ Minimal (Framebuffer based) output driver for QtGui v5.
 Summary:	Offscreen output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
 
 %description -n %{qtgui}-offscreen
 Minimal (Framebuffer based) output driver for QtGui v5.
@@ -527,8 +527,8 @@ Minimal (Framebuffer based) output driver for QtGui v5.
 Summary:	X11 output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
-Provides:	qt5-output-driver-default = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
+Provides:	%{_lib}qt5-output-driver-default = %{EVRD}
 # (tpg) this is needed for %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
 Requires:	glxinfo
 Requires:	dri-drivers >= 11.1.0-3
@@ -548,8 +548,8 @@ X11 output driver for QtGui v5.
 Summary:	EGL fullscreen output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
-Provides:	qt5-output-driver-eglfs = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
+Provides:	%{_lib}qt5-output-driver-eglfs = %{EVRD}
 
 %description -n %{qtgui}-eglfs
 EGL fullscreen output driver for QtGui v5.
@@ -563,7 +563,7 @@ EGL fullscreen output driver for QtGui v5.
 Summary:	Minimalistic EGL output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
-Provides:	qt5-output-driver = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
 
 %description -n %{qtgui}-minimalegl
 Minimalistic EGL output driver for QtGui v5.
