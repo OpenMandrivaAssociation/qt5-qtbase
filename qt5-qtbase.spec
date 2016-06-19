@@ -81,7 +81,7 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.6.1
+Version:	5.7.0
 %if "%{beta}" != ""
 Release:	1.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
@@ -436,7 +436,7 @@ Requires:	%{qtgui}-eglfs = %{EVRD}
 Requires:	%{qtgui}-minimalegl = %{EVRD}
 Obsoletes:	%{qtgui}-kms < %{EVRD}
 %if %{with gtk}
-Requires:	%{name}-platformtheme-gtk2 = %{EVRD}
+Requires:	%{name}-platformtheme-gtk3 = %{EVRD}
 %endif
 Requires:	pkgconfig(gl)
 Requires:	pkgconfig(egl)
@@ -556,6 +556,25 @@ EGL fullscreen output driver for QtGui v5.
 
 %files -n %{qtgui}-eglfs
 %{_qt_plugindir}/platforms/libqeglfs.so
+%{_qt_libdir}/libQt%{api}EglFsKmsSupport.so.%{major}*
+%if "%{_libdir}" != "%{_qt_libdir}"
+%{_libdir}/libQt%{api}EglFsKmsSupport.so.%{major}*
+%endif
+
+#----------------------------------------------------------------------------
+
+%package -n %{qtgui}-eglfs-devel
+Summary:	Development files for the EGL fullscreen output driver for QtGui v5
+Group:		System/Libraries
+Requires:	%{qtgui} = %{EVRD}
+Requires:	%{qtgui}-eglfs = %{EVRD}
+
+%description -n %{qtgui}-eglfs-devel
+Development files for the EGL fullscreen output driver for QtGui v5.
+
+%files -n %{qtgui}-eglfs-devel
+%{_qt_libdir}/libQt%{api}EglFsKmsSupport.so
+%{_qt_libdir}/libQt%{api}EglFsKmsSupport.prl
 
 #----------------------------------------------------------------------------
 
@@ -1063,21 +1082,21 @@ Base macros for Qt 5.
 
 #----------------------------------------------------------------------------
 %if %{with gtk}
-%package -n qt5-platformtheme-gtk2
-Summary:	GTK 2.x platform theme for Qt 5
+%package -n qt5-platformtheme-gtk3
+Summary:	GTK 3.x platform theme for Qt 5
 Group:		Graphical desktop/KDE
 Requires:	%{qtgui} = %{EVRD}
-BuildRequires:	pkgconfig(gtk+-x11-2.0)
-# Was introduced by mistake
-%rename %{name}-platformtheme-gtk2
+BuildRequires:	pkgconfig(gtk+-x11-3.0)
+# Not really... But the gtk2 platformtheme doesn't exist anymore for 5.7
+%rename	qt5-platformtheme-gtk2
 
-%description -n qt5-platformtheme-gtk2
-GTK 2.x platform theme for Qt 5. This plugin allows Qt to render
-controls using GTK 2.x themes - making it integrate better with GTK
+%description -n qt5-platformtheme-gtk3
+GTK 3.x platform theme for Qt 5. This plugin allows Qt to render
+controls using GTK 3.x themes - making it integrate better with GTK
 based desktops.
 
-%files -n qt5-platformtheme-gtk2
-%{_qt_plugindir}/platformthemes/libqgtk2.so
+%files -n qt5-platformtheme-gtk3
+%{_qt_plugindir}/platformthemes/libqgtk3.so
 %endif
 
 #----------------------------------------------------------------------------
@@ -1185,7 +1204,6 @@ export PATH=`pwd`/pybin:$PATH
 	-release \
 	-opensource \
 	-shared \
-	-c++11 \
 	-largefile \
 	-accessibility \
 	-no-sql-db2 \
@@ -1265,9 +1283,7 @@ export PATH=`pwd`/pybin:$PATH
 	-gnumake \
 	-pkg-config \
 	-sm \
-	-xinerama \
 	-xshape \
-	-xvideo \
 	-xsync \
 	-xinput2 \
 	-xcursor \
