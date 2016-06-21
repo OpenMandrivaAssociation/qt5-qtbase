@@ -87,7 +87,7 @@ Release:	1.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1086,6 +1086,7 @@ Base macros for Qt 5.
 Summary:	GTK 3.x platform theme for Qt 5
 Group:		Graphical desktop/KDE
 Requires:	%{qtgui} = %{EVRD}
+Provides:	%{name}-platformtheme-gtk3 = %{EVRD}
 BuildRequires:	pkgconfig(gtk+-x11-3.0)
 # Not really... But the gtk2 platformtheme doesn't exist anymore for 5.7
 %rename	qt5-platformtheme-gtk2
