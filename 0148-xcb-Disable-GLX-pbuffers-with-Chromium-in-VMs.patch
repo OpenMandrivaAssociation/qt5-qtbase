@@ -1,0 +1,37 @@
+From 76810e1495b65a09e9abd6164639e0caf34d61b8 Mon Sep 17 00:00:00 2001
+From: Laszlo Agocs <laszlo.agocs@theqtcompany.com>
+Date: Fri, 20 May 2016 14:52:18 +0200
+Subject: [PATCH 148/178] xcb: Disable GLX pbuffers with Chromium in VMs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: I474e4a4ce424a92b46381eb26aeda811ed059819
+Task-number: QTCREATORBUG-16252
+Task-number: QTCREATORBUG-14937
+Reviewed-by: Błażej Szczygieł <spaz16@wp.pl>
+Reviewed-by: Gatis Paeglis <gatis.paeglis@qt.io>
+---
+ .../platforms/xcb/gl_integrations/xcb_glx/qxcbglxintegration.cpp    | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/gl_integrations/xcb_glx/qxcbglxintegration.cpp b/src/plugins/platforms/xcb/gl_integrations/xcb_glx/qxcbglxintegration.cpp
+index a3a8aa2..55d0ff3 100644
+--- a/src/plugins/platforms/xcb/gl_integrations/xcb_glx/qxcbglxintegration.cpp
++++ b/src/plugins/platforms/xcb/gl_integrations/xcb_glx/qxcbglxintegration.cpp
+@@ -201,8 +201,10 @@ QPlatformOffscreenSurface *QXcbGlxIntegration::createPlatformOffscreenSurface(QO
+             display = static_cast<Display *>(m_connection->xlib_display());
+ #endif
+         const char *glxvendor = glXGetClientString(display, GLX_VENDOR);
+-        if (glxvendor && !strcmp(glxvendor, "ATI"))
+-            glxPbufferUsable = false;
++        if (glxvendor) {
++            if (!strcmp(glxvendor, "ATI") || !strcmp(glxvendor, "Chromium"))
++                glxPbufferUsable = false;
++        }
+     }
+     if (glxPbufferUsable)
+         return new QGLXPbuffer(surface);
+-- 
+2.7.4
+

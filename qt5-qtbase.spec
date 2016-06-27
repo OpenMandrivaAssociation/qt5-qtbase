@@ -87,7 +87,7 @@ Release:	1.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -113,6 +113,13 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 # recently passed code review, not integrated yet
 # https://codereview.qt-project.org/126102/
 Patch105:	moc-get-the-system-defines-from-the-compiler-itself.patch
+Patch106:	0001-xcb-Properly-interpret-data.l-0-field-of-XdndStatus-.patch
+Patch107:	0011-XCB-Auto-detect-xcb-glx-also-with-xcb-qt.patch
+Patch108:	0032-xcb-Fix-drop-of-text-uri-list-and-text-html.patch
+Patch109:	0033-xcb-Fix-dropping-URL-on-Firefox-window.patch
+Patch110:	0148-xcb-Disable-GLX-pbuffers-with-Chromium-in-VMs.patch
+Patch111:	0155-xcb-Fix-transient-parent-and-Qt-Window-flag.patch
+
 ### END OF FEDORA PATCHES
 
 # FIXME this is broken -- but currently required because QtGui

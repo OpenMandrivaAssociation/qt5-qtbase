@@ -1,0 +1,58 @@
+From f162e29acca99aaab173fb323d112aad9ec6c2b5 Mon Sep 17 00:00:00 2001
+From: Urs Fleisch <ufleisch@users.sourceforge.net>
+Date: Wed, 4 May 2016 19:47:16 +0200
+Subject: [PATCH 033/178] xcb: Fix dropping URL on Firefox window.
+
+When a URL is dropped on a Firefox window, the "text/x-moz-url" data
+takes precedence over the "text/uri-list". The "text/x-moz-url" is
+interpreted as UTF16, however, the data from Qt 5 applications is not
+in the correct format. The code to create correct UTF16 data exists,
+but it is not called for two reasons: The atomName will never be
+"text/x-moz-url" because it is changed to "text/uri-list" by
+mimeAtomToString() and the InternalMimeData::hasFormatHelper() case is
+already handled above and the else part will never be considered.
+This patch fixes the check and brings it into the right order.
+
+Task-number: QTBUG-49947
+Change-Id: I5ebd31914cc6c1417c513c1ff09e0e858a16915d
+Reviewed-by: Dmitry Shachnev <mitya57@gmail.com>
+Reviewed-by: Shawn Rutledge <shawn.rutledge@theqtcompany.com>
+---
+ src/plugins/platforms/xcb/qxcbmime.cpp | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbmime.cpp b/src/plugins/platforms/xcb/qxcbmime.cpp
+index cef2210..7fea068 100644
+--- a/src/plugins/platforms/xcb/qxcbmime.cpp
++++ b/src/plugins/platforms/xcb/qxcbmime.cpp
+@@ -111,17 +111,18 @@ bool QXcbMime::mimeDataForAtom(QXcbConnection *connection, xcb_atom_t a, QMimeDa
+     QString atomName = mimeAtomToString(connection, a);
+     if (QInternalMimeData::hasFormatHelper(atomName, mimeData)) {
+         *data = QInternalMimeData::renderDataHelper(atomName, mimeData);
+-        if (atomName == QLatin1String("application/x-color"))
++        // mimeAtomToString() converts "text/x-moz-url" to "text/uri-list",
++        // so QXcbConnection::atomName() has to be used.
++        if (atomName == QLatin1String("text/uri-list")
++            && connection->atomName(a) == "text/x-moz-url") {
++            const QByteArray uri = data->split('\n').first();
++            QString mozUri = QString::fromLatin1(uri, uri.size());
++            mozUri += QLatin1Char('\n');
++            *data = QByteArray(reinterpret_cast<const char *>(mozUri.utf16()),
++                               mozUri.length() * 2);
++        } else if (atomName == QLatin1String("application/x-color"))
+             *dataFormat = 16;
+         ret = true;
+-    } else if (atomName == QLatin1String("text/x-moz-url") &&
+-               QInternalMimeData::hasFormatHelper(QLatin1String("text/uri-list"), mimeData)) {
+-        QByteArray uri = QInternalMimeData::renderDataHelper(
+-                         QLatin1String("text/uri-list"), mimeData).split('\n').first();
+-        QString mozUri = QString::fromLatin1(uri, uri.size());
+-        mozUri += QLatin1Char('\n');
+-        *data = QByteArray(reinterpret_cast<const char *>(mozUri.utf16()), mozUri.length() * 2);
+-        ret = true;
+     } else if ((a == XCB_ATOM_PIXMAP || a == XCB_ATOM_BITMAP) && mimeData->hasImage()) {
+         ret = true;
+     }
+-- 
+2.7.4
+
