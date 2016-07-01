@@ -1183,6 +1183,28 @@ mkdir UNUSED
 mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 popd
 
+# Check for clang bug #28194
+cat >test1.cpp <<'EOF'
+struct A {} a;
+EOF
+cat >test2.cpp <<'EOF'
+enum A {} a;
+EOF
+%{__cxx} -Os -gdwarf-4 -flto -fPIC -o test1.o -c test1.cpp
+%{__cxx} -Os -gdwarf-4 -flto -fPIC -o test2.o -c test2.cpp
+if LC_ALL=C %{__cxx} -Os -gdwarf-4 -flto -fPIC -shared -fuse-ld=gold -o test.so test1.o test2.o 2>&1 |grep -q "invalid debug info"; then
+	echo "Applying workaround for clang bug #28194"
+	sed -i -e 's,Operator,ComparisonOperator,g' src/gui/opengl/qopengl.cpp
+elif ! echo %{__cxx} |grep -q clang; then
+	echo "Not using clang - workaround not needed"
+elif %{__cxx} --version |grep -q "3\.8"; then
+	echo "But not present in clang 3.8.x"
+else
+	echo "Clang bug #28194 is fixed, please remove the workaround"
+	echo "(search the spec file for \"Check for clang bug #28194\")"
+	exit 1
+fi
+
 %build
 # build with python2
 mkdir pybin
