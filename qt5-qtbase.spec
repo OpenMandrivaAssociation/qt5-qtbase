@@ -81,7 +81,7 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.6.1
+Version:	5.6.2
 %if "%{beta}" != ""
 Release:	1.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
@@ -107,18 +107,11 @@ Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 
 ### Fedora patches
-Patch100:	qtbase-opensource-src-5.2.0-enable_ft_lcdfilter.patch
 Patch101:	qtbase-opensource-src-5.6.0-arm.patch
 Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 # recently passed code review, not integrated yet
 # https://codereview.qt-project.org/126102/
 Patch105:	moc-get-the-system-defines-from-the-compiler-itself.patch
-Patch106:	0001-xcb-Properly-interpret-data.l-0-field-of-XdndStatus-.patch
-Patch107:	0011-XCB-Auto-detect-xcb-glx-also-with-xcb-qt.patch
-Patch108:	0032-xcb-Fix-drop-of-text-uri-list-and-text-html.patch
-Patch109:	0033-xcb-Fix-dropping-URL-on-Firefox-window.patch
-Patch110:	0148-xcb-Disable-GLX-pbuffers-with-Chromium-in-VMs.patch
-Patch111:	0155-xcb-Fix-transient-parent-and-Qt-Window-flag.patch
 
 ### END OF FEDORA PATCHES
 
@@ -1230,7 +1223,6 @@ export PATH=`pwd`/pybin:$PATH
 	-system-xcb \
 	-system-harfbuzz \
 	-optimized-qmake \
-	-no-nis \
 	-cups \
 	-iconv \
 	-icu \
