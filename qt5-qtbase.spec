@@ -1552,7 +1552,7 @@ export PATH=`pwd`/pybin:$PATH
 	-sm \
 	-gif \
 	-ico \
-	-c++std c++1z \
+	-c++std c++14 \
 	-xinput2 \
 	-xkb \
 	-confirm-license \
