@@ -1,0 +1,143 @@
+From 53c3f5600cd74f38d3525e240d58049cf440769e Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Tue, 26 Jul 2016 22:54:24 +0100
+Subject: [PATCH 18/23] Port to new STACK API
+
+Change-Id: Ied26e9f1a9c2a9e61b66123eb320c8c33c817260
+---
+ src/network/ssl/qsslcertificate_openssl.cpp    |  8 ++------
+ src/network/ssl/qsslsocket_openssl_p.h         |  6 ------
+ src/network/ssl/qsslsocket_openssl_symbols.cpp | 24 ++++++++++++------------
+ src/network/ssl/qsslsocket_openssl_symbols_p.h | 16 ++++++++--------
+ 4 files changed, 22 insertions(+), 32 deletions(-)
+
+diff --git a/src/network/ssl/qsslcertificate_openssl.cpp b/src/network/ssl/qsslcertificate_openssl.cpp
+index 72fa076..7e7fbf0 100644
+--- a/src/network/ssl/qsslcertificate_openssl.cpp
++++ b/src/network/ssl/qsslcertificate_openssl.cpp
+@@ -209,7 +209,7 @@ QMultiMap<QSsl::AlternativeNameEntryType, QString> QSslCertificate::subjectAlter
+             else if (genName->type == GEN_EMAIL)
+                 result.insert(QSsl::EmailEntry, altName);
+         }
+-        q_sk_pop_free((STACK*)altNames, reinterpret_cast<void(*)(void*)>(q_sk_free));
++        q_OPENSSL_sk_pop_free((OPENSSL_STACK*)altNames, reinterpret_cast<void(*)(void*)>(q_OPENSSL_sk_free));
+     }
+ 
+     return result;
+@@ -384,11 +384,7 @@ static QVariant x509ExtensionToValue(X509_EXTENSION *ext)
+                 }
+             }
+ 
+-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+-            q_sk_pop_free((_STACK*)info, reinterpret_cast<void(*)(void*)>(q_sk_free));
+-#else
+-            q_sk_pop_free((STACK*)info, reinterpret_cast<void(*)(void*)>(q_sk_free));
+-#endif
++            q_OPENSSL_sk_pop_free((OPENSSL_STACK*)info, reinterpret_cast<void(*)(void*)>(q_OPENSSL_sk_free));
+             return result;
+         }
+         break;
+diff --git a/src/network/ssl/qsslsocket_openssl_p.h b/src/network/ssl/qsslsocket_openssl_p.h
+index 2ba7c5f..068d9d5 100644
+--- a/src/network/ssl/qsslsocket_openssl_p.h
++++ b/src/network/ssl/qsslsocket_openssl_p.h
+@@ -98,10 +98,6 @@
+ #include <openssl/crypto.h>
+ #include <openssl/tls1.h>
+ 
+-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+-typedef _STACK STACK;
+-#endif
+-
+ QT_BEGIN_NAMESPACE
+ 
+ struct QSslErrorEntry {
+@@ -127,9 +123,7 @@ public:
+     BIO *writeBio;
+     SSL_SESSION *session;
+     QVector<QSslErrorEntry> errorList;
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+     static int s_indexForSSLExtraData; // index used in SSL_get_ex_data to get the matching QSslSocketBackendPrivate
+-#endif
+ 
+     // Platform specific functions
+     void startClientEncryption() Q_DECL_OVERRIDE;
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index 68b04a5..b73a9dd 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -225,12 +225,12 @@ DEFINEFUNC(int, RAND_status, void, DUMMYARG, return -1, return)
+ DEFINEFUNC(RSA *, RSA_new, DUMMYARG, DUMMYARG, return 0, return)
+ DEFINEFUNC(void, RSA_free, RSA *a, a, return, DUMMYARG)
+ DEFINEFUNC(int, RSA_bits, RSA *a, a, return 0, return)
+-DEFINEFUNC(int, sk_num, STACK *a, a, return -1, return)
+-DEFINEFUNC2(void, sk_pop_free, STACK *a, a, void (*b)(void*), b, return, DUMMYARG)
+-DEFINEFUNC(_STACK *, sk_new_null, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC2(void, sk_push, _STACK *a, a, void *b, b, return, DUMMYARG)
+-DEFINEFUNC(void, sk_free, _STACK *a, a, return, DUMMYARG)
+-DEFINEFUNC2(void *, sk_value, STACK *a, a, int b, b, return 0, return)
++DEFINEFUNC(int, OPENSSL_sk_num, OPENSSL_STACK *a, a, return -1, return)
++DEFINEFUNC2(void, OPENSSL_sk_pop_free, OPENSSL_STACK *a, a, void (*b)(void*), b, return, DUMMYARG)
++DEFINEFUNC(_STACK *, OPENSSL_sk_new_null, DUMMYARG, DUMMYARG, return 0, return)
++DEFINEFUNC2(void, OPENSSL_sk_push, OPENSSL_STACK *a, a, void *b, b, return, DUMMYARG)
++DEFINEFUNC(void, OPENSSL_sk_free, OPENSSL_STACK *a, a, return, DUMMYARG)
++DEFINEFUNC2(void *, OPENSSL_sk_value, OPENSSL_STACK *a, a, int b, b, return 0, return)
+ DEFINEFUNC(int, SSL_accept, SSL *a, a, return -1, return)
+ DEFINEFUNC(int, SSL_clear, SSL *a, a, return -1, return)
+ DEFINEFUNC(int, SSL_session_reused, SSL *a, a, return 0, return)
+@@ -779,12 +779,12 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(RSA_new)
+     RESOLVEFUNC(RSA_free)
+     RESOLVEFUNC(RSA_bits)
+-    RESOLVEFUNC(sk_new_null)
+-    RESOLVEFUNC(sk_push)
+-    RESOLVEFUNC(sk_free)
+-    RESOLVEFUNC(sk_num)
+-    RESOLVEFUNC(sk_pop_free)
+-    RESOLVEFUNC(sk_value)
++    RESOLVEFUNC(OPENSSL_sk_new_null)
++    RESOLVEFUNC(OPENSSL_sk_push)
++    RESOLVEFUNC(OPENSSL_sk_free)
++    RESOLVEFUNC(OPENSSL_sk_num)
++    RESOLVEFUNC(OPENSSL_sk_pop_free)
++    RESOLVEFUNC(OPENSSL_sk_value)
+     RESOLVEFUNC(SSL_CIPHER_description)
+     RESOLVEFUNC(SSL_CIPHER_get_bits)
+     RESOLVEFUNC(SSL_CTX_check_private_key)
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index 0ec21e8..9f361cc 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -307,12 +307,12 @@ int q_RAND_status();
+ RSA *q_RSA_new();
+ void q_RSA_free(RSA *a);
+ int q_RSA_bits(RSA *a);
+-int q_sk_num(STACK *a);
+-void q_sk_pop_free(STACK *a, void (*b)(void *));
+-_STACK *q_sk_new_null();
+-void q_sk_push(_STACK *st, void *data);
+-void q_sk_free(_STACK *a);
+-void * q_sk_value(STACK *a, int b);
++int q_OPENSSL_sk_num(OPENSSL_STACK *a);
++void q_OPENSSL_sk_pop_free(OPENSSL_STACK *a, void (*b)(void *));
++OPENSSL_STACK *q_OPENSSL_sk_new_null();
++void q_OPENSSL_sk_push(OPENSSL_STACK *st, void *data);
++void q_OPENSSL_sk_free(OPENSSL_STACK *a);
++void * q_OPENSSL_sk_value(OPENSSL_STACK *a, int b);
+ int q_SSL_accept(SSL *a);
+ int q_SSL_session_reused(SSL *a);
+ int q_SSL_clear(SSL *a);
+@@ -449,8 +449,8 @@ void q_PKCS12_free(PKCS12 *pkcs12);
+ #define q_BIO_get_mem_data(b, pp) (int)q_BIO_ctrl(b,BIO_CTRL_INFO,0,(char *)pp)
+ #define q_BIO_pending(b) (int)q_BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
+ #define q_SSL_CTX_set_mode(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_MODE,(op),NULL)
+-#define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)
+-#define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_sk_value)(st, i)
++#define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_OPENSSL_sk_num)(st)
++#define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_OPENSSL_sk_value)(st, i)
+ #define q_sk_GENERAL_NAME_num(st) q_SKM_sk_num(GENERAL_NAME, (st))
+ #define q_sk_GENERAL_NAME_value(st, i) q_SKM_sk_value(GENERAL_NAME, (st), (i))
+ #define q_sk_X509_num(st) q_SKM_sk_num(X509, (st))
+-- 
+2.10.0
+

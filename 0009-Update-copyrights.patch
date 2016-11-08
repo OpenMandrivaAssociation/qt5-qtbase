@@ -1,0 +1,103 @@
+From 610cc2c676ad49640715b8001d384727638028af Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Sun, 24 Jul 2016 20:32:55 +0100
+Subject: [PATCH 09/23] Update copyrights
+
+Change-Id: I4f1940d385c15552938986b6bf45c2b1b265d754
+---
+ src/network/ssl/qsslcertificate_openssl.cpp             | 1 +
+ src/network/ssl/qsslcontext_openssl.cpp                 | 1 +
+ src/network/ssl/qssldiffiehellmanparameters_openssl.cpp | 1 +
+ src/network/ssl/qsslkey_openssl.cpp                     | 1 +
+ src/network/ssl/qsslsocket_openssl.cpp                  | 1 +
+ src/network/ssl/qsslsocket_openssl_symbols.cpp          | 1 +
+ src/network/ssl/qsslsocket_openssl_symbols_p.h          | 1 +
+ 7 files changed, 7 insertions(+)
+
+diff --git a/src/network/ssl/qsslcertificate_openssl.cpp b/src/network/ssl/qsslcertificate_openssl.cpp
+index 284053e..72fa076 100644
+--- a/src/network/ssl/qsslcertificate_openssl.cpp
++++ b/src/network/ssl/qsslcertificate_openssl.cpp
+@@ -1,6 +1,7 @@
+ /****************************************************************************
+ **
+ ** Copyright (C) 2016 The Qt Company Ltd.
++** Copyright (C) 2016 Richard J. Moore <rich@kde.org>
+ ** Contact: https://www.qt.io/licensing/
+ **
+ ** This file is part of the QtNetwork module of the Qt Toolkit.
+diff --git a/src/network/ssl/qsslcontext_openssl.cpp b/src/network/ssl/qsslcontext_openssl.cpp
+index 38bb86b..391fd08 100644
+--- a/src/network/ssl/qsslcontext_openssl.cpp
++++ b/src/network/ssl/qsslcontext_openssl.cpp
+@@ -3,6 +3,7 @@
+ ** Copyright (C) 2016 The Qt Company Ltd.
+ ** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
+ ** Copyright (C) 2014 Governikus GmbH & Co. KG.
++** Copyright (C) 2016 Richard J. Moore <rich@kde.org>
+ ** Contact: https://www.qt.io/licensing/
+ **
+ ** This file is part of the QtNetwork module of the Qt Toolkit.
+diff --git a/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp b/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
+index b72af15..471c8f6 100644
+--- a/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
++++ b/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
+@@ -1,6 +1,7 @@
+ /****************************************************************************
+ **
+ ** Copyright (C) 2015 Mikkel Krautz <mikkel@krautz.dk>
++** Copyright (C) 2016 Richard J. Moore <rich@kde.org>
+ ** Contact: http://www.qt.io/licensing/
+ **
+ ** This file is part of the QtNetwork module of the Qt Toolkit.
+diff --git a/src/network/ssl/qsslkey_openssl.cpp b/src/network/ssl/qsslkey_openssl.cpp
+index c2ad022..77bc348 100644
+--- a/src/network/ssl/qsslkey_openssl.cpp
++++ b/src/network/ssl/qsslkey_openssl.cpp
+@@ -1,6 +1,7 @@
+ /****************************************************************************
+ **
+ ** Copyright (C) 2016 The Qt Company Ltd.
++** Copyright (C) 2016 Richard J. Moore <rich@kde.org>
+ ** Contact: https://www.qt.io/licensing/
+ **
+ ** This file is part of the QtNetwork module of the Qt Toolkit.
+diff --git a/src/network/ssl/qsslsocket_openssl.cpp b/src/network/ssl/qsslsocket_openssl.cpp
+index ce1e12e..9dffabc 100644
+--- a/src/network/ssl/qsslsocket_openssl.cpp
++++ b/src/network/ssl/qsslsocket_openssl.cpp
+@@ -2,6 +2,7 @@
+ **
+ ** Copyright (C) 2016 The Qt Company Ltd.
+ ** Copyright (C) 2014 Governikus GmbH & Co. KG
++** Copyright (C) 2016 Richard J. Moore <rich@kde.org>
+ ** Contact: https://www.qt.io/licensing/
+ **
+ ** This file is part of the QtNetwork module of the Qt Toolkit.
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index d922074..fc2220d 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -2,6 +2,7 @@
+ **
+ ** Copyright (C) 2016 The Qt Company Ltd.
+ ** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
++** Copyright (C) 2016 Richard J. Moore <rich@kde.org>
+ ** Contact: https://www.qt.io/licensing/
+ **
+ ** This file is part of the QtNetwork module of the Qt Toolkit.
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index ccdeea2..04b904b 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -2,6 +2,7 @@
+ **
+ ** Copyright (C) 2016 The Qt Company Ltd.
+ ** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
++** Copyright (C) 2016 Richard J. Moore <rich@kde.org>
+ ** Contact: https://www.qt.io/licensing/
+ **
+ ** This file is part of the QtNetwork module of the Qt Toolkit.
+-- 
+2.10.0
+

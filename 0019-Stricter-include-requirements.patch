@@ -1,0 +1,25 @@
+From 9b75ca6b85b9233b480cb32bfe1f414422c8dfca Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Tue, 26 Jul 2016 22:57:38 +0100
+Subject: [PATCH 19/23] Stricter include requirements
+
+Change-Id: Ib5cb8554695b5ab0ff5e948ea9f40c6a975f6bbb
+---
+ src/network/ssl/qssldiffiehellmanparameters_openssl.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp b/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
+index 471c8f6..23b97a1 100644
+--- a/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
++++ b/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
+@@ -53,6 +53,7 @@
+ 
+ // For q_BN_is_word.
+ #include <openssl/bn.h>
++#include <openssl/dh.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+-- 
+2.10.0
+
