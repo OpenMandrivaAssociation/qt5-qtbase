@@ -161,9 +161,10 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
 # just built QtCore. This should be fixed properly in the Makefiles.
-BuildConflicts: %{mklibname -d qt5core} != %{version}
+BuildConflicts: %{mklibname -d qt5core} < %{version}
 
 BuildRequires:	jpeg-devel
+BuildRequires:	double-conversion-devel
 # Build scripts
 BuildRequires:	python >= 3.0
 BuildRequires:	python2
