@@ -67,8 +67,12 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 
+%ifarch %{ix86}
 # (tpg) build with gcc as with clang it fails for some strange reasons
 %bcond_with clang
+%else
+%bcond_without clang
+%endif
 %bcond_without mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
