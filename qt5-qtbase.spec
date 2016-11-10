@@ -6,7 +6,7 @@
 %define _no_default_doc_files 1
 
 # https://llvm.org/bugs/show_bug.cgi?id=28194
-%define _disable_flto 1
+%define _disable_lto 1
 
 #% define debug_package %{nil}
 %define beta %nil
