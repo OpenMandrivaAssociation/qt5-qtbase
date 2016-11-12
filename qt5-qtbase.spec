@@ -99,7 +99,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.8.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.2
+Release:	0.%{beta}.3
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
@@ -481,6 +481,7 @@ Requires:	%{qtgui}-offscreen = %{EVRD}
 Requires:	%{qtgui}-x11 = %{EVRD}
 Requires:	%{qtgui}-eglfs = %{EVRD}
 Requires:	%{qtgui}-minimalegl = %{EVRD}
+Requires:	%{qtgui}-vnc = %{EVRD}
 Obsoletes:	%{qtgui}-kms < %{EVRD}
 %if %{with gtk}
 Requires:	%{name}-platformtheme-gtk3 = %{EVRD}
