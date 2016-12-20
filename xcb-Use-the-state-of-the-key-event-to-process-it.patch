@@ -122,7 +122,7 @@ index 28de86b..e0fcc01 100644
 -    QString string = lookupString(xkb_state, code);
 +    QString string = lookupString(kb_state, code);
  
-     // ?f control modifier is set we should prefer latin character, this is
+     // Ιf control modifier is set we should prefer latin character, this is
      // used for standard shortcuts in checks like "key == QKeySequence::Copy",
 @@ -1547,6 +1562,7 @@ void QXcbKeyboard::handleKeyEvent(xcb_window_t sourceWindow, QEvent::Type type,
              QWindowSystemInterface::handleExtendedKeyEvent(window, time, QEvent::KeyPress, qtcode, modifiers,
