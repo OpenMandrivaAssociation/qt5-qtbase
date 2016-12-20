@@ -91,7 +91,7 @@ Release:	1.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	3
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -118,6 +118,15 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 Patch105:	moc-get-the-system-defines-from-the-compiler-itself.patch
 
 ### END OF FEDORA PATCHES
+
+# (tpg) Upstream patches
+Patch1000:      xcb-Dont-send-QtWindowNoState-event-when-hiding-minimized-window.patch
+Patch1001:      XCB-Drop-from-external-app-fix-keyboard-modifier-state.patch
+Patch1002:      xcb-Use-the-state-of-the-key-event-to-process-it.patch
+Patch1003:      Stop-unloading-plugins-in-QPluginLoader-and-QFactoryLoader.patch
+Patch1004:      Make-QDBusConnectionPrivaterelaySignal-be-called-in-the-right-thread.patch
+Patch1005:      Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
+Patch1006:      Fix-some-QtDBus-crashes-during-application-destruction.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
