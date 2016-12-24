@@ -6,7 +6,7 @@
 %define _no_default_doc_files 1
 
 #% define debug_package %{nil}
-%define beta beta
+%define beta rc
 %define api 5
 %define major 5
 
@@ -99,7 +99,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.8.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.3
+Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
@@ -356,6 +356,7 @@ Development files for version 5 of the QtCore library.
 %{_qt_libdir}/cmake/Qt%{api}Core
 %{_qt_libdir}/cmake/Qt%{api}/Qt%{api}Config.cmake
 %{_qt_libdir}/cmake/Qt%{api}/Qt%{api}ConfigVersion.cmake
+%{_qt_libdir}/cmake/Qt%{api}/Qt%{api}ModuleLocation.cmake
 %{_qt_libdir}/pkgconfig/Qt%{api}Core.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Core.pc
@@ -498,11 +499,8 @@ Development files for version 5 of the QtGui library.
 %{_bindir}/uic-qt%{api}
 %{_qt_includedir}/QtGui
 %{_qt_includedir}/QtPlatformHeaders
-%{_qt_includedir}/QtPlatformSupport
 %{_qt_libdir}/libQt%{api}Gui.so
 %{_qt_libdir}/libQt%{api}Gui.prl
-%{_qt_libdir}/libQt%{api}PlatformSupport.a
-%{_qt_libdir}/libQt%{api}PlatformSupport.prl
 %{_qt_libdir}/cmake/Qt%{api}Gui
 %{_qt_libdir}/pkgconfig/Qt%{api}Gui.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
@@ -1509,7 +1507,6 @@ export PATH=`pwd`/pybin:$PATH
 	-optimized-qmake \
 	-optimized-tools \
 	-cups \
-	-iconv \
 	-icu \
 	-inotify \
 	-eventfd \
@@ -1561,8 +1558,6 @@ export PATH=`pwd`/pybin:$PATH
 	-glib \
 	-mtdev \
 	-journald \
-	-pulseaudio \
-	-alsa \
 	-linuxfb \
 	-evdev \
 	-verbose \
