@@ -1379,8 +1379,13 @@ sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
 %ifarch %{arm}
 # The asm bits in 3rdparty/pixman are pre-unified syntax
+%if !%{without clang}
 sed -i -e "s|-O2|%{optflags} -no-integrated-as|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|%{optflags} -no-integrated-as|g" mkspecs/common/gcc-base.conf
+%else
+sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
+%endif
 %else
 sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
