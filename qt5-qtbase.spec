@@ -83,7 +83,7 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 
-%ifarch %{ix86}
+%ifarch %{ix86} %arm
 %bcond_with clang
 %else
 %bcond_without clang
