@@ -6,7 +6,7 @@
 %define _no_default_doc_files 1
 
 #% define debug_package %{nil}
-%define beta rc
+%define beta %{nil}
 %define api 5
 %define major 5
 
