@@ -163,17 +163,13 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 ### END OF FEDORA PATCHES
 
 # (tpg) Upstream patches
-Patch1001:      XCB-Drop-from-external-app-fix-keyboard-modifier-state.patch
-Patch1002:      xcb-Use-the-state-of-the-key-event-to-process-it.patch
-Patch1003:      Stop-unloading-plugins-in-QPluginLoader-and-QFactoryLoader.patch
-Patch1004:      Make-QDBusConnectionPrivaterelaySignal-be-called-in-the-right-thread.patch
-Patch1005:      Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
-Patch1006:      Fix-some-QtDBus-crashes-during-application-destruction.patch
+Patch1005:	Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
+Patch1006:	Fix-some-QtDBus-crashes-during-application-destruction.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
 # just built QtCore. This should be fixed properly in the Makefiles.
-BuildConflicts: %{mklibname -d qt5core} < %{version}
+BuildConflicts:	%{mklibname -d qt5core} < %{version}
 
 BuildRequires:	jpeg-devel
 BuildRequires:	double-conversion-devel
