@@ -138,12 +138,9 @@ Patch52:	0003-Port-qssldiffiehellmanparameters.patch
 Patch53:	0004-Port-qsslkey.patch
 # Rebased
 Patch54:	0005-Fix-a-few-changed-methods.patch
-%endif
 Patch55:	0006-Remove-ssl2-code.patch
 Patch56:	0007-Move-to-the-new-TLS_method-etc.patch
-%if %mdvver > 3000000
 Patch57:	0008-Remove-the-locking-code-since-openssl-does-this-now.patch
-%endif
 Patch58:	0009-Update-copyrights.patch
 # Rebased
 Patch59:	0010-Remove-ifdefs-for-old-versions-from-the-dlopen-glue.patch
@@ -161,6 +158,7 @@ Patch69:	0020-Port-the-last-bits-to-the-new-APIs.patch
 Patch70:	0021-Add-notes-on-the-current-status.patch
 Patch71:	0022-Merge-in-Timur-s-changes.patch
 Patch72:	0023-Remove-more-compatibility-cruft.patch
+%endif
 
 ### Fedora patches
 Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
