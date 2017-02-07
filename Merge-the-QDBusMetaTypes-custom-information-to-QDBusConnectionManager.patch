@@ -1,4 +1,4 @@
-From 93eb0169cbec0de47a66c1b78b734863fb921326 Mon Sep 17 00:00:00 2001
+From 04cc2a3abad6ed825a97225b96a2e04f30fefcb1 Mon Sep 17 00:00:00 2001
 From: Thiago Macieira <thiago.macieira@intel.com>
 Date: Thu, 28 Apr 2016 15:00:58 -0700
 Subject: [PATCH] Merge the QDBusMetaType's custom information to
@@ -27,10 +27,10 @@ Change-Id: Ifea6e497f11a461db432ffff1449a4e535234485
  6 files changed, 127 insertions(+), 93 deletions(-)
 
 diff --git a/src/dbus/qdbusconnection.cpp b/src/dbus/qdbusconnection.cpp
-index 34b3da7..4db6396 100644
+index f95cc3a..4187f19 100644
 --- a/src/dbus/qdbusconnection.cpp
 +++ b/src/dbus/qdbusconnection.cpp
-@@ -193,6 +193,7 @@ void QDBusConnectionManager::run()
+@@ -182,6 +182,7 @@ void QDBusConnectionManager::run()
          }
      }
      connectionHash.clear();
@@ -39,12 +39,12 @@ index 34b3da7..4db6396 100644
      // allow deletion from any thread without warning
      moveToThread(Q_NULLPTR);
 diff --git a/src/dbus/qdbusconnectionmanager_p.h b/src/dbus/qdbusconnectionmanager_p.h
-index c0ab48e..97ecc74 100644
+index 1c7dea8..fd6cd84 100644
 --- a/src/dbus/qdbusconnectionmanager_p.h
 +++ b/src/dbus/qdbusconnectionmanager_p.h
-@@ -48,13 +48,14 @@
- #define QDBUSCONNECTIONMANAGER_P_H
+@@ -55,13 +55,14 @@
  
+ #include <QtDBus/private/qtdbusglobal_p.h>
  #include "qdbusconnection_p.h"
 +#include "qdbusmetatype_p.h"
  #include "private/qthread_p.h"
@@ -59,10 +59,10 @@ index c0ab48e..97ecc74 100644
      Q_OBJECT
      struct ConnectionRequestData;
 diff --git a/src/dbus/qdbusintegrator.cpp b/src/dbus/qdbusintegrator.cpp
-index 3be775d..37d2ae1 100644
+index c63fb05..19f79e9 100644
 --- a/src/dbus/qdbusintegrator.cpp
 +++ b/src/dbus/qdbusintegrator.cpp
-@@ -1019,7 +1019,6 @@ QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
+@@ -1036,7 +1036,6 @@ QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
          qdbusThreadDebug = qdbusDefaultThreadDebug;
  #endif
  
@@ -71,18 +71,18 @@ index 3be775d..37d2ae1 100644
              this, &QDBusConnectionPrivate::doDispatch, Qt::QueuedConnection);
      connect(this, &QDBusConnectionPrivate::spyHooksFinished,
 diff --git a/src/dbus/qdbusmetatype.cpp b/src/dbus/qdbusmetatype.cpp
-index 2aaf0e2..ce0d0c8 100644
+index fb2b407..9ab3c34 100644
 --- a/src/dbus/qdbusmetatype.cpp
 +++ b/src/dbus/qdbusmetatype.cpp
 @@ -1,6 +1,7 @@
  /****************************************************************************
  **
- ** Copyright (C) 2015 The Qt Company Ltd.
+ ** Copyright (C) 2016 The Qt Company Ltd.
 +** Copyright (C) 2016 Intel Corporation.
- ** Contact: http://www.qt.io/licensing/
+ ** Contact: https://www.qt.io/licensing/
  **
  ** This file is part of the QtDBus module of the Qt Toolkit.
-@@ -33,19 +34,15 @@
+@@ -39,19 +40,15 @@
  
  #include "qdbusmetatype.h"
  #include "qdbusmetatype_p.h"
@@ -104,7 +104,7 @@ index 2aaf0e2..ce0d0c8 100644
  #include "qdbusmessage.h"
  #endif
  
-@@ -58,82 +55,72 @@
+@@ -64,82 +61,72 @@
  
  QT_BEGIN_NAMESPACE
  
@@ -238,7 +238,7 @@ index 2aaf0e2..ce0d0c8 100644
  /*!
      \class QDBusMetaType
      \inmodule QtDBus
-@@ -203,14 +190,22 @@ void QDBusMetaType::registerMarshallOperators(int id, MarshallFunction mf,
+@@ -217,14 +204,22 @@ void QDBusMetaType::registerMarshallOperators(int id, MarshallFunction mf,
                                                DemarshallFunction df)
  {
      QByteArray var;
@@ -267,7 +267,7 @@ index 2aaf0e2..ce0d0c8 100644
      info.marshall = mf;
      info.demarshall = df;
  }
-@@ -227,12 +222,16 @@ bool QDBusMetaType::marshall(QDBusArgument &arg, int id, const void *data)
+@@ -241,12 +236,16 @@ bool QDBusMetaType::marshall(QDBusArgument &arg, int id, const void *data)
  
      MarshallFunction mf;
      {
@@ -288,7 +288,7 @@ index 2aaf0e2..ce0d0c8 100644
          if (!info.marshall) {
              mf = 0;             // make gcc happy
              return false;
-@@ -256,12 +255,16 @@ bool QDBusMetaType::demarshall(const QDBusArgument &arg, int id, void *data)
+@@ -270,12 +269,16 @@ bool QDBusMetaType::demarshall(const QDBusArgument &arg, int id, void *data)
  
      DemarshallFunction df;
      {
@@ -309,7 +309,7 @@ index 2aaf0e2..ce0d0c8 100644
          if (!info.demarshall) {
              df = 0;             // make gcc happy
              return false;
-@@ -420,7 +423,11 @@ const char *QDBusMetaType::typeToSignature(int type)
+@@ -434,7 +437,11 @@ const char *QDBusMetaType::typeToSignature(int type)
              DBUS_TYPE_BYTE_AS_STRING; // ay
      }
  
@@ -322,7 +322,7 @@ index 2aaf0e2..ce0d0c8 100644
      if (type == QDBusMetaTypeId::variant())
          return DBUS_TYPE_VARIANT_AS_STRING;
      else if (type == QDBusMetaTypeId::objectpath())
-@@ -430,14 +437,13 @@ const char *QDBusMetaType::typeToSignature(int type)
+@@ -444,14 +451,13 @@ const char *QDBusMetaType::typeToSignature(int type)
      else if (type == QDBusMetaTypeId::unixfd())
          return DBUS_TYPE_UNIX_FD_AS_STRING;
  
@@ -341,7 +341,7 @@ index 2aaf0e2..ce0d0c8 100644
  
          if (!info.signature.isNull())
              return info.signature;
-@@ -454,8 +460,9 @@ const char *QDBusMetaType::typeToSignature(int type)
+@@ -468,8 +474,9 @@ const char *QDBusMetaType::typeToSignature(int type)
          QByteArray signature = QDBusArgumentPrivate::createSignature(type);
  
          // re-acquire lock
@@ -354,18 +354,18 @@ index 2aaf0e2..ce0d0c8 100644
      }
      return info->signature;
 diff --git a/src/dbus/qdbusmetatype_p.h b/src/dbus/qdbusmetatype_p.h
-index 348fc6c..24c8326 100644
+index 1aa1155..1f7e613 100644
 --- a/src/dbus/qdbusmetatype_p.h
 +++ b/src/dbus/qdbusmetatype_p.h
 @@ -1,6 +1,7 @@
  /****************************************************************************
  **
- ** Copyright (C) 2015 The Qt Company Ltd.
+ ** Copyright (C) 2016 The Qt Company Ltd.
 +** Copyright (C) 2016 Intel Corporation.
- ** Contact: http://www.qt.io/licensing/
+ ** Contact: https://www.qt.io/licensing/
  **
  ** This file is part of the QtDBus module of the Qt Toolkit.
-@@ -53,10 +54,27 @@
+@@ -60,10 +61,27 @@
  #include <qdbuserror.h>
  #include <qdbusunixfiledescriptor.h>
  
@@ -393,7 +393,7 @@ index 348fc6c..24c8326 100644
  struct QDBusMetaTypeId
  {
      static int message();         // QDBusMessage
-@@ -67,7 +85,14 @@ struct QDBusMetaTypeId
+@@ -74,7 +92,14 @@ struct QDBusMetaTypeId
      static int error();           // QDBusError
      static int unixfd();          // QDBusUnixFileDescriptor
  
@@ -410,10 +410,10 @@ index 348fc6c..24c8326 100644
  
  inline int QDBusMetaTypeId::message()
 diff --git a/src/dbus/qdbusmisc.cpp b/src/dbus/qdbusmisc.cpp
-index ca33717..19ff676 100644
+index 930c3bd..01436da 100644
 --- a/src/dbus/qdbusmisc.cpp
 +++ b/src/dbus/qdbusmisc.cpp
-@@ -132,8 +132,9 @@ int qDBusParametersForMethod(const QMetaMethod &mm, QVector<int> &metaTypes, QSt
+@@ -144,8 +144,9 @@ int qDBusParametersForMethod(const QMetaMethod &mm, QVector<int> &metaTypes, QSt
  
  int qDBusParametersForMethod(const QList<QByteArray> &parameterTypes, QVector<int>& metaTypes, QString &errorMsg)
  {
@@ -425,4 +425,5 @@ index ca33717..19ff676 100644
      metaTypes.append(0);        // return type
      int inputCount = 0;
 -- 
-2.7.4
+2.8.3
+
