@@ -141,7 +141,9 @@ Patch54:	0005-Fix-a-few-changed-methods.patch
 %endif
 Patch55:	0006-Remove-ssl2-code.patch
 Patch56:	0007-Move-to-the-new-TLS_method-etc.patch
+%if %mdvver > 3000000
 Patch57:	0008-Remove-the-locking-code-since-openssl-does-this-now.patch
+%endif
 Patch58:	0009-Update-copyrights.patch
 # Rebased
 Patch59:	0010-Remove-ifdefs-for-old-versions-from-the-dlopen-glue.patch
