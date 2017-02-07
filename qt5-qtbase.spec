@@ -5,6 +5,9 @@
 # this makes sure the files dont get marked as docs
 %define _no_default_doc_files 1
 
+# https://llvm.org/bugs/show_bug.cgi?id=28194
+%define _disable_lto 1
+
 #% define debug_package %{nil}
 %define beta %{nil}
 %define api 5
@@ -84,6 +87,7 @@
 %bcond_without gtk
 
 %ifarch %{ix86} %arm
+# (tpg) build with gcc as with clang it fails for some strange reasons
 %bcond_with clang
 %else
 %bcond_without clang
@@ -103,7 +107,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	3
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -157,6 +161,15 @@ Patch72:	0023-Remove-more-compatibility-cruft.patch
 ### Fedora patches
 Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 ### END OF FEDORA PATCHES
+
+# (tpg) Upstream patches
+Patch1000:      xcb-Dont-send-QtWindowNoState-event-when-hiding-minimized-window.patch
+Patch1001:      XCB-Drop-from-external-app-fix-keyboard-modifier-state.patch
+Patch1002:      xcb-Use-the-state-of-the-key-event-to-process-it.patch
+Patch1003:      Stop-unloading-plugins-in-QPluginLoader-and-QFactoryLoader.patch
+Patch1004:      Make-QDBusConnectionPrivaterelaySignal-be-called-in-the-right-thread.patch
+Patch1005:      Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
+Patch1006:      Fix-some-QtDBus-crashes-during-application-destruction.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
