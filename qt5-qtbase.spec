@@ -163,7 +163,6 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 ### END OF FEDORA PATCHES
 
 # (tpg) Upstream patches
-Patch1000:      xcb-Dont-send-QtWindowNoState-event-when-hiding-minimized-window.patch
 Patch1001:      XCB-Drop-from-external-app-fix-keyboard-modifier-state.patch
 Patch1002:      xcb-Use-the-state-of-the-key-event-to-process-it.patch
 Patch1003:      Stop-unloading-plugins-in-QPluginLoader-and-QFactoryLoader.patch
