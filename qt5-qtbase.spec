@@ -136,9 +136,9 @@ Patch50:	0001-Port-QSslCertificate-to-openssl-1.1.patch
 Patch51:	0002-Ported-QSslContext.patch
 Patch52:	0003-Port-qssldiffiehellmanparameters.patch
 Patch53:	0004-Port-qsslkey.patch
-%endif
 # Rebased
 Patch54:	0005-Fix-a-few-changed-methods.patch
+%endif
 Patch55:	0006-Remove-ssl2-code.patch
 Patch56:	0007-Move-to-the-new-TLS_method-etc.patch
 Patch57:	0008-Remove-the-locking-code-since-openssl-does-this-now.patch
