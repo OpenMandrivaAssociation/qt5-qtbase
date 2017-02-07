@@ -131,10 +131,12 @@ Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 
 ### OpenSSL 1.1 patches, from https://github.com/richmoore/qtbase
+%if %mdvver > 3000000
 Patch50:	0001-Port-QSslCertificate-to-openssl-1.1.patch
 Patch51:	0002-Ported-QSslContext.patch
 Patch52:	0003-Port-qssldiffiehellmanparameters.patch
 Patch53:	0004-Port-qsslkey.patch
+%endif
 # Rebased
 Patch54:	0005-Fix-a-few-changed-methods.patch
 Patch55:	0006-Remove-ssl2-code.patch
