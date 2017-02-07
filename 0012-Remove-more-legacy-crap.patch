@@ -1,0 +1,27 @@
+From b416615e266f113dc3feda52721f78940b30db62 Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Sun, 24 Jul 2016 21:53:14 +0100
+Subject: [PATCH 12/23] Remove more legacy crap
+
+Change-Id: I5e8f8f777ca1085cc363d5fea62efe3a32e61445
+---
+ src/network/ssl/qsslsocket_openssl_symbols.cpp | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index 4eb3f1c..cde6f64 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -370,9 +370,7 @@ DEFINEFUNC(EC_KEY *, EC_KEY_dup, EC_KEY *ec, ec, return 0, return)
+ DEFINEFUNC(EC_KEY *, EC_KEY_new_by_curve_name, int nid, nid, return 0, return)
+ DEFINEFUNC(void, EC_KEY_free, EC_KEY *ecdh, ecdh, return, DUMMYARG)
+ DEFINEFUNC2(size_t, EC_get_builtin_curves, EC_builtin_curve * r, r, size_t nitems, nitems, return 0, return)
+-#if OPENSSL_VERSION_NUMBER >= 0x10002000L
+ DEFINEFUNC(int, EC_curve_nist2nid, const char *name, name, return 0, return)
+-#endif // OPENSSL_VERSION_NUMBER >= 0x10002000L
+ #endif // OPENSSL_NO_EC
+ 
+ DEFINEFUNC5(int, PKCS12_parse, PKCS12 *p12, p12, const char *pass, pass, EVP_PKEY **pkey, pkey, \
+-- 
+2.10.0
+

@@ -1,0 +1,57 @@
+From 17215b7266694fe1bbd2b3daa80921b1ef1c605b Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Tue, 26 Jul 2016 23:07:50 +0100
+Subject: [PATCH 21/23] Add notes on the current status
+
+Change-Id: Id23c79dcd1d466787887ef8892080d3d7dc13560
+---
+ src/network/ssl/README_openssl11 | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+ create mode 100644 src/network/ssl/README_openssl11
+
+diff --git a/src/network/ssl/README_openssl11 b/src/network/ssl/README_openssl11
+new file mode 100644
+index 0000000..1bb395f
+--- /dev/null
++++ b/src/network/ssl/README_openssl11
+@@ -0,0 +1,37 @@
++Work on backend for openssl 1.1
++===============================
++
++OPENSSL_LIBS='-L/home/rich/src/openssl -lssl -lcrypto' \
++./configure --developer-build -opensource -confirm-license -nomake examples
++-nomake tests -skip qtscxml \
++-openssl-linked -I ~/src/openssl/include
++
++-DOPENSSL_API_COMPAT=0x10100000L
++
++Openssl 1.1 To Do
++=================
++
++ * Test dlopen (done)
++
++ * Change from SSLeay_version etc. to OpenSSL_version (done)
++
++ * Build with OPENSSL_API_COMPAT set to the latest API to catch any more
++   changed APIs (done)
++
++ * Add support for legacy backend back again!
++
++ * Configure support/test for openssl 1.1
++
++ * Do we need a mutex for the library loading?
++
++ * Re-add support for limiting the set of TLS protocol versions enabled
++
++ * Ensure tests understand that SSL2 isn't there
++
++ * Consider what to do about QT_NO_OPENSSL etc.
++
++ * Length of DSA keys
++
++ * Switch to openssl certificate hostname verification (get name constraint
++   support for free).
++   
+-- 
+2.10.0
+

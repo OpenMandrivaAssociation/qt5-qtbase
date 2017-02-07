@@ -1,0 +1,226 @@
+From 7b616578fb71d97660e441d86033f8778e2d0470 Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Sun, 24 Jul 2016 18:31:22 +0100
+Subject: [PATCH 08/23] Remove the locking code since openssl does this now
+
+Change-Id: I622162a998d04f3abfeb2062f62aa99b3bf2918f
+---
+ src/network/ssl/qsslcertificate_openssl.cpp    |  2 +-
+ src/network/ssl/qsslsocket_openssl.cpp         | 88 +-------------------------
+ src/network/ssl/qsslsocket_openssl_symbols.cpp | 10 +--
+ src/network/ssl/qsslsocket_openssl_symbols_p.h |  5 +-
+ 4 files changed, 6 insertions(+), 99 deletions(-)
+
+diff --git a/src/network/ssl/qsslcertificate_openssl.cpp b/src/network/ssl/qsslcertificate_openssl.cpp
+index 3452f86..284053e 100644
+--- a/src/network/ssl/qsslcertificate_openssl.cpp
++++ b/src/network/ssl/qsslcertificate_openssl.cpp
+@@ -610,7 +610,7 @@ static QMap<QByteArray, QString> _q_mapFromX509Name(X509_NAME *name)
+         unsigned char *data = 0;
+         int size = q_ASN1_STRING_to_UTF8(&data, q_X509_NAME_ENTRY_get_data(e));
+         info.insertMulti(name, QString::fromUtf8((char*)data, size));
+-        q_CRYPTO_free(data);
++        q_OPENSSL_free(data);
+     }
+ 
+     return info;
+diff --git a/src/network/ssl/qsslsocket_openssl.cpp b/src/network/ssl/qsslsocket_openssl.cpp
+index 74bcc28..ce1e12e 100644
+--- a/src/network/ssl/qsslsocket_openssl.cpp
++++ b/src/network/ssl/qsslsocket_openssl.cpp
+@@ -98,70 +98,6 @@ bool QSslSocketPrivate::s_loadRootCertsOnDemand = false;
+ int QSslSocketBackendPrivate::s_indexForSSLExtraData = -1;
+ #endif
+ 
+-/* \internal
+-
+-    From OpenSSL's thread(3) manual page:
+-
+-    OpenSSL can safely be used in multi-threaded applications provided that at
+-    least two callback functions are set.
+-
+-    locking_function(int mode, int n, const char *file, int line) is needed to
+-    perform locking on shared data structures.  (Note that OpenSSL uses a
+-    number of global data structures that will be implicitly shared
+-    whenever multiple threads use OpenSSL.)  Multi-threaded
+-    applications will crash at random if it is not set.  ...
+-    ...
+-    id_function(void) is a function that returns a thread ID. It is not
+-    needed on Windows nor on platforms where getpid() returns a different
+-    ID for each thread (most notably Linux)
+-*/
+-class QOpenSslLocks
+-{
+-public:
+-    inline QOpenSslLocks()
+-        : initLocker(QMutex::Recursive),
+-          locksLocker(QMutex::Recursive)
+-    {
+-        QMutexLocker locker(&locksLocker);
+-        int numLocks = q_CRYPTO_num_locks();
+-        locks = new QMutex *[numLocks];
+-        memset(locks, 0, numLocks * sizeof(QMutex *));
+-    }
+-    inline ~QOpenSslLocks()
+-    {
+-        QMutexLocker locker(&locksLocker);
+-        for (int i = 0; i < q_CRYPTO_num_locks(); ++i)
+-            delete locks[i];
+-        delete [] locks;
+-
+-        QSslSocketPrivate::deinitialize();
+-    }
+-    inline QMutex *lock(int num)
+-    {
+-        QMutexLocker locker(&locksLocker);
+-        QMutex *tmp = locks[num];
+-        if (!tmp)
+-            tmp = locks[num] = new QMutex(QMutex::Recursive);
+-        return tmp;
+-    }
+-
+-    QMutex *globalLock()
+-    {
+-        return &locksLocker;
+-    }
+-
+-    QMutex *initLock()
+-    {
+-        return &initLocker;
+-    }
+-
+-private:
+-    QMutex initLocker;
+-    QMutex locksLocker;
+-    QMutex **locks;
+-};
+-Q_GLOBAL_STATIC(QOpenSslLocks, openssl_locks)
+-
+ QString QSslSocketBackendPrivate::getErrorsFromOpenSsl()
+ {
+     QString errorString;
+@@ -176,21 +112,6 @@ QString QSslSocketBackendPrivate::getErrorsFromOpenSsl()
+ }
+ 
+ extern "C" {
+-static void locking_function(int mode, int lockNumber, const char *, int)
+-{
+-    QMutex *mutex = openssl_locks()->lock(lockNumber);
+-
+-    // Lock or unlock it
+-    if (mode & CRYPTO_LOCK)
+-        mutex->lock();
+-    else
+-        mutex->unlock();
+-}
+-static unsigned long id_function()
+-{
+-    return (quintptr)QThread::currentThreadId();
+-}
+-
+ #if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_PSK)
+ static unsigned int q_ssl_psk_client_callback(SSL *ssl,
+                                               const char *hint,
+@@ -470,8 +391,6 @@ void QSslSocketBackendPrivate::destroySslContext()
+ */
+ void QSslSocketPrivate::deinitialize()
+ {
+-    q_CRYPTO_set_id_callback(0);
+-    q_CRYPTO_set_locking_callback(0);
+     q_ERR_free_strings();
+ }
+ 
+@@ -492,15 +411,12 @@ bool QSslSocketPrivate::ensureLibraryLoaded()
+     if (!q_resolveOpenSslSymbols())
+         return false;
+ 
+-    // Check if the library itself needs to be initialized.
+-    QMutexLocker locker(openssl_locks()->initLock());
++    //### Do we need to ensure this is behind a mutex with openssl1.1?
+ 
+     if (!s_libraryLoaded) {
+         s_libraryLoaded = true;
+ 
+         // Initialize OpenSSL.
+-        q_CRYPTO_set_id_callback(id_function);
+-        q_CRYPTO_set_locking_callback(locking_function);
+         if (q_SSL_library_init() != 1)
+             return false;
+         q_SSL_load_error_strings();
+@@ -522,7 +438,7 @@ bool QSslSocketPrivate::ensureLibraryLoaded()
+ 
+ void QSslSocketPrivate::ensureCiphersAndCertsLoaded()
+ {
+-    QMutexLocker locker(openssl_locks()->initLock());
++  //QMutexLocker locker(openssl_locks()->initLock());
+     if (s_loadedCiphersAndCerts)
+         return;
+     s_loadedCiphersAndCerts = true;
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index a09324d..d922074 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -159,10 +159,6 @@ DEFINEFUNC2(BN_ULONG, BN_mod_word, const BIGNUM *a, a, BN_ULONG w, w, return -1,
+ DEFINEFUNC(const EC_GROUP*, EC_KEY_get0_group, const EC_KEY* k, k, return 0, return)
+ DEFINEFUNC(int, EC_GROUP_get_degree, const EC_GROUP* g, g, return 0, return)
+ #endif
+-DEFINEFUNC(int, CRYPTO_num_locks, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC(void, CRYPTO_set_locking_callback, void (*a)(int, int, const char *, int), a, return, DUMMYARG)
+-DEFINEFUNC(void, CRYPTO_set_id_callback, unsigned long (*a)(), a, return, DUMMYARG)
+-DEFINEFUNC(void, CRYPTO_free, void *a, a, return, DUMMYARG)
+ DEFINEFUNC(DSA *, DSA_new, DUMMYARG, DUMMYARG, return 0, return)
+ DEFINEFUNC(void, DSA_free, DSA *a, a, return, DUMMYARG)
+ //### Missing in openssl DEFINEFUNC(int, DSA_bits, DSA *a, a, return 0, return)
+@@ -379,6 +375,7 @@ DEFINEFUNC3(EC_KEY *, d2i_ECPrivateKey, EC_KEY **a, a, unsigned char **b, b, lon
+ #endif
+ DEFINEFUNC(void, OPENSSL_add_all_algorithms_noconf, void, DUMMYARG, return, DUMMYARG)
+ DEFINEFUNC(void, OPENSSL_add_all_algorithms_conf, void, DUMMYARG, return, DUMMYARG)
++DEFINEFUNC(void, OPENSSL_free, void *a, a, return, DUMMYARG)
+ DEFINEFUNC3(int, SSL_CTX_load_verify_locations, SSL_CTX *ctx, ctx, const char *CAfile, CAfile, const char *CApath, CApath, return 0, return)
+ DEFINEFUNC(long, SSLeay, void, DUMMYARG, return 0, return)
+ DEFINEFUNC(const char *, SSLeay_version, int a, a, return 0, return)
+@@ -768,10 +765,6 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(BN_is_word)
+ #endif
+     RESOLVEFUNC(BN_mod_word)
+-    RESOLVEFUNC(CRYPTO_free)
+-    RESOLVEFUNC(CRYPTO_num_locks)
+-    RESOLVEFUNC(CRYPTO_set_id_callback)
+-    RESOLVEFUNC(CRYPTO_set_locking_callback)
+     RESOLVEFUNC(DSA_new)
+     RESOLVEFUNC(DSA_free)
+     //### Missing in openssl  RESOLVEFUNC(DSA_bits)
+@@ -953,6 +946,7 @@ bool q_resolveOpenSslSymbols()
+ #endif
+     RESOLVEFUNC(OPENSSL_add_all_algorithms_noconf)
+     RESOLVEFUNC(OPENSSL_add_all_algorithms_conf)
++    RESOLVEFUNC(OPENSSL_free)
+     RESOLVEFUNC(SSL_CTX_load_verify_locations)
+     RESOLVEFUNC(SSLeay)
+     RESOLVEFUNC(SSLeay_version)
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index 644460f..ccdeea2 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -247,10 +247,6 @@ BN_ULONG q_BN_mod_word(const BIGNUM *a, BN_ULONG w);
+ const EC_GROUP* q_EC_KEY_get0_group(const EC_KEY* k);
+ int q_EC_GROUP_get_degree(const EC_GROUP* g);
+ #endif
+-int q_CRYPTO_num_locks();
+-void q_CRYPTO_set_locking_callback(void (*a)(int, int, const char *, int));
+-void q_CRYPTO_set_id_callback(unsigned long (*a)());
+-void q_CRYPTO_free(void *a);
+ DSA *q_DSA_new();
+ void q_DSA_free(DSA *a);
+ int q_DSA_bits(DSA *a);
+@@ -538,6 +534,7 @@ DSA *q_d2i_DSAPrivateKey(DSA **a, unsigned char **pp, long length);
+ #define q_OpenSSL_add_all_algorithms() q_OPENSSL_add_all_algorithms_conf()
+ void q_OPENSSL_add_all_algorithms_noconf();
+ void q_OPENSSL_add_all_algorithms_conf();
++void q_OPENSSL_free(void *addr);
+ int q_SSL_CTX_load_verify_locations(SSL_CTX *ctx, const char *CAfile, const char *CApath);
+ long q_SSLeay();
+ const char *q_SSLeay_version(int type);
+-- 
+2.10.0
+

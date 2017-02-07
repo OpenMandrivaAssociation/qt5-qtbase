@@ -1,0 +1,37 @@
+--- qtbase-opensource-src-5.7.0/src/corelib/io/qstandardpaths_unix.cpp.0002~	2016-06-10 08:48:56.000000000 +0200
++++ qtbase-opensource-src-5.7.0/src/corelib/io/qstandardpaths_unix.cpp	2016-07-11 19:44:25.177932269 +0200
+@@ -126,7 +126,10 @@ QString QStandardPaths::writableLocation
+             xdgRuntimeDir = QDir::tempPath() + QLatin1String("/runtime-") + userName;
+             fileInfo.setFile(xdgRuntimeDir);
+             if (!fileInfo.isDir()) {
+-                if (!QDir().mkdir(xdgRuntimeDir)) {
++                mode_t old_umask = umask(0077);
++                bool ok = QDir().mkdir(xdgRuntimeDir);
++                umask(old_umask);
++		if(!ok) {
+                     qWarning("QStandardPaths: error creating runtime directory %s: %s", qPrintable(xdgRuntimeDir), qPrintable(qt_error_string(errno)));
+                     return QString();
+                 }
+@@ -147,9 +150,19 @@ QString QStandardPaths::writableLocation
+         }
+         // "The directory MUST be owned by the user"
+         if (fileInfo.ownerId() != myUid) {
+-            qWarning("QStandardPaths: wrong ownership on runtime directory %s, %d instead of %d", qPrintable(xdgRuntimeDir),
+-                     fileInfo.ownerId(), myUid);
+-            return QString();
++            // We're probably setuid with XDG_RUNTIME_DIR persisting. Let's do the right thing here...
++            xdgRuntimeDir = QFile::decodeName("/run/user/") + QString::number(myUid);
++            fileInfo.setFile(xdgRuntimeDir);
++            if(!fileInfo.isDir()) {
++                    mode_t old_umask = umask(0077);
++		    bool ok = QDir().mkdir(xdgRuntimeDir);
++		    umask(old_umask);
++                    if(!ok) {
++                        qWarning("QStandardPaths: error creating runtime directory %s: %s", qPrintable(xdgRuntimeDir), qPrintable(qt_error_string(errno)));
++                        return QString();
++                    }
++            }
++            return xdgRuntimeDir;
+         }
+         // "and he MUST be the only one having read and write access to it. Its Unix access mode MUST be 0700."
+         // since the current user is the owner, set both xxxUser and xxxOwner

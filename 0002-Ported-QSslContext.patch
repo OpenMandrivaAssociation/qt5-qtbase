@@ -1,0 +1,114 @@
+From 9ad38be9e5f2ed725c8f46a5adb0f834fe3c6df2 Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Sun, 24 Jul 2016 12:47:15 +0100
+Subject: [PATCH 02/23] Ported QSslContext
+
+Change-Id: Ia286364f76a2942bdcc73cf34e0998d7aa67d08b
+---
+ src/network/ssl/qsslcontext_openssl.cpp        | 17 +----------------
+ src/network/ssl/qsslsocket_openssl_symbols.cpp |  4 ++++
+ src/network/ssl/qsslsocket_openssl_symbols_p.h |  3 ++-
+ 3 files changed, 7 insertions(+), 17 deletions(-)
+
+diff --git a/src/network/ssl/qsslcontext_openssl.cpp b/src/network/ssl/qsslcontext_openssl.cpp
+index dec8e12..579c22b 100644
+--- a/src/network/ssl/qsslcontext_openssl.cpp
++++ b/src/network/ssl/qsslcontext_openssl.cpp
+@@ -329,21 +329,6 @@ init_context:
+         q_DH_free(dh);
+     }
+ 
+-#ifndef OPENSSL_NO_EC
+-#if OPENSSL_VERSION_NUMBER >= 0x10002000L
+-    if (q_SSLeay() >= 0x10002000L) {
+-        q_SSL_CTX_ctrl(sslContext->ctx, SSL_CTRL_SET_ECDH_AUTO, 1, NULL);
+-    } else
+-#endif
+-    {
+-        // Set temp ECDH params
+-        EC_KEY *ecdh = 0;
+-        ecdh = q_EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+-        q_SSL_CTX_set_tmp_ecdh(sslContext->ctx, ecdh);
+-        q_EC_KEY_free(ecdh);
+-    }
+-#endif // OPENSSL_NO_EC
+-
+ #if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_PSK)
+     if (!client)
+         q_SSL_CTX_use_psk_identity_hint(sslContext->ctx, sslContext->sslConfiguration.preSharedKeyIdentityHint().constData());
+@@ -508,7 +493,7 @@ bool QSslContext::cacheSession(SSL* ssl)
+             unsigned char *data = reinterpret_cast<unsigned char *>(m_sessionASN1.data());
+             if (!q_i2d_SSL_SESSION(session, &data))
+                 qCWarning(lcSsl, "could not store persistent version of SSL session");
+-            m_sessionTicketLifeTimeHint = session->tlsext_tick_lifetime_hint;
++            m_sessionTicketLifeTimeHint = q_SSL_SESSION_get_ticket_lifetime_hint(session);
+         }
+     }
+ 
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index 7c58a1d..cfbebbc 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -260,6 +260,7 @@ DEFINEFUNC(SSL_CTX *, SSL_CTX_new, const SSL_METHOD *a, a, return 0, return)
+ #else
+ DEFINEFUNC(SSL_CTX *, SSL_CTX_new, SSL_METHOD *a, a, return 0, return)
+ #endif
++DEFINEFUNC2(unsigned long, SSL_CTX_set_options, SSL_CTX *ctx, ctx, unsigned long op, op, return 0, return)
+ DEFINEFUNC2(int, SSL_CTX_set_cipher_list, SSL_CTX *a, a, const char *b, b, return -1, return)
+ DEFINEFUNC(int, SSL_CTX_set_default_verify_paths, SSL_CTX *a, a, return -1, return)
+ DEFINEFUNC3(void, SSL_CTX_set_verify, SSL_CTX *a, a, int b, b, int (*c)(int, X509_STORE_CTX *), c, return, DUMMYARG)
+@@ -418,6 +419,7 @@ DEFINEFUNC(long, SSLeay, void, DUMMYARG, return 0, return)
+ DEFINEFUNC(const char *, SSLeay_version, int a, a, return 0, return)
+ DEFINEFUNC2(int, i2d_SSL_SESSION, SSL_SESSION *in, in, unsigned char **pp, pp, return 0, return)
+ DEFINEFUNC3(SSL_SESSION *, d2i_SSL_SESSION, SSL_SESSION **a, a, const unsigned char **pp, pp, long length, length, return 0, return)
++DEFINEFUNC(unsigned long, SSL_SESSION_get_ticket_lifetime_hint, const SSL_SESSION *session, session, return 0, return)
+ #if OPENSSL_VERSION_NUMBER >= 0x1000100fL && !defined(OPENSSL_NO_NEXTPROTONEG)
+ DEFINEFUNC6(int, SSL_select_next_proto, unsigned char **out, out, unsigned char *outlen, outlen,
+             const unsigned char *in, in, unsigned int inlen, inlen,
+@@ -882,6 +884,7 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(SSL_CTX_ctrl)
+     RESOLVEFUNC(SSL_CTX_free)
+     RESOLVEFUNC(SSL_CTX_new)
++    RESOLVEFUNC(q_SSL_CTX_set_options)
+     RESOLVEFUNC(SSL_CTX_set_cipher_list)
+     RESOLVEFUNC(SSL_CTX_set_default_verify_paths)
+     RESOLVEFUNC(SSL_CTX_set_verify)
+@@ -1006,6 +1009,7 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(SSLeay_version)
+     RESOLVEFUNC(i2d_SSL_SESSION)
+     RESOLVEFUNC(d2i_SSL_SESSION)
++    RESOLVEFUNC(SSL_SESSION_get_ticket_lifetime_hint)
+ #if OPENSSL_VERSION_NUMBER >= 0x1000100fL && !defined(OPENSSL_NO_NEXTPROTONEG)
+     RESOLVEFUNC(SSL_select_next_proto)
+     RESOLVEFUNC(SSL_CTX_set_next_proto_select_cb)
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index 957bff5..da495bc 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -352,6 +352,7 @@ SSL_CTX *q_SSL_CTX_new(const SSL_METHOD *a);
+ #else
+ SSL_CTX *q_SSL_CTX_new(SSL_METHOD *a);
+ #endif
++unsigned long q_SSL_CTX_set_options(SSL_CTX *ctx, unsigned long op);
+ int q_SSL_CTX_set_cipher_list(SSL_CTX *a, const char *b);
+ int q_SSL_CTX_set_default_verify_paths(SSL_CTX *a);
+ void q_SSL_CTX_set_verify(SSL_CTX *a, int b, int (*c)(int, X509_STORE_CTX *));
+@@ -550,7 +551,6 @@ DSA *q_d2i_DSAPrivateKey(DSA **a, unsigned char **pp, long length);
+         (DH *)q_PEM_ASN1_read_bio( \
+         (void *(*)(void**, const unsigned char**, long int))q_d2i_DHparams, PEM_STRING_DHPARAMS, bp, (void **)x, cb, u)
+ #endif
+-#define q_SSL_CTX_set_options(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
+ #define q_SSL_CTX_set_mode(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_MODE,(op),NULL)
+ #define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)
+ #define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_sk_value)(st, i)
+@@ -576,6 +576,7 @@ long q_SSLeay();
+ const char *q_SSLeay_version(int type);
+ int q_i2d_SSL_SESSION(SSL_SESSION *in, unsigned char **pp);
+ SSL_SESSION *q_d2i_SSL_SESSION(SSL_SESSION **a, const unsigned char **pp, long length);
++unsigned long q_SSL_SESSION_get_ticket_lifetime_hint(const SSL_SESSION *session);
+ 
+ #if OPENSSL_VERSION_NUMBER >= 0x1000100fL && !defined(OPENSSL_NO_NEXTPROTONEG)
+ int q_SSL_select_next_proto(unsigned char **out, unsigned char *outlen,
+-- 
+2.10.0
+

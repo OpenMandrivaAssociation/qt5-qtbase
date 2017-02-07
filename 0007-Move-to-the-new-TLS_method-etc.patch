@@ -1,0 +1,226 @@
+From 764a77e3f13778acbf1f01b914fdd31c2408a749 Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Sun, 24 Jul 2016 18:07:22 +0100
+Subject: [PATCH 07/23] Move to the new TLS_method etc.
+
+Note that currently we don't limit the supported protocols using the
+options. This will need adding.
+
+Change-Id: I70b19083b1278249856fdc7787a3bc8217b78f21
+---
+ src/network/ssl/qsslcontext_openssl.cpp        | 62 +++-----------------------
+ src/network/ssl/qsslsocket_openssl.cpp         |  2 +-
+ src/network/ssl/qsslsocket_openssl_symbols.cpp | 55 +++--------------------
+ src/network/ssl/qsslsocket_openssl_symbols_p.h | 34 ++------------
+ 4 files changed, 15 insertions(+), 138 deletions(-)
+
+diff --git a/src/network/ssl/qsslcontext_openssl.cpp b/src/network/ssl/qsslcontext_openssl.cpp
+index 96279ea..38bb86b 100644
+--- a/src/network/ssl/qsslcontext_openssl.cpp
++++ b/src/network/ssl/qsslcontext_openssl.cpp
+@@ -94,66 +94,14 @@ void QSslContext::initSslContext(QSslContext *sslContext, QSslSocket::SslMode mo
+     bool reinitialized = false;
+     bool unsupportedProtocol = false;
+ init_context:
+-    switch (sslContext->sslConfiguration.protocol()) {
+-    case QSsl::SslV2:
++    if (sslContext->sslConfiguration.protocol() == QSsl::SslV2) {
+         // SSL 2 no is no longer supported, but chosen deliberately -> error
+         sslContext->ctx = 0;
+         unsupportedProtocol = true;
+-        break;
+-    case QSsl::SslV3:
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-        sslContext->ctx = q_SSL_CTX_new(client ? q_SSLv3_client_method() : q_SSLv3_server_method());
+-#else
+-        // SSL 3 not supported by the system, but chosen deliberately -> error
+-        sslContext->ctx = 0;
+-        unsupportedProtocol = true;
+-#endif
+-        break;
+-    case QSsl::SecureProtocols:
+-        // SSLv2 and SSLv3 will be disabled by SSL options
+-        // But we need q_SSLv23_server_method() otherwise AnyProtocol will be unable to connect on Win32.
+-    case QSsl::TlsV1SslV3:
+-        // SSLv2 will will be disabled by SSL options
+-    case QSsl::AnyProtocol:
+-    default:
+-        sslContext->ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
+-        break;
+-    case QSsl::TlsV1_0:
+-        sslContext->ctx = q_SSL_CTX_new(client ? q_TLSv1_client_method() : q_TLSv1_server_method());
+-        break;
+-    case QSsl::TlsV1_1:
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+-        sslContext->ctx = q_SSL_CTX_new(client ? q_TLSv1_1_client_method() : q_TLSv1_1_server_method());
+-#else
+-        // TLS 1.1 not supported by the system, but chosen deliberately -> error
+-        sslContext->ctx = 0;
+-        unsupportedProtocol = true;
+-#endif
+-        break;
+-    case QSsl::TlsV1_2:
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+-        sslContext->ctx = q_SSL_CTX_new(client ? q_TLSv1_2_client_method() : q_TLSv1_2_server_method());
+-#else
+-        // TLS 1.2 not supported by the system, but chosen deliberately -> error
+-        sslContext->ctx = 0;
+-        unsupportedProtocol = true;
+-#endif
+-        break;
+-    case QSsl::TlsV1_0OrLater:
+-        // Specific protocols will be specified via SSL options.
+-        sslContext->ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
+-        break;
+-    case QSsl::TlsV1_1OrLater:
+-    case QSsl::TlsV1_2OrLater:
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+-        // Specific protocols will be specified via SSL options.
+-        sslContext->ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
+-#else
+-        // TLS 1.1/1.2 not supported by the system, but chosen deliberately -> error
+-        sslContext->ctx = 0;
+-        unsupportedProtocol = true;
+-#endif
+-        break;
++    }
++    else {
++        // The ssl options will actually control the supported methods
++        sslContext->ctx = q_SSL_CTX_new(client ? q_TLS_client_method() : q_TLS_server_method());
+     }
+ 
+     if (!sslContext->ctx) {
+diff --git a/src/network/ssl/qsslsocket_openssl.cpp b/src/network/ssl/qsslsocket_openssl.cpp
+index 49a8a4b..74bcc28 100644
+--- a/src/network/ssl/qsslsocket_openssl.cpp
++++ b/src/network/ssl/qsslsocket_openssl.cpp
+@@ -629,7 +629,7 @@ QString QSslSocketPrivate::sslLibraryBuildVersionString()
+ */
+ void QSslSocketPrivate::resetDefaultCiphers()
+ {
+-    SSL_CTX *myCtx = q_SSL_CTX_new(q_SSLv23_client_method());
++    SSL_CTX *myCtx = q_SSL_CTX_new(q_TLS_client_method());
+     SSL *mySsl = q_SSL_new(myCtx);
+ 
+     QList<QSslCipher> ciphers;
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index 11232fc..a09324d 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -316,37 +316,9 @@ DEFINEFUNC2(void, SSL_set_psk_client_callback, SSL* ssl, ssl, q_psk_client_callb
+ DEFINEFUNC2(void, SSL_set_psk_server_callback, SSL* ssl, ssl, q_psk_server_callback_t callback, callback, return, DUMMYARG)
+ DEFINEFUNC2(int, SSL_CTX_use_psk_identity_hint, SSL_CTX* ctx, ctx, const char *hint, hint, return 0, return)
+ #endif
+-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-DEFINEFUNC(const SSL_METHOD *, SSLv3_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-#endif
+-DEFINEFUNC(const SSL_METHOD *, SSLv23_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC(const SSL_METHOD *, TLSv1_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+-DEFINEFUNC(const SSL_METHOD *, TLSv1_1_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC(const SSL_METHOD *, TLSv1_2_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-#endif
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-DEFINEFUNC(const SSL_METHOD *, SSLv3_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-#endif
+-DEFINEFUNC(const SSL_METHOD *, SSLv23_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC(const SSL_METHOD *, TLSv1_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+-DEFINEFUNC(const SSL_METHOD *, TLSv1_1_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC(const SSL_METHOD *, TLSv1_2_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-#endif
+-#else
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-DEFINEFUNC(SSL_METHOD *, SSLv3_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-#endif
+-DEFINEFUNC(SSL_METHOD *, SSLv23_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC(SSL_METHOD *, TLSv1_client_method, DUMMYARG, DUMMYARG, return 0, return)
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-DEFINEFUNC(SSL_METHOD *, SSLv3_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-#endif
+-DEFINEFUNC(SSL_METHOD *, SSLv23_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-DEFINEFUNC(SSL_METHOD *, TLSv1_server_method, DUMMYARG, DUMMYARG, return 0, return)
+-#endif
++DEFINEFUNC(const SSL_METHOD *, TLS_method, DUMMYARG, DUMMYARG, return 0, return)
++DEFINEFUNC(const SSL_METHOD *, TLS_client_method, DUMMYARG, DUMMYARG, return 0, return)
++DEFINEFUNC(const SSL_METHOD *, TLS_server_method, DUMMYARG, DUMMYARG, return 0, return)
+ DEFINEFUNC3(int, SSL_write, SSL *a, a, const void *b, b, int c, c, return -1, return)
+ DEFINEFUNC2(int, X509_cmp, X509 *a, a, X509 *b, b, return -1, return)
+ #ifndef SSLEAY_MACROS
+@@ -928,24 +900,9 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(SSL_CTX_use_psk_identity_hint)
+ #endif
+     RESOLVEFUNC(SSL_write)
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-    RESOLVEFUNC(SSLv3_client_method)
+-#endif
+-    RESOLVEFUNC(SSLv23_client_method)
+-    RESOLVEFUNC(TLSv1_client_method)
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+-    RESOLVEFUNC(TLSv1_1_client_method)
+-    RESOLVEFUNC(TLSv1_2_client_method)
+-#endif
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-    RESOLVEFUNC(SSLv3_server_method)
+-#endif
+-    RESOLVEFUNC(SSLv23_server_method)
+-    RESOLVEFUNC(TLSv1_server_method)
+-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+-    RESOLVEFUNC(TLSv1_1_server_method)
+-    RESOLVEFUNC(TLSv1_2_server_method)
+-#endif
++    RESOLVEFUNC(TLS_method)
++    RESOLVEFUNC(TLS_client_method)
++    RESOLVEFUNC(TLS_server_method)
+     RESOLVEFUNC(X509_NAME_entry_count)
+     RESOLVEFUNC(X509_NAME_get_entry)
+     RESOLVEFUNC(X509_NAME_ENTRY_get_data)
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index c2ec4533e..644460f 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -405,37 +405,9 @@ typedef unsigned int (*q_psk_server_callback_t)(SSL *ssl, const char *identity,
+ void q_SSL_set_psk_server_callback(SSL *ssl, q_psk_server_callback_t callback);
+ int q_SSL_CTX_use_psk_identity_hint(SSL_CTX *ctx, const char *hint);
+ #endif // OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_PSK)
+-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-const SSL_METHOD *q_SSLv3_client_method();
+-#endif
+-const SSL_METHOD *q_SSLv23_client_method();
+-const SSL_METHOD *q_TLSv1_client_method();
+-const SSL_METHOD *q_TLSv1_1_client_method();
+-const SSL_METHOD *q_TLSv1_2_client_method();
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-const SSL_METHOD *q_SSLv3_server_method();
+-#endif
+-const SSL_METHOD *q_SSLv23_server_method();
+-const SSL_METHOD *q_TLSv1_server_method();
+-const SSL_METHOD *q_TLSv1_1_server_method();
+-const SSL_METHOD *q_TLSv1_2_server_method();
+-#else
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-SSL_METHOD *q_SSLv3_client_method();
+-#endif
+-SSL_METHOD *q_SSLv23_client_method();
+-SSL_METHOD *q_TLSv1_client_method();
+-SSL_METHOD *q_TLSv1_1_client_method();
+-SSL_METHOD *q_TLSv1_2_client_method();
+-#ifndef OPENSSL_NO_SSL3_METHOD
+-SSL_METHOD *q_SSLv3_server_method();
+-#endif
+-SSL_METHOD *q_SSLv23_server_method();
+-SSL_METHOD *q_TLSv1_server_method();
+-SSL_METHOD *q_TLSv1_1_server_method();
+-SSL_METHOD *q_TLSv1_2_server_method();
+-#endif
++const SSL_METHOD *q_TLS_method();
++const SSL_METHOD *q_TLS_client_method();
++const SSL_METHOD *q_TLS_server_method();
+ int q_SSL_write(SSL *a, const void *b, int c);
+ int q_X509_cmp(X509 *a, X509 *b);
+ #ifdef SSLEAY_MACROS
+-- 
+2.10.0
+

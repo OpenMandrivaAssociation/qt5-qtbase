@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta %nil
+%define beta %{nil}
 %define api 5
 %define major 5
 
@@ -36,8 +36,8 @@
 %define qtcored %mklibname qt%{api}core -d
 %define qtdbus %mklibname qt%{api}dbus %{major}
 %define qtdbusd %mklibname qt%{api}dbus -d
-%define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
-%define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
+%define qteglfsdeviceintegration %mklibname qt%{api}eglfsdeviceintegration %{major}
+%define qteglfsdeviceintegrationd %mklibname qt%{api}eglfsdeviceintegration -d
 %define qtgui %mklibname qt%{api}gui %{major}
 %define qtguid %mklibname qt%{api}gui -d
 %define qtnetwork %mklibname qt%{api}network %{major}
@@ -56,6 +56,22 @@
 %define qtxcbqpad %mklibname qt%{api}xcbqpa -d
 %define qtxml %mklibname qt%{api}xml %{major}
 %define qtxmld %mklibname qt%{api}xml -d
+# The following ones exist only as static libraries (probably no stable ABI yet)
+%define qtaccessibilitysupportd %mklibname qt%{api}accessibilitysupport -d -s
+%define qtdevicediscoverysupportd %mklibname qt%{api}devicediscoverysupport -d -s
+%define qteglsupportd %mklibname qt%{api}eglsupport -d -s
+%define qteventdispatchersupportd %mklibname qt%{api}eventdispatchersupport -d -s
+%define qtfbsupportd %mklibname qt%{api}fbsupport -d -s
+%define qtfontdatabasesupportd %mklibname qt%{api}fontdatabasesupport -d -s
+%define qtglxsupportd %mklibname qt%{api}glxsupport -d -s
+%define qtinputsupportd %mklibname qt%{api}inputsupport -d -s
+%define qtlinuxaccessibilitysupportd %mklibname qt%{api}linuxaccessibilitysupport -d -s
+%define qtplatformcompositorsupportd %mklibname qt%{api}platformcompositorsupport -d -s
+%define qtservicesupportd %mklibname qt%{api}servicesupport -d -s
+%define qtthemesupportd %mklibname qt%{api}themesupport -d -s
+# Removed in 5.8, but we still need the names so we can obsolete it
+%define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
+%define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
 %bcond_without bootstrap
 
@@ -70,7 +86,7 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 
-%ifarch %{ix86}
+%ifarch %{ix86} %arm
 # (tpg) build with gcc as with clang it fails for some strange reasons
 %bcond_with clang
 %else
@@ -85,9 +101,9 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.6.2
+Version:	5.8.0
 %if "%{beta}" != ""
-Release:	1.%{beta}.1
+Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
@@ -107,16 +123,43 @@ Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
 # FIXME check if this has been fixed in 5.6.0 or if the patch needs to
 # be updated
 #Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
+# Fix XDG_RUNTIME_DIR for setuid applications
+# https://issues.openmandriva.org/show_bug.cgi?id=1641
+Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
+Patch4:		qt-5.8.0-no-isystem-usr-include.patch
+
+### OpenSSL 1.1 patches, from https://github.com/richmoore/qtbase
+Patch50:	0001-Port-QSslCertificate-to-openssl-1.1.patch
+Patch51:	0002-Ported-QSslContext.patch
+Patch52:	0003-Port-qssldiffiehellmanparameters.patch
+Patch53:	0004-Port-qsslkey.patch
+# Rebased
+Patch54:	0005-Fix-a-few-changed-methods.patch
+Patch55:	0006-Remove-ssl2-code.patch
+Patch56:	0007-Move-to-the-new-TLS_method-etc.patch
+Patch57:	0008-Remove-the-locking-code-since-openssl-does-this-now.patch
+Patch58:	0009-Update-copyrights.patch
+# Rebased
+Patch59:	0010-Remove-ifdefs-for-old-versions-from-the-dlopen-glue.patch
+# Rebased
+Patch60:	0011-Remove-support-for-SSLEAY_MACROS.patch
+Patch61:	0012-Remove-more-legacy-crap.patch
+Patch62:	0013-Add-support-for-session-debugging.patch
+Patch63:	0014-Remove-some-runtime-version-checks-and-more-consting.patch
+Patch64:	0015-Remove-more-compatibility-cruft.patch
+Patch65:	0016-Fix-duplication-of-SSL_get_session.patch
+Patch66:	0017-Some-more-macros-have-become-function-and-need-wrapp.patch
+Patch67:	0018-Port-to-new-STACK-API.patch
+Patch68:	0019-Stricter-include-requirements.patch
+Patch69:	0020-Port-the-last-bits-to-the-new-APIs.patch
+Patch70:	0021-Add-notes-on-the-current-status.patch
+Patch71:	0022-Merge-in-Timur-s-changes.patch
+Patch72:	0023-Remove-more-compatibility-cruft.patch
 
 ### Fedora patches
-Patch101:	qtbase-opensource-src-5.6.0-arm.patch
 Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
-# recently passed code review, not integrated yet
-# https://codereview.qt-project.org/126102/
-Patch105:	moc-get-the-system-defines-from-the-compiler-itself.patch
-
 ### END OF FEDORA PATCHES
 
 # (tpg) Upstream patches
@@ -131,9 +174,10 @@ Patch1006:      Fix-some-QtDBus-crashes-during-application-destruction.patch
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
 # just built QtCore. This should be fixed properly in the Makefiles.
-BuildConflicts: %{mklibname -d qt5core} != %{version}
+BuildConflicts: %{mklibname -d qt5core} < %{version}
 
 BuildRequires:	jpeg-devel
+BuildRequires:	double-conversion-devel
 # Build scripts
 BuildRequires:	python >= 3.0
 BuildRequires:	python2
@@ -325,6 +369,7 @@ Development files for version 5 of the QtCore library.
 %{_qt_libdir}/cmake/Qt%{api}Core
 %{_qt_libdir}/cmake/Qt%{api}/Qt%{api}Config.cmake
 %{_qt_libdir}/cmake/Qt%{api}/Qt%{api}ConfigVersion.cmake
+%{_qt_libdir}/cmake/Qt%{api}/Qt%{api}ModuleLocation.cmake
 %{_qt_libdir}/pkgconfig/Qt%{api}Core.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Core.pc
@@ -372,33 +417,36 @@ Development files for version 5 of the QtDBus library.
 %endif
 
 #----------------------------------------------------------------------------
-%package -n %{qtegldeviceintegration}
+%package -n %{qteglfsdeviceintegration}
 Summary:	Qt EGL Device integration library
 Group:		System/Libraries
+%rename %{qtegldeviceintegration}
 
-%description -n %{qtegldeviceintegration}
+%description -n %{qteglfsdeviceintegration}
 Qt EGL Device integration library
 
-%files -n %{qtegldeviceintegration}
-%{_qt_libdir}/libQt%{api}EglDeviceIntegration.so.%{major}*
+%files -n %{qteglfsdeviceintegration}
+%{_qt_libdir}/libQt%{api}EglFSDeviceIntegration.so.%{major}*
 %if "%{_qt_libdir}" != "%{_libdir}"
-%{_libdir}/libQt%{api}EglDeviceIntegration.so.%{major}*
+%{_libdir}/libQt%{api}EglFSDeviceIntegration.so.%{major}*
 %endif
 %{_qt_plugindir}/egldeviceintegrations
 
 #----------------------------------------------------------------------------
 
-%package -n %{qtegldeviceintegrationd}
+%package -n %{qteglfsdeviceintegrationd}
 Summary:	Development files for version 5 of the QtEGLDeviceIntegration library
 Group:		Development/KDE and Qt
-Requires:	%{qtegldeviceintegration} = %{EVRD}
+Requires:	%{qteglfsdeviceintegration} = %{EVRD}
+%rename %{qtegldeviceintegrationd}
 
-%description -n %{qtegldeviceintegrationd}
+%description -n %{qteglfsdeviceintegrationd}
 Development files for version 5 of the QtEGLDeviceIntegration library.
 
-%files -n %{qtegldeviceintegrationd}
-%{_qt_libdir}/libQt%{api}EglDeviceIntegration.so
-%{_qt_libdir}/libQt%{api}EglDeviceIntegration.prl
+%files -n %{qteglfsdeviceintegrationd}
+%{_qt_libdir}/libQt%{api}EglFSDeviceIntegration.so
+%{_qt_libdir}/libQt%{api}EglFSDeviceIntegration.prl
+%{_qt_includedir}/QtEglFSDeviceIntegration
 
 #----------------------------------------------------------------------------
 
@@ -447,9 +495,10 @@ Requires:	%{qtgui}-offscreen = %{EVRD}
 Requires:	%{qtgui}-x11 = %{EVRD}
 Requires:	%{qtgui}-eglfs = %{EVRD}
 Requires:	%{qtgui}-minimalegl = %{EVRD}
+Requires:	%{qtgui}-vnc = %{EVRD}
 Obsoletes:	%{qtgui}-kms < %{EVRD}
 %if %{with gtk}
-Requires:	%{name}-platformtheme-gtk2 = %{EVRD}
+Requires:	%{name}-platformtheme-gtk3 = %{EVRD}
 %endif
 Requires:	pkgconfig(gl)
 Requires:	pkgconfig(egl)
@@ -463,11 +512,8 @@ Development files for version 5 of the QtGui library.
 %{_bindir}/uic-qt%{api}
 %{_qt_includedir}/QtGui
 %{_qt_includedir}/QtPlatformHeaders
-%{_qt_includedir}/QtPlatformSupport
 %{_qt_libdir}/libQt%{api}Gui.so
 %{_qt_libdir}/libQt%{api}Gui.prl
-%{_qt_libdir}/libQt%{api}PlatformSupport.a
-%{_qt_libdir}/libQt%{api}PlatformSupport.prl
 %{_qt_libdir}/cmake/Qt%{api}Gui
 %{_qt_libdir}/pkgconfig/Qt%{api}Gui.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
@@ -569,6 +615,25 @@ EGL fullscreen output driver for QtGui v5.
 
 %files -n %{qtgui}-eglfs
 %{_qt_plugindir}/platforms/libqeglfs.so
+%{_qt_libdir}/libQt%{api}EglFsKmsSupport.so.%{major}*
+%if "%{_libdir}" != "%{_qt_libdir}"
+%{_libdir}/libQt%{api}EglFsKmsSupport.so.%{major}*
+%endif
+
+#----------------------------------------------------------------------------
+
+%package -n %{qtgui}-eglfs-devel
+Summary:	Development files for the EGL fullscreen output driver for QtGui v5
+Group:		System/Libraries
+Requires:	%{qtgui} = %{EVRD}
+Requires:	%{qtgui}-eglfs = %{EVRD}
+
+%description -n %{qtgui}-eglfs-devel
+Development files for the EGL fullscreen output driver for QtGui v5.
+
+%files -n %{qtgui}-eglfs-devel
+%{_qt_libdir}/libQt%{api}EglFsKmsSupport.so
+%{_qt_libdir}/libQt%{api}EglFsKmsSupport.prl
 
 #----------------------------------------------------------------------------
 
@@ -583,6 +648,20 @@ Minimalistic EGL output driver for QtGui v5.
 
 %files -n %{qtgui}-minimalegl
 %{_qt_plugindir}/platforms/libqminimalegl.so
+
+#----------------------------------------------------------------------------
+
+%package -n %{qtgui}-vnc
+Summary:	VNC output driver for QtGui v5
+Group:		System/Libraries
+Requires:	%{qtgui} = %{EVRD}
+Provides:	%{_lib}qt5-output-driver = %{EVRD}
+
+%description -n %{qtgui}-vnc
+VNC output driver for QtGui v5.
+
+%files -n %{qtgui}-vnc
+%{_qt_plugindir}/platforms/libqvnc.so
 
 #----------------------------------------------------------------------------
 %package -n %{qtnetwork}
@@ -960,6 +1039,18 @@ Requires:	qmake%{api} = %{EVRD}
 Requires:	qlalr%{api} = %{EVRD}
 Requires:	qt5-macros = %{EVRD}
 Provides:	%{name}-devel = %{EVRD}
+Suggests:	%{qtaccessibilitysupportd} = %{EVRD}
+Suggests:	%{qtdevicediscoverysupportd} = %{EVRD}
+Suggests:	%{qteglsupportd} = %{EVRD}
+Suggests:	%{qteventdispatchersupportd} = %{EVRD}
+Suggests:	%{qtfbsupportd} = %{EVRD}
+Suggests:	%{qtfontdatabasesupportd} = %{EVRD}
+Suggests:	%{qtglxsupportd} = %{EVRD}
+Suggests:	%{qtinputsupportd} = %{EVRD}
+Suggests:	%{qtlinuxaccessibilitysupportd} = %{EVRD}
+Suggests:	%{qtplatformcompositorsupportd} = %{EVRD}
+Suggests:	%{qtservicesupportd} = %{EVRD}
+Suggests:	%{qtthemesupportd} = %{EVRD}
 
 %description devel
 Meta-package for installing all Qt 5 Base development files.
@@ -1076,22 +1167,191 @@ Base macros for Qt 5.
 
 #----------------------------------------------------------------------------
 %if %{with gtk}
-%package -n qt5-platformtheme-gtk2
-Summary:	GTK 2.x platform theme for Qt 5
+%package -n qt5-platformtheme-gtk3
+Summary:	GTK 3.x platform theme for Qt 5
 Group:		Graphical desktop/KDE
 Requires:	%{qtgui} = %{EVRD}
-BuildRequires:	pkgconfig(gtk+-x11-2.0)
-# Was introduced by mistake
-%rename %{name}-platformtheme-gtk2
+Provides:	%{name}-platformtheme-gtk3 = %{EVRD}
+BuildRequires:	pkgconfig(gtk+-x11-3.0)
+# Not really... But the gtk2 platformtheme doesn't exist anymore for 5.7
+%rename	qt5-platformtheme-gtk2
 
-%description -n qt5-platformtheme-gtk2
-GTK 2.x platform theme for Qt 5. This plugin allows Qt to render
-controls using GTK 2.x themes - making it integrate better with GTK
+%description -n qt5-platformtheme-gtk3
+GTK 3.x platform theme for Qt 5. This plugin allows Qt to render
+controls using GTK 3.x themes - making it integrate better with GTK
 based desktops.
 
-%files -n qt5-platformtheme-gtk2
-%{_qt_plugindir}/platformthemes/libqgtk2.so
+%files -n qt5-platformtheme-gtk3
+%{_qt_plugindir}/platformthemes/libqgtk3.so
 %endif
+
+#----------------------------------------------------------------------------
+%package -n %{qtaccessibilitysupportd}
+Summary:	Helper library for Qt accessibility support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtaccessibilitysupportd}
+Helper library for Qt accessibility support
+
+%files -n %{qtaccessibilitysupportd}
+%{_includedir}/qt%{api}/QtAccessibilitySupport
+%{_libdir}/libQt%{api}AccessibilitySupport.a
+%{_libdir}/libQt%{api}AccessibilitySupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtdevicediscoverysupportd}
+Summary:	Helper library for Qt device discovery
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtdevicediscoverysupportd}
+Helper library for Qt device discovery
+
+%files -n %{qtdevicediscoverysupportd}
+%{_includedir}/qt%{api}/QtDeviceDiscoverySupport
+%{_libdir}/libQt%{api}DeviceDiscoverySupport.a
+%{_libdir}/libQt%{api}DeviceDiscoverySupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qteglsupportd}
+Summary:	Helper library for Qt EGL support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qteglsupportd}
+Helper library for Qt EGL support
+
+%files -n %{qteglsupportd}
+%{_includedir}/qt%{api}/QtEglSupport
+%{_libdir}/libQt%{api}EglSupport.a
+%{_libdir}/libQt%{api}EglSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qteventdispatchersupportd}
+Summary:	Helper library for Qt event dispatcher support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qteventdispatchersupportd}
+Helper library for Qt event dispatcher support
+
+%files -n %{qteventdispatchersupportd}
+%{_includedir}/qt%{api}/QtEventDispatcherSupport
+%{_libdir}/libQt%{api}EventDispatcherSupport.a
+%{_libdir}/libQt%{api}EventDispatcherSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtfbsupportd}
+Summary:	Helper library for Qt framebuffer support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtfbsupportd}
+Helper library for Qt framebuffer support
+
+%files -n %{qtfbsupportd}
+%{_includedir}/qt%{api}/QtFbSupport
+%{_libdir}/libQt%{api}FbSupport.a
+%{_libdir}/libQt%{api}FbSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtfontdatabasesupportd}
+Summary:	Helper library for Qt font database support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtfontdatabasesupportd}
+Helper library for Qt font database support
+
+%files -n %{qtfontdatabasesupportd}
+%{_includedir}/qt%{api}/QtFontDatabaseSupport
+%{_libdir}/libQt%{api}FontDatabaseSupport.a
+%{_libdir}/libQt%{api}FontDatabaseSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtglxsupportd}
+Summary:	Helper library for Qt GLX support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtglxsupportd}
+Helper library for Qt GLX support
+
+%files -n %{qtglxsupportd}
+%{_includedir}/qt%{api}/QtGlxSupport
+%{_libdir}/libQt%{api}GlxSupport.a
+%{_libdir}/libQt%{api}GlxSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtinputsupportd}
+Summary:	Helper library for Qt input support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtinputsupportd}
+Helper library for Qt input support
+
+%files -n %{qtinputsupportd}
+%{_includedir}/qt%{api}/QtInputSupport
+%{_libdir}/libQt%{api}InputSupport.a
+%{_libdir}/libQt%{api}InputSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtlinuxaccessibilitysupportd}
+Summary:	Helper library for Qt Linux accessibility support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtlinuxaccessibilitysupportd}
+Helper library for Qt Linux accessibility support
+
+%files -n %{qtlinuxaccessibilitysupportd}
+%{_includedir}/qt%{api}/QtLinuxAccessibilitySupport
+%{_libdir}/libQt%{api}LinuxAccessibilitySupport.a
+%{_libdir}/libQt%{api}LinuxAccessibilitySupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtplatformcompositorsupportd}
+Summary:	Helper library for Qt platform compositor support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtplatformcompositorsupportd}
+Helper library for Qt platform compositor support
+
+%files -n %{qtplatformcompositorsupportd}
+%{_includedir}/qt%{api}/QtPlatformCompositorSupport
+%{_libdir}/libQt%{api}PlatformCompositorSupport.a
+%{_libdir}/libQt%{api}PlatformCompositorSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtservicesupportd}
+Summary:	Helper library for Qt service support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtservicesupportd}
+Helper library for Qt service support
+
+%files -n %{qtservicesupportd}
+%{_includedir}/qt%{api}/QtServiceSupport
+%{_libdir}/libQt%{api}ServiceSupport.a
+%{_libdir}/libQt%{api}ServiceSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtthemesupportd}
+Summary:	Helper library for Qt theme support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtthemesupportd}
+Helper library for Qt theme support
+
+%files -n %{qtthemesupportd}
+%{_includedir}/qt%{api}/QtThemeSupport
+%{_libdir}/libQt%{api}ThemeSupport.a
+%{_libdir}/libQt%{api}ThemeSupport.prl
 
 #----------------------------------------------------------------------------
 
@@ -1132,8 +1392,13 @@ sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
 %ifarch %{arm}
 # The asm bits in 3rdparty/pixman are pre-unified syntax
+%if !%{without clang}
 sed -i -e "s|-O2|%{optflags} -no-integrated-as|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|%{optflags} -no-integrated-as|g" mkspecs/common/gcc-base.conf
+%else
+sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
+%endif
 %else
 sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
@@ -1173,8 +1438,31 @@ sed -i -e 's,\$(CXX) -o,\$(CXX) \$(CXXFLAGS) -o,' qmake/Makefile.unix
 # move some bundled libs to ensure they're not accidentally used
 pushd src/3rdparty
 mkdir UNUSED
-mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
+# FIXME
+#mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 popd
+
+# Check for clang bug #28194
+cat >test1.cpp <<'EOF'
+struct A {} a;
+EOF
+cat >test2.cpp <<'EOF'
+enum A {} a;
+EOF
+%{__cxx} -Os -gdwarf-4 -flto -fPIC -o test1.o -c test1.cpp
+%{__cxx} -Os -gdwarf-4 -flto -fPIC -o test2.o -c test2.cpp
+if LC_ALL=C %{__cxx} -Os -gdwarf-4 -flto -fPIC -shared -fuse-ld=gold -o test.so test1.o test2.o 2>&1 |grep -q "invalid debug info"; then
+	echo "Applying workaround for clang bug #28194"
+	sed -i -e 's,Operator,ComparisonOperator,g' src/gui/opengl/qopengl.cpp
+elif ! echo %{__cxx} |grep -q clang; then
+	echo "Not using clang - workaround not needed"
+elif %{__cxx} --version |grep -q "3\.8"; then
+	echo "But not present in clang 3.8.x"
+else
+	echo "Clang bug #28194 is fixed, please remove the workaround"
+	echo "(search the spec file for \"Check for clang bug #28194\")"
+	exit 1
+fi
 
 %build
 # build with python2
@@ -1198,8 +1486,6 @@ export PATH=`pwd`/pybin:$PATH
 	-release \
 	-opensource \
 	-shared \
-	-c++11 \
-	-largefile \
 	-accessibility \
 	-no-sql-db2 \
 	-no-sql-ibase \
@@ -1231,19 +1517,22 @@ export PATH=`pwd`/pybin:$PATH
 	-system-zlib \
 	-system-libpng \
 	-system-libjpeg \
+	-ssl \
 	-openssl-linked \
 	-system-pcre \
 	-system-xcb \
 	-system-harfbuzz \
 	-optimized-qmake \
+	-optimized-tools \
 	-cups \
-	-iconv \
 	-icu \
+	-inotify \
+	-eventfd \
 	-no-strip \
 	-no-pch \
 	-nomake tests \
 	-dbus-linked \
-%ifarch %{ix86} %{armx}
+%ifarch %{armx}
 	-no-sse2 \
 	-no-sse3 \
 	-no-ssse3 \
@@ -1277,23 +1566,16 @@ export PATH=`pwd`/pybin:$PATH
 	-gnumake \
 	-pkg-config \
 	-sm \
-	-xinerama \
-	-xshape \
-	-xvideo \
-	-xsync \
+	-gif \
+	-ico \
+	-c++std c++14 \
 	-xinput2 \
-	-xcursor \
-	-xfixes \
-	-xrandr \
-	-xrender \
 	-xkb \
 	-confirm-license \
 	-system-proxies \
 	-glib \
 	-mtdev \
 	-journald \
-	-pulseaudio \
-	-alsa \
 	-linuxfb \
 	-evdev \
 	-verbose \
@@ -1320,6 +1602,10 @@ export PATH=`pwd`/pybin:$PATH
 export PATH=`pwd`/pybin:$PATH
 
 make install STRIP=/bin/true INSTALL_ROOT=%{buildroot}
+
+# Drop internal libpng -- we don't actually use it,
+# but the qmake files insist on building it
+rm -f %{buildroot}%{_libdir}/libqtlibpng.*
 
 %if %{with docs}
 make install_qch_docs INSTALL_ROOT=%{buildroot}

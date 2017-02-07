@@ -1,0 +1,97 @@
+From c9fd66fc4d8789c8243dd425c1a4f76813b9053b Mon Sep 17 00:00:00 2001
+From: "Richard J. Moore" <rich@kde.org>
+Date: Tue, 26 Jul 2016 22:01:13 +0100
+Subject: [PATCH 17/23] Some more macros have become function and need wrappers
+
+Change-Id: Ie890c92ac75f2c7a66d48f64ea8a5d7dcc027bc4
+---
+ src/network/ssl/qsslsocket_openssl.cpp         | 2 +-
+ src/network/ssl/qsslsocket_openssl_symbols.cpp | 9 +++++++--
+ src/network/ssl/qsslsocket_openssl_symbols_p.h | 3 +++
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/src/network/ssl/qsslsocket_openssl.cpp b/src/network/ssl/qsslsocket_openssl.cpp
+index 35a453e..869c2c3 100644
+--- a/src/network/ssl/qsslsocket_openssl.cpp
++++ b/src/network/ssl/qsslsocket_openssl.cpp
+@@ -1588,7 +1588,7 @@ QList<QSslError> QSslSocketBackendPrivate::verify(const QList<QSslCertificate> &
+     QMutexLocker sslErrorListMutexLocker(&_q_sslErrorList()->mutex);
+ 
+     // Register a custom callback to get all verification errors.
+-    X509_STORE_set_verify_cb_func(certStore, q_X509Callback);
++    q_X509_STORE_set_verify_cb(certStore, q_X509Callback);
+ 
+     // Build the chain of intermediate certificates
+     STACK_OF(X509) *intermediates = 0;
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index 397853b..68b04a5 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -293,6 +293,8 @@ DEFINEFUNC2(void, X509_print, BIO *a, a, X509 *b, b, return, DUMMYARG);
+ DEFINEFUNC4(int, X509_digest, const X509 *x509, x509, const EVP_MD *type, type, unsigned char *md, md, unsigned int *len, len, return -1, return)
+ DEFINEFUNC(ASN1_OBJECT *, X509_EXTENSION_get_object, X509_EXTENSION *a, a, return 0, return)
+ DEFINEFUNC(void, X509_free, X509 *a, a, return, DUMMYARG)
++DEFINEFUNC(ASN1_TIME *, X509_get_notBefore, X509 *a, a, return 0, return)
++DEFINEFUNC(ASN1_TIME *, X509_get_notAfter, X509 *a, a, return 0, return)
+ DEFINEFUNC2(X509_EXTENSION *, X509_get_ext, X509 *a, a, int b, b, return 0, return)
+ DEFINEFUNC(int, X509_get_ext_count, X509 *a, a, return 0, return)
+ DEFINEFUNC4(void *, X509_get_ext_d2i, X509 *a, a, int b, b, int *c, c, int *d, d, return 0, return)
+@@ -318,6 +320,7 @@ DEFINEFUNC(EVP_PKEY *, X509_PUBKEY_get, X509_PUBKEY *a, a, return 0, return)
+ DEFINEFUNC(void, X509_STORE_free, X509_STORE *a, a, return, DUMMYARG)
+ DEFINEFUNC(X509_STORE *, X509_STORE_new, DUMMYARG, DUMMYARG, return 0, return)
+ DEFINEFUNC2(int, X509_STORE_add_cert, X509_STORE *a, a, X509 *b, b, return 0, return)
++DEFINEFUNC2(void, X509_STORE_set_verify_cb, X509_STORE *a, a, X509_STORE_CTX_verify_cb verify_cb, verify_cb, return, DUMMYARG)
+ DEFINEFUNC(void, X509_STORE_CTX_free, X509_STORE_CTX *a, a, return, DUMMYARG)
+ DEFINEFUNC4(int, X509_STORE_CTX_init, X509_STORE_CTX *a, a, X509_STORE *b, b, X509 *c, c, STACK_OF(X509) *d, d, return -1, return)
+ DEFINEFUNC2(int, X509_STORE_CTX_set_purpose, X509_STORE_CTX *a, a, int b, b, return -1, return)
+@@ -788,7 +791,7 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(SSL_CTX_ctrl)
+     RESOLVEFUNC(SSL_CTX_free)
+     RESOLVEFUNC(SSL_CTX_new)
+-    RESOLVEFUNC(q_SSL_CTX_set_options)
++    RESOLVEFUNC(SSL_CTX_set_options)
+     RESOLVEFUNC(SSL_CTX_set_cipher_list)
+     RESOLVEFUNC(SSL_CTX_set_default_verify_paths)
+     RESOLVEFUNC(SSL_CTX_set_verify)
+@@ -860,6 +863,8 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(X509_print)
+     RESOLVEFUNC(X509_EXTENSION_get_object)
+     RESOLVEFUNC(X509_free)
++    RESOLVEFUNC(X509_get_notBefore)
++    RESOLVEFUNC(X509_get_notAfter)
+     RESOLVEFUNC(X509_get_ext)
+     RESOLVEFUNC(X509_get_ext_count)
+     RESOLVEFUNC(X509_get_ext_d2i)
+@@ -892,7 +897,7 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(SSL_select_next_proto)
+     RESOLVEFUNC(SSL_CTX_set_next_proto_select_cb)
+     RESOLVEFUNC(SSL_get0_next_proto_negotiated)
+-#endif !defined(OPENSSL_NO_NEXTPROTONEG)
++#endif // !defined(OPENSSL_NO_NEXTPROTONEG)
+     RESOLVEFUNC(SSL_set_alpn_protos)
+     RESOLVEFUNC(SSL_CTX_set_alpn_select_cb)
+     RESOLVEFUNC(SSL_get0_alpn_selected)
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index 9ac796c..0ec21e8 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -377,6 +377,8 @@ void q_X509_print(BIO *a, X509*b);
+ int q_X509_digest(const X509 *x509, const EVP_MD *type, unsigned char *md, unsigned int *len);
+ ASN1_OBJECT *q_X509_EXTENSION_get_object(X509_EXTENSION *a);
+ void q_X509_free(X509 *a);
++ASN1_TIME *q_X509_get_notBefore(X509 *a);
++ASN1_TIME *q_X509_get_notAfter(X509 *a);
+ X509_EXTENSION *q_X509_get_ext(X509 *a, int b);
+ int q_X509_get_ext_count(X509 *a);
+ void *q_X509_get_ext_d2i(X509 *a, int b, int *c, int *d);
+@@ -401,6 +403,7 @@ ASN1_OBJECT *q_X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *a);
+ EVP_PKEY *q_X509_PUBKEY_get(X509_PUBKEY *a);
+ void q_X509_STORE_free(X509_STORE *store);
+ X509_STORE *q_X509_STORE_new();
++void q_X509_STORE_set_verify_cb(X509_STORE *ctx, X509_STORE_CTX_verify_cb verify_cb);
+ int q_X509_STORE_add_cert(X509_STORE *ctx, X509 *x);
+ void q_X509_STORE_CTX_free(X509_STORE_CTX *storeCtx);
+ int q_X509_STORE_CTX_init(X509_STORE_CTX *ctx, X509_STORE *store,
+-- 
+2.10.0
+
