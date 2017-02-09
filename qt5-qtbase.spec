@@ -168,6 +168,7 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 Patch1005:	Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
 Patch1006:	Fix-some-QtDBus-crashes-during-application-destruction.patch
 # plasma crashes
+# https://bugs.kde.org/show_bug.cgi?id=342763
 Patch1008:	0c8f3229.patch
 Patch1009:	3bd0fd8f.patch
 Patch1007:	0874861b.patch
