@@ -107,7 +107,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	4
+Release:	5
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -173,6 +173,13 @@ Patch1008:	0c8f3229.patch
 Patch1009:	3bd0fd8f.patch
 Patch1007:	0874861b.patch
 Patch1010:	baad82d2.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1403500
+# https://bugreports.qt.io/browse/QTBUG-55583
+Patch1011:	qt5-qtbase-5.8-QTBUG-55583.patch
+# Ensure a pixel density of at least 1 for Qt::AA_EnableHighDpiScaling
+# https://bugreports.qt.io/browse/QTBUG-56140
+Patch1012:	qt5-qtbase-5.8-QTBUG-56140.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
