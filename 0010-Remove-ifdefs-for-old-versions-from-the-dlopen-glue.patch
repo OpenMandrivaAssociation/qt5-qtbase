@@ -1,5 +1,5 @@
---- qtbase-opensource-src-5.8.0-beta/src/network/ssl/qsslsocket_openssl_symbols.cpp.0059~	2016-11-07 16:25:56.415033637 +0100
-+++ qtbase-opensource-src-5.8.0-beta/src/network/ssl/qsslsocket_openssl_symbols.cpp	2016-11-07 16:25:56.417033593 +0100
+--- qtbase-opensource-src-5.9.0-alpha/src/network/ssl/qsslsocket_openssl_symbols.cpp.0059~	2017-03-02 21:15:32.317012611 +0100
++++ qtbase-opensource-src-5.9.0-alpha/src/network/ssl/qsslsocket_openssl_symbols.cpp	2017-03-02 21:17:30.845632755 +0100
 @@ -152,9 +152,7 @@ DEFINEFUNC3(int, BIO_read, BIO *a, a, vo
  DEFINEFUNC(const BIO_METHOD *, BIO_s_mem, void, DUMMYARG, return 0, return)
  DEFINEFUNC3(int, BIO_write, BIO *a, a, const void *b, b, int c, c, return -1, return)
@@ -7,7 +7,7 @@
 -#if OPENSSL_VERSION_NUMBER >= 0x10100000L
  DEFINEFUNC2(int, BN_is_word, BIGNUM *a, a, BN_ULONG w, w, return 0, return)
 -#endif
- DEFINEFUNC2(BN_ULONG, BN_mod_word, const BIGNUM *a, a, BN_ULONG w, w, return -1, return)
+ DEFINEFUNC2(BN_ULONG, BN_mod_word, const BIGNUM *a, a, BN_ULONG w, w, return static_cast<BN_ULONG>(-1), return)
  #ifndef OPENSSL_NO_EC
  DEFINEFUNC(const EC_GROUP*, EC_KEY_get0_group, const EC_KEY* k, k, return 0, return)
 @@ -239,17 +237,10 @@ DEFINEFUNC(void, RSA_free, RSA *a, a, re
@@ -160,8 +160,8 @@
  #endif // OPENSSL_NO_EC
      RESOLVEFUNC(PKCS12_parse)
      RESOLVEFUNC(d2i_PKCS12_bio)
---- qtbase-opensource-src-5.8.0-beta/src/network/ssl/qsslsocket_openssl_symbols_p.h.0059~	2016-11-07 16:25:56.416033615 +0100
-+++ qtbase-opensource-src-5.8.0-beta/src/network/ssl/qsslsocket_openssl_symbols_p.h	2016-11-07 16:28:45.041226326 +0100
+--- qtbase-opensource-src-5.9.0-alpha/src/network/ssl/qsslsocket_openssl_symbols_p.h.0059~	2017-03-02 21:15:32.317012611 +0100
++++ qtbase-opensource-src-5.9.0-alpha/src/network/ssl/qsslsocket_openssl_symbols_p.h	2017-03-02 21:15:32.319012621 +0100
 @@ -229,20 +229,7 @@ int q_BIO_read(BIO *a, void *b, int c);
  Q_AUTOTEST_EXPORT const BIO_METHOD *q_BIO_s_mem();
  Q_AUTOTEST_EXPORT int q_BIO_write(BIO *a, const void *b, int c);

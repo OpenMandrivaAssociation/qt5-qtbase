@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta %{nil}
+%define beta alpha
 %define api 5
 %define major 5
 
@@ -101,7 +101,7 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.8.0
+Version:	5.9.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
@@ -129,6 +129,7 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
+Patch5:		qt-5.9.0-alpha-detect-pcre2.patch
 
 ### OpenSSL 1.1 patches, from https://github.com/richmoore/qtbase
 %if %mdvver > 3000000
@@ -167,16 +168,6 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 # (tpg) Upstream patches
 Patch1005:	Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
 Patch1006:	Fix-some-QtDBus-crashes-during-application-destruction.patch
-# plasma crashes
-# https://bugs.kde.org/show_bug.cgi?id=342763
-Patch1008:	0c8f3229.patch
-Patch1009:	3bd0fd8f.patch
-Patch1007:	0874861b.patch
-Patch1010:	baad82d2.patch
-
-# Ensure a pixel density of at least 1 for Qt::AA_EnableHighDpiScaling
-# https://bugreports.qt.io/browse/QTBUG-56140
-Patch1011:	qt5-qtbase-5.8-QTBUG-56140.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -185,6 +176,8 @@ BuildConflicts:	%{mklibname -d qt5core} < %{version}
 
 BuildRequires:	jpeg-devel
 BuildRequires:	double-conversion-devel
+# PCRE 2.x
+BuildRequires:	pkgconfig(libpcre2-16)
 # Build scripts
 BuildRequires:	python >= 3.0
 BuildRequires:	python2
@@ -641,6 +634,9 @@ Development files for the EGL fullscreen output driver for QtGui v5.
 %files -n %{qtgui}-eglfs-devel
 %{_qt_libdir}/libQt%{api}EglFsKmsSupport.so
 %{_qt_libdir}/libQt%{api}EglFsKmsSupport.prl
+%{_qt_includedir}/QtKmsSupport
+%{_libdir}/libQt5KmsSupport.a
+%{_libdir}/libQt5KmsSupport.prl
 
 #----------------------------------------------------------------------------
 
@@ -1597,7 +1593,8 @@ export PATH=`pwd`/pybin:$PATH
 %if %{with mysql}
 	-I %{_includedir}/mysql \
 %endif
-	-I %{_includedir}/vg
+	-I %{_includedir}/vg \
+	-D PCRE2_CODE_UNIT_WIDTH=16
 
 %make STRIP=/bin/true || make STRIP=/bin/true
 
