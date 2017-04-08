@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta alpha
+%define beta beta
 %define api 5
 %define major 5
 
@@ -129,7 +129,6 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-Patch5:		qt-5.9.0-alpha-detect-pcre2.patch
 
 ### OpenSSL 1.1 patches, from https://github.com/richmoore/qtbase
 %if %mdvver > 3000000
