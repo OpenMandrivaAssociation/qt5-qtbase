@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta beta4
+%define beta rc
 %define api 5
 %define major 5
 
@@ -166,7 +166,6 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 
 # (tpg) Upstream patches
 Patch1005:	Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
-Patch1006:	Fix-some-QtDBus-crashes-during-application-destruction.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
