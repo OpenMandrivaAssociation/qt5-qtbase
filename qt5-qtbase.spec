@@ -101,7 +101,7 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.9.0
+Version:	5.9.1
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
@@ -129,6 +129,7 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
+Patch5:		qtbase-5.9.1-atspi.patch
 
 ### OpenSSL 1.1 patches, from https://github.com/richmoore/qtbase
 %if %mdvver > 3000000
