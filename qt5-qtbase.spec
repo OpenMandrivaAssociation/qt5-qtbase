@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta %{nil}
+%define beta beta
 %define api 5
 %define major 5
 
@@ -58,6 +58,8 @@
 %define qtxmld %mklibname qt%{api}xml -d
 # The following ones exist only as static libraries (probably no stable ABI yet)
 %define qtaccessibilitysupportd %mklibname qt%{api}accessibilitysupport -d -s
+%define qtedidsupportd %mklibname qt%{api}edidsupport -d -s
+%define qtvulkansupportd %mklibname qt%{api}vulkansupport -d -s
 %define qtdevicediscoverysupportd %mklibname qt%{api}devicediscoverysupport -d -s
 %define qteglsupportd %mklibname qt%{api}eglsupport -d -s
 %define qteventdispatchersupportd %mklibname qt%{api}eventdispatchersupport -d -s
@@ -101,10 +103,10 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.9.2
+Version:	5.10.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
-%define qttarballdir qtbase-opensource-src-%{version}-%{beta}
+%define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
 Release:	1
@@ -129,36 +131,6 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-
-### OpenSSL 1.1 patches, from https://github.com/richmoore/qtbase
-%if %mdvver > 3000000
-Patch50:	0001-Port-QSslCertificate-to-openssl-1.1.patch
-Patch51:	0002-Ported-QSslContext.patch
-Patch52:	0003-Port-qssldiffiehellmanparameters.patch
-Patch53:	0004-Port-qsslkey.patch
-# Rebased
-Patch54:	0005-Fix-a-few-changed-methods.patch
-Patch55:	0006-Remove-ssl2-code.patch
-Patch56:	0007-Move-to-the-new-TLS_method-etc.patch
-Patch57:	0008-Remove-the-locking-code-since-openssl-does-this-now.patch
-Patch58:	0009-Update-copyrights.patch
-# Rebased
-Patch59:	0010-Remove-ifdefs-for-old-versions-from-the-dlopen-glue.patch
-# Rebased
-Patch60:	0011-Remove-support-for-SSLEAY_MACROS.patch
-Patch61:	0012-Remove-more-legacy-crap.patch
-Patch62:	0013-Add-support-for-session-debugging.patch
-Patch63:	0014-Remove-some-runtime-version-checks-and-more-consting.patch
-Patch64:	0015-Remove-more-compatibility-cruft.patch
-Patch65:	0016-Fix-duplication-of-SSL_get_session.patch
-Patch66:	0017-Some-more-macros-have-become-function-and-need-wrapp.patch
-Patch67:	0018-Port-to-new-STACK-API.patch
-Patch68:	0019-Stricter-include-requirements.patch
-Patch69:	0020-Port-the-last-bits-to-the-new-APIs.patch
-Patch70:	0021-Add-notes-on-the-current-status.patch
-Patch71:	0022-Merge-in-Timur-s-changes.patch
-Patch72:	0023-Remove-more-compatibility-cruft.patch
-%endif
 
 ### Fedora patches
 Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
@@ -1041,6 +1013,8 @@ Requires:	qlalr%{api} = %{EVRD}
 Requires:	qt5-macros = %{EVRD}
 Provides:	%{name}-devel = %{EVRD}
 Suggests:	%{qtaccessibilitysupportd} = %{EVRD}
+Suggests:	%{qtedidsupportd} = %{EVRD}
+Suggests:	%{qtvulkansupportd} = %{EVRD}
 Suggests:	%{qtdevicediscoverysupportd} = %{EVRD}
 Suggests:	%{qteglsupportd} = %{EVRD}
 Suggests:	%{qteventdispatchersupportd} = %{EVRD}
@@ -1199,6 +1173,35 @@ Helper library for Qt accessibility support
 %{_includedir}/qt%{api}/QtAccessibilitySupport
 %{_libdir}/libQt%{api}AccessibilitySupport.a
 %{_libdir}/libQt%{api}AccessibilitySupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtedidsupportd}
+Summary:	Helper library for Qt accessibility support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtedidsupportd}
+Helper library for Qt EDID support
+
+%files -n %{qtedidsupportd}
+%{_includedir}/qt%{api}/QtEdidSupport
+%{_libdir}/libQt%{api}EdidSupport.a
+%{_libdir}/libQt%{api}EdidSupport.prl
+
+#----------------------------------------------------------------------------
+%package -n %{qtvulkansupportd}
+Summary:	Helper library for Qt Vulkan support
+Group:		Graphical desktop/KDE
+Requires:	%{qtcored} = %{EVRD}
+
+%description -n %{qtvulkansupportd}
+Helper library for Qt Vulkan support
+
+%files -n %{qtvulkansupportd}
+%{_includedir}/qt%{api}/QtVulkanSupport
+%{_libdir}/libQt%{api}VulkanSupport.a
+%{_libdir}/libQt%{api}VulkanSupport.prl
+%{_libdir}/qt%{api}/bin/qvkgen
 
 #----------------------------------------------------------------------------
 %package -n %{qtdevicediscoverysupportd}
