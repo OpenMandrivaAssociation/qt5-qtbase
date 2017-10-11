@@ -161,6 +161,8 @@ BuildRequires:	pkgconfig(egl)
 BuildRequires:	pkgconfig(glesv2)
 # OpenVG
 BuildRequires:	openvg-devel
+# Vulkan
+BuildRequires:	vulkan-devel
 # Event loop
 BuildRequires:	pkgconfig(glib-2.0)
 %if %{with gtk}
