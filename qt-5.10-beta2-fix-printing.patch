@@ -1,0 +1,11 @@
+--- qtbase-everywhere-src-5.10.0/src/plugins/printsupport/cups/qcupsprintengine.cpp.omv~	2017-10-27 13:06:20.099106222 +0200
++++ qtbase-everywhere-src-5.10.0/src/plugins/printsupport/cups/qcupsprintengine.cpp	2017-10-27 13:06:25.660143978 +0200
+@@ -293,7 +293,7 @@ void QCupsPrintEnginePrivate::changePrin
+ 
+     // Try create the printer, only use it if it returns valid
+     QPrintDevice printDevice = ps->createPrintDevice(newPrinter);
+-    if (!m_printDevice.isValid())
++    if (!printDevice.isValid())
+         return;
+     m_printDevice.swap(printDevice);
+     printerName = m_printDevice.id();
