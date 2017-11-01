@@ -1,36 +1,6 @@
-From 04cc2a3abad6ed825a97225b96a2e04f30fefcb1 Mon Sep 17 00:00:00 2001
-From: Thiago Macieira <thiago.macieira@intel.com>
-Date: Thu, 28 Apr 2016 15:00:58 -0700
-Subject: [PATCH] Merge the QDBusMetaType's custom information to
- QDBusConnectionManager
-
-This allows us to get rid of two Q_GLOBAL_STATIC in QtDBus, which means
-fewer opportunities for screwing up the order of destruction. And since
-QDBusConnectionManager now ensures that the types are initialized, we
-don't need to re-initialize them everywhere.
-
-The Q_GLOBAL_STATIC for QDBusConnectionManager ensures the proper
-thread-safe locking, so we don't need to lock for every type that we're
-trying to register. This should make things faster.
-
-But as a side-effect, trying to register a D-Bus metatype will cause the
-QDBusConnectionManager thread to start too.
-
-Change-Id: Ifea6e497f11a461db432ffff1449a4e535234485
----
- src/dbus/qdbusconnection.cpp        |   1 +
- src/dbus/qdbusconnectionmanager_p.h |   3 +-
- src/dbus/qdbusintegrator.cpp        |   1 -
- src/dbus/qdbusmetatype.cpp          | 185 +++++++++++++++++++-----------------
- src/dbus/qdbusmetatype_p.h          |  27 +++++-
- src/dbus/qdbusmisc.cpp              |   3 +-
- 6 files changed, 127 insertions(+), 93 deletions(-)
-
-diff --git a/src/dbus/qdbusconnection.cpp b/src/dbus/qdbusconnection.cpp
-index f95cc3a..4187f19 100644
---- a/src/dbus/qdbusconnection.cpp
-+++ b/src/dbus/qdbusconnection.cpp
-@@ -182,6 +182,7 @@ void QDBusConnectionManager::run()
+--- qtbase-everywhere-src-5.10.0/src/dbus/qdbusconnection.cpp.1005~	2017-10-26 06:13:40.000000000 +0200
++++ qtbase-everywhere-src-5.10.0/src/dbus/qdbusconnection.cpp	2017-11-01 16:18:43.025227849 +0100
+@@ -190,6 +190,7 @@ void QDBusConnectionManager::run()
          }
      }
      connectionHash.clear();
@@ -38,10 +8,8 @@ index f95cc3a..4187f19 100644
  
      // allow deletion from any thread without warning
      moveToThread(Q_NULLPTR);
-diff --git a/src/dbus/qdbusconnectionmanager_p.h b/src/dbus/qdbusconnectionmanager_p.h
-index 1c7dea8..fd6cd84 100644
---- a/src/dbus/qdbusconnectionmanager_p.h
-+++ b/src/dbus/qdbusconnectionmanager_p.h
+--- qtbase-everywhere-src-5.10.0/src/dbus/qdbusconnectionmanager_p.h.1005~	2017-10-26 06:13:40.000000000 +0200
++++ qtbase-everywhere-src-5.10.0/src/dbus/qdbusconnectionmanager_p.h	2017-11-01 16:18:43.025227849 +0100
 @@ -55,13 +55,14 @@
  
  #include <QtDBus/private/qtdbusglobal_p.h>
@@ -58,11 +26,9 @@ index 1c7dea8..fd6cd84 100644
  {
      Q_OBJECT
      struct ConnectionRequestData;
-diff --git a/src/dbus/qdbusintegrator.cpp b/src/dbus/qdbusintegrator.cpp
-index c63fb05..19f79e9 100644
---- a/src/dbus/qdbusintegrator.cpp
-+++ b/src/dbus/qdbusintegrator.cpp
-@@ -1036,7 +1036,6 @@ QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
+--- qtbase-everywhere-src-5.10.0/src/dbus/qdbusintegrator.cpp.1005~	2017-10-26 06:13:40.000000000 +0200
++++ qtbase-everywhere-src-5.10.0/src/dbus/qdbusintegrator.cpp	2017-11-01 16:18:43.025227849 +0100
+@@ -1039,7 +1039,6 @@ QDBusConnectionPrivate::QDBusConnectionP
          qdbusThreadDebug = qdbusDefaultThreadDebug;
  #endif
  
@@ -70,10 +36,8 @@ index c63fb05..19f79e9 100644
      connect(this, &QDBusConnectionPrivate::dispatchStatusChanged,
              this, &QDBusConnectionPrivate::doDispatch, Qt::QueuedConnection);
      connect(this, &QDBusConnectionPrivate::spyHooksFinished,
-diff --git a/src/dbus/qdbusmetatype.cpp b/src/dbus/qdbusmetatype.cpp
-index fb2b407..9ab3c34 100644
---- a/src/dbus/qdbusmetatype.cpp
-+++ b/src/dbus/qdbusmetatype.cpp
+--- qtbase-everywhere-src-5.10.0/src/dbus/qdbusmetatype.cpp.1005~	2017-10-26 06:13:40.000000000 +0200
++++ qtbase-everywhere-src-5.10.0/src/dbus/qdbusmetatype.cpp	2017-11-01 16:22:54.600013269 +0100
 @@ -1,6 +1,7 @@
  /****************************************************************************
  **
@@ -140,7 +104,14 @@ index fb2b407..9ab3c34 100644
 +QDBusMetaTypeId *QDBusMetaTypeId::instance()
  {
 -    static QBasicAtomicInt initialized = Q_BASIC_ATOMIC_INITIALIZER(false);
--
++#ifdef QT_BOOTSTRAPPED
++    static QDBusMetaTypeId self;
++    return &self;
++#else
++    return QDBusConnectionManager::instance();
++#endif
++}
+ 
 -    // reentrancy is not a problem since everything else is locked on their own
 -    // set the guard variable at the end
 -    if (!initialized.load()) {
@@ -152,14 +123,6 @@ index fb2b407..9ab3c34 100644
 -        (void)signature();
 -        (void)error();
 -        (void)unixfd();
-+#ifdef QT_BOOTSTRAPPED
-+    static QDBusMetaTypeId self;
-+    return &self;
-+#else
-+    return QDBusConnectionManager::instance();
-+#endif
-+}
-+
 +QDBusMetaTypeId::QDBusMetaTypeId()
 +{
 +    // register our types with Qt Core (calling qMetaTypeId<T>() does this implicitly)
@@ -238,10 +201,10 @@ index fb2b407..9ab3c34 100644
  /*!
      \class QDBusMetaType
      \inmodule QtDBus
-@@ -217,14 +204,22 @@ void QDBusMetaType::registerMarshallOperators(int id, MarshallFunction mf,
+@@ -216,14 +203,22 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTy
+ void QDBusMetaType::registerMarshallOperators(int id, MarshallFunction mf,
                                                DemarshallFunction df)
  {
-     QByteArray var;
 -    QVector<QDBusCustomTypeInfo> *ct = customTypes();
 -    if (id < 0 || !mf || !df || !ct)
 +    QDBusMetaTypeId *mgr = QDBusMetaTypeId::instance();
@@ -267,7 +230,7 @@ index fb2b407..9ab3c34 100644
      info.marshall = mf;
      info.demarshall = df;
  }
-@@ -241,12 +236,16 @@ bool QDBusMetaType::marshall(QDBusArgument &arg, int id, const void *data)
+@@ -240,12 +235,16 @@ bool QDBusMetaType::marshall(QDBusArgume
  
      MarshallFunction mf;
      {
@@ -288,7 +251,7 @@ index fb2b407..9ab3c34 100644
          if (!info.marshall) {
              mf = 0;             // make gcc happy
              return false;
-@@ -270,12 +269,16 @@ bool QDBusMetaType::demarshall(const QDBusArgument &arg, int id, void *data)
+@@ -269,12 +268,16 @@ bool QDBusMetaType::demarshall(const QDB
  
      DemarshallFunction df;
      {
@@ -309,7 +272,7 @@ index fb2b407..9ab3c34 100644
          if (!info.demarshall) {
              df = 0;             // make gcc happy
              return false;
-@@ -434,7 +437,11 @@ const char *QDBusMetaType::typeToSignature(int type)
+@@ -433,7 +436,11 @@ const char *QDBusMetaType::typeToSignatu
              DBUS_TYPE_BYTE_AS_STRING; // ay
      }
  
@@ -322,7 +285,7 @@ index fb2b407..9ab3c34 100644
      if (type == QDBusMetaTypeId::variant())
          return DBUS_TYPE_VARIANT_AS_STRING;
      else if (type == QDBusMetaTypeId::objectpath())
-@@ -444,14 +451,13 @@ const char *QDBusMetaType::typeToSignature(int type)
+@@ -443,14 +450,13 @@ const char *QDBusMetaType::typeToSignatu
      else if (type == QDBusMetaTypeId::unixfd())
          return DBUS_TYPE_UNIX_FD_AS_STRING;
  
@@ -341,7 +304,7 @@ index fb2b407..9ab3c34 100644
  
          if (!info.signature.isNull())
              return info.signature;
-@@ -468,8 +474,9 @@ const char *QDBusMetaType::typeToSignature(int type)
+@@ -467,8 +473,9 @@ const char *QDBusMetaType::typeToSignatu
          QByteArray signature = QDBusArgumentPrivate::createSignature(type);
  
          // re-acquire lock
@@ -353,10 +316,8 @@ index fb2b407..9ab3c34 100644
          info->signature = signature;
      }
      return info->signature;
-diff --git a/src/dbus/qdbusmetatype_p.h b/src/dbus/qdbusmetatype_p.h
-index 1aa1155..1f7e613 100644
---- a/src/dbus/qdbusmetatype_p.h
-+++ b/src/dbus/qdbusmetatype_p.h
+--- qtbase-everywhere-src-5.10.0/src/dbus/qdbusmetatype_p.h.1005~	2017-10-26 06:13:40.000000000 +0200
++++ qtbase-everywhere-src-5.10.0/src/dbus/qdbusmetatype_p.h	2017-11-01 16:18:43.025227849 +0100
 @@ -1,6 +1,7 @@
  /****************************************************************************
  **
@@ -409,11 +370,9 @@ index 1aa1155..1f7e613 100644
  };
  
  inline int QDBusMetaTypeId::message()
-diff --git a/src/dbus/qdbusmisc.cpp b/src/dbus/qdbusmisc.cpp
-index 930c3bd..01436da 100644
---- a/src/dbus/qdbusmisc.cpp
-+++ b/src/dbus/qdbusmisc.cpp
-@@ -144,8 +144,9 @@ int qDBusParametersForMethod(const QMetaMethod &mm, QVector<int> &metaTypes, QSt
+--- qtbase-everywhere-src-5.10.0/src/dbus/qdbusmisc.cpp.1005~	2017-10-26 06:13:40.000000000 +0200
++++ qtbase-everywhere-src-5.10.0/src/dbus/qdbusmisc.cpp	2017-11-01 16:18:43.025227849 +0100
+@@ -144,8 +144,9 @@ int qDBusParametersForMethod(const QMeta
  
  int qDBusParametersForMethod(const QList<QByteArray> &parameterTypes, QVector<int>& metaTypes, QString &errorMsg)
  {
@@ -424,6 +383,3 @@ index 930c3bd..01436da 100644
  
      metaTypes.append(0);        // return type
      int inputCount = 0;
--- 
-2.8.3
-

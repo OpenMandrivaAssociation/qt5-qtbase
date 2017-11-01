@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta beta2
+%define beta beta3
 %define api 5
 %define major 5
 
@@ -131,7 +131,6 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-Patch5:		qt-5.10-beta2-fix-printing.patch
 
 ### Fedora patches
 Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
