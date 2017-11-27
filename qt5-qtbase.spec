@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta beta4
+%define beta rc1
 %define api 5
 %define major 5
 
@@ -107,7 +107,7 @@ Version:	5.10.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
-Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
+Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
 Release:	1
 %define qttarballdir qtbase-opensource-src-%{version}
@@ -1664,7 +1664,7 @@ find %{buildroot} -name .deps |xargs rm -rf
 #   and  /usr/lib/qt5/bin/moc
 # ...
 # while generating debug info
-find %{buildroot} -type f -perm -0755 |grep -vE '\.(so|qml|sh|pl|ttf|eot|woff)' |xargs %__strip --strip-unneeded
+find %{buildroot} -type f -perm -0755 |grep -vE '\.(so|qml|sh|pl|ttf|eot|woff|py)' |xargs %__strip --strip-unneeded
 
 # Install rpm macros
 mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
