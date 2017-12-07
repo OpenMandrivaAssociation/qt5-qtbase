@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta rc3
+%define beta %{nil}
 %define api 5
 %define major 5
 
@@ -110,7 +110,7 @@ Release:	0.%{beta}.1
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
 Release:	1
-%define qttarballdir qtbase-opensource-src-%{version}
+%define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
 License:	LGPLv3+
@@ -121,7 +121,7 @@ Source1:	qt5.macros
 # needs xinitrc
 Source2:	10-qt5-check-opengl.xsetup
 Source100:	%{name}.rpmlintrc
-Patch0:		qtbase-opensource-src-5.3.2-QTBUG-35459.patch
+Patch0:		qtbase-everywhere-src-5.3.2-QTBUG-35459.patch
 # FIXME check if this has been fixed in 5.6.0 or if the patch needs to
 # be updated
 #Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
@@ -133,7 +133,7 @@ Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 
 ### Fedora patches
-Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
+Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
 ### END OF FEDORA PATCHES
 
 # (tpg) Upstream patches
@@ -1677,7 +1677,7 @@ cat >%{buildroot}%{_sysconfdir}/xdg/qtchooser/%{name}.conf <<'EOF'
 %{_qt_libdir}
 EOF
 
-# QMAKE_PRL_BUILD_DIR = /builddir/build/BUILD/qt-everywhere-opensource-src-5.4.0-beta/qtwayland/src/client
+# QMAKE_PRL_BUILD_DIR = /builddir/build/BUILD/qt-everywhere-everywhere-src-5.4.0-beta/qtwayland/src/client
 ## .prl/.la file love
 # nuke .prl reference(s) to %%buildroot, excessive (.la-like) libs
 pushd %{buildroot}%{_qt_libdir}
