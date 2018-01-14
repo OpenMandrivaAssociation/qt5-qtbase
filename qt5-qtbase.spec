@@ -88,7 +88,7 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 
-%ifarch %{ix86} %arm
+%ifarch %arm
 # (tpg) build with gcc as with clang it fails for some strange reasons
 %bcond_with clang
 %else
