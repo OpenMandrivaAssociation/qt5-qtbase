@@ -103,7 +103,7 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.10.0
+Version:	5.10.1
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
