@@ -109,7 +109,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -134,6 +134,8 @@ Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 
 # Recommended by KDE, https://codereview.qt-project.org/#/c/215939/
 Patch5:		qt-5.10-mouserelease.patch
+
+Patch6:		http://ftp.frugalware.org/pub/other/people/crazy/opengl-Bail-if-cached-shader-fails-to-load.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
