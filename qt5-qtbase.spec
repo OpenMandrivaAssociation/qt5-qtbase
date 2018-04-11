@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta %{nil}
+%define beta beta3
 %define api 5
 %define major 5
 
@@ -103,13 +103,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.10.1
+Version:	5.11.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -132,17 +132,9 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 
-# Recommended by KDE, https://codereview.qt-project.org/#/c/215939/
-Patch5:		qt-5.10-mouserelease.patch
-
-Patch6:		http://ftp.frugalware.org/pub/other/people/crazy/opengl-Bail-if-cached-shader-fails-to-load.patch
-
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
 ### END OF FEDORA PATCHES
-
-# (tpg) Upstream patches
-Patch1005:	Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -852,7 +844,7 @@ Summary:	SQLite 3.x support for the QtSql library v5
 Group:		System/Libraries
 Requires:	%{qtsql} = %{EVRD}
 Provides:	%{name}-database-plugin-sqlite = %{EVRD}
-%rename		qt5-database-plugin-sqlite = %{EVRD}
+%rename		qt5-database-plugin-sqlite
 BuildRequires:	pkgconfig(sqlite3)
 
 %description -n %{qtsql}-sqlite
@@ -1147,6 +1139,20 @@ Base macros for Qt 5.
 
 %files -n qt5-macros
 %{_sysconfdir}/rpm/macros.d/qt5.macros
+
+#----------------------------------------------------------------------------
+%package -n qt5-platformtheme-flatpak
+Summary:	Flatpak platform theme for Qt 5
+Group:		Graphical desktop/KDE
+Requires:	%{qtgui} = %{EVRD}
+Provides:	%{name}-platformtheme-gtk3 = %{EVRD}
+BuildRequires:	pkgconfig(gtk+-x11-3.0)
+
+%description -n qt5-platformtheme-flatpak
+Flatpak platform theme for Qt 5.
+
+%files -n qt5-platformtheme-flatpak
+%{_qt_plugindir}/platformthemes/libqflatpak.so
 
 #----------------------------------------------------------------------------
 %if %{with gtk}
