@@ -226,6 +226,8 @@ BuildRequires:	gdb
 BuildRequires:	qdoc5
 BuildRequires:	qt5-qttools
 %endif
+# For the Provides: generator
+BuildRequires:	cmake >= 3.11.0-1
 
 %description
 Version 5 of the Qt toolkit.
