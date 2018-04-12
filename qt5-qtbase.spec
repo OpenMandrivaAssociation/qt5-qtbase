@@ -468,9 +468,12 @@ Requires:	%{qtgui}-eglfs = %{EVRD}
 Requires:	%{qtgui}-minimalegl = %{EVRD}
 Requires:	%{qtgui}-vnc = %{EVRD}
 Obsoletes:	%{qtgui}-kms < %{EVRD}
+# *-platformtheme-* requirements are because of Qt5GuiConfig.cmake
+# referencing the files, requiring it to exist.
 %if %{with gtk}
 Requires:	%{name}-platformtheme-gtk3 = %{EVRD}
 %endif
+Requires:	qt5-platformtheme-flatpak
 Requires:	pkgconfig(gl)
 Requires:	pkgconfig(egl)
 Requires:	pkgconfig(glesv2)
