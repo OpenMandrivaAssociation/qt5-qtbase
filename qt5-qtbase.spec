@@ -9,7 +9,7 @@
 %define _disable_lto 1
 
 #% define debug_package %{nil}
-%define beta beta3
+%define beta beta4
 %define api 5
 %define major 5
 
