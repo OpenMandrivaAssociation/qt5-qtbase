@@ -219,6 +219,8 @@ BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(libcap)
 BuildRequires:	pkgconfig(libproxy-1.0)
 BuildRequires:	pkgconfig(libinput)
+BuildRequires:	pkgconfig(libcrypto)
+BuildRequires:	pkgconfig(libssl)
 BuildRequires:	flex bison gperf
 # Used for CPU feature detection in configure step
 BuildRequires:	gdb
