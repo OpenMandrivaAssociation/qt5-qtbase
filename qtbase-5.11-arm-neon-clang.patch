@@ -1,0 +1,17 @@
+diff -up qtbase-everywhere-src-5.11.0-rc2/src/corelib/global/qfloat16.cpp.0005~ qtbase-everywhere-src-5.11.0-rc2/src/corelib/global/qfloat16.cpp
+--- qtbase-everywhere-src-5.11.0-rc2/src/corelib/global/qfloat16.cpp.0005~	2018-05-14 06:46:28.000000000 +0200
++++ qtbase-everywhere-src-5.11.0-rc2/src/corelib/global/qfloat16.cpp	2018-05-22 04:38:17.059640108 +0200
+@@ -40,6 +40,13 @@
+ #include "qfloat16_p.h"
+ #include "private/qsimd_p.h"
+ 
++#ifdef __clang__
++#define vcvt_f16_f32(x) __builtin_neon_vcvt_f16_f32(x, 8)
++static __attribute__((__always_inline__, __nodebug__)) float32x4_t vcvt_f32_f16(float16x4_t x) {
++	return (float32x4_t)__builtin_neon_vcvt_f32_f16((int8x8_t)x, 7);
++}
++#endif
++
+ QT_BEGIN_NAMESPACE
+ 
+ /*!
