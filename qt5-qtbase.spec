@@ -88,12 +88,7 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 
-%ifarch %arm
-# (tpg) build with gcc as with clang it fails for some strange reasons
-%bcond_with clang
-%else
 %bcond_without clang
-%endif
 %bcond_without mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
@@ -105,7 +100,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.11.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.1
+Release:	0.%{beta}.2
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
