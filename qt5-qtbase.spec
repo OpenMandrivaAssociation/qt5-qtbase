@@ -126,7 +126,6 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-Patch5:		qtbase-5.11-arm-neon-clang.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -1411,18 +1410,20 @@ Qt LALR parser generator.
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
+OPTFLAGS="%{optflags}"
 %ifarch %{arm}
 # The asm bits in 3rdparty/pixman are pre-unified syntax
+OPTFLAGS="`echo ${OPTFLAGS} |sed -e 's,-mfpu=neon ,-mfpu=neon-vfpv4 ,g;s,-mfpu=neon$,-mfpu=neon-vfpv4,'`"
 %if !%{without clang}
-sed -i -e "s|-O2|%{optflags} -no-integrated-as|g" mkspecs/common/gcc-base.conf
-sed -i -e "s|-O3|%{optflags} -no-integrated-as|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O2|${OPTFLAGS} -no-integrated-as|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O3|${OPTFLAGS} -no-integrated-as|g" mkspecs/common/gcc-base.conf
 %else
-sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
-sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O2|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O3|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
 %endif
 %else
-sed -i -e "s|-O2|%{optflags}|g" mkspecs/common/gcc-base.conf
-sed -i -e "s|-O3|%{optflags}|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O2|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
+sed -i -e "s|-O3|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
 %endif
 %if !%{without clang}
 sed -i -e "s|gcc-nm|llvm-nm|g" mkspecs/common/clang.conf
