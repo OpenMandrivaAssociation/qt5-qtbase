@@ -486,7 +486,17 @@ Development files for version 5 of the QtGui library.
 %{_qt_includedir}/QtPlatformHeaders
 %{_qt_libdir}/libQt%{api}Gui.so
 %{_qt_libdir}/libQt%{api}Gui.prl
-%{_qt_libdir}/cmake/Qt%{api}Gui
+%dir %{_qt_libdir}/cmake/Qt%{api}Gui
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5GuiConfig.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5GuiConfigExtras.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5GuiConfigVersion.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QEvdev*.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QGifPlugin.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QICOPlugin.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QJpegPlugin.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QLibInputPlugin.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QGifPlugin.cmake
+%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QTuioTouchPlugin.cmake
 %{_qt_libdir}/pkgconfig/Qt%{api}Gui.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Gui.pc
@@ -538,6 +548,17 @@ Minimal (Framebuffer based) output driver for QtGui v5.
 %files -n %{qtgui}-minimal
 %{_qt_plugindir}/platforms/libqminimal.so
 
+%package -n %{qtgui}-minimal-devel
+Summary:	Development files for the Minimal (FB) output driver for QtGui v5
+Group:		Development/KDE and Qt
+Requires:	%{qtgui}-minimal = %{EVRD}
+
+%description -n %{qtgui}-minimal-devel
+Development files for the Minimal (FB) output driver for QtGui v5
+
+%files -n %{qtgui}-minimal-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt%{api}Gui_QMinimal*.cmake
+
 #----------------------------------------------------------------------------
 
 %package -n %{qtgui}-offscreen
@@ -547,10 +568,21 @@ Requires:	%{qtgui} = %{EVRD}
 Provides:	%{_lib}qt5-output-driver = %{EVRD}
 
 %description -n %{qtgui}-offscreen
-Minimal (Framebuffer based) output driver for QtGui v5.
+Offscreen output driver for QtGui v5.
 
 %files -n %{qtgui}-offscreen
 %{_qt_plugindir}/platforms/libqoffscreen.so
+
+%package -n %{qtgui}-offscreen-devel
+Summary:	Development files for the Offscreen output driver for QtGui v5
+Group:		Development/KDE and Qt
+Requires:	%{qtgui}-offscreen = %{EVRD}
+
+%description -n %{qtgui}-offscreen-devel
+Development files for the Offscreen output driver for QtGui v5.
+
+%files -n %{qtgui}-offscreen-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt%{api}Gui_QOffscreen*.cmake
 
 #----------------------------------------------------------------------------
 
@@ -570,8 +602,43 @@ X11 output driver for QtGui v5.
 %files -n %{qtgui}-x11
 %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
 %{_qt_plugindir}/platforms/libqxcb.so
-%{_qt_plugindir}/platforminputcontexts/libibusplatforminputcontextplugin.so
 %{_qt_plugindir}/platforminputcontexts/libcomposeplatforminputcontextplugin.so
+
+%package -n %{qtgui}-x11-devel
+Summary:	Development files for the X11 output driver for QtGui v5
+Group:		Development/KDE and Qt
+Requires:	%{qtgui}-x11 = %{EVRD}
+
+%description -n %{qtgui}-x11-devel
+Development files for the X11 output driver for QtGui v5.
+
+%files -n %{qtgui}-x11-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QComposePlatformInputContextPlugin.cmake
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QXcb*IntegrationPlugin.cmake
+
+#----------------------------------------------------------------------------
+
+%package -n %{qtgui}-ibus
+Summary:	Ibus input driver for QtGui v5
+Group:		System/Libraries
+Requires:	%{qtgui} = %{EVRD}
+
+%description -n %{qtgui}-ibus
+Ibus input driver for QtGui v5.
+
+%files -n %{qtgui}-ibus
+%{_qt_plugindir}/platforminputcontexts/libibusplatforminputcontextplugin.so
+
+%package -n %{qtgui}-ibus-devel
+Summary:	Development files for the Ibus input driver for QtGui v5
+Group:		Development/KDE and Qt
+Requires:	%{qtgui}-ibus = %{EVRD}
+
+%description -n %{qtgui}-ibus-devel
+Development files for the Ibus input driver for QtGui v5.
+
+%files -n %{qtgui}-ibus-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QIbus*.cmake
 
 #----------------------------------------------------------------------------
 
@@ -609,6 +676,7 @@ Development files for the EGL fullscreen output driver for QtGui v5.
 %{_qt_includedir}/QtKmsSupport
 %{_libdir}/libQt5KmsSupport.a
 %{_libdir}/libQt5KmsSupport.prl
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QEglFS*.cmake
 
 #----------------------------------------------------------------------------
 
@@ -637,6 +705,17 @@ VNC output driver for QtGui v5.
 
 %files -n %{qtgui}-vnc
 %{_qt_plugindir}/platforms/libqvnc.so
+
+%package -n %{qtgui}-vnc-devel
+Summary:	Development files for the VNC output driver for QtGui v5
+Group:		Development/KDE and Qt
+Requires:	%{qtgui}-vnc = %{EVRD}
+
+%description -n %{qtgui}-vnc-devel
+Development files for the VNC output driver for QtGui v5
+
+%files -n %{qtgui}-vnc-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt%{api}Gui_QVnc*.cmake
 
 #----------------------------------------------------------------------------
 %package -n %{qtnetwork}
@@ -1156,6 +1235,17 @@ Flatpak platform theme for Qt 5.
 %files -n qt5-platformtheme-flatpak
 %{_qt_plugindir}/platformthemes/libqflatpak.so
 
+%package -n qt5-platformtheme-flatpak-devel
+Summary:	Development files for the Qt5 Flatpak platform theme integration
+Group:		Development/KDE and Qt
+Requires:	qt5-platformtheme-flatpak = %{EVRD}
+
+%description -n qt5-platformtheme-flatpak-devel
+Development files for the Qt5 Flatpak platform theme integration
+
+%files -n qt5-platformtheme-flatpak-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QFlatpakThemePlugin.cmake
+
 #----------------------------------------------------------------------------
 %if %{with gtk}
 %package -n qt5-platformtheme-gtk3
@@ -1174,6 +1264,17 @@ based desktops.
 
 %files -n qt5-platformtheme-gtk3
 %{_qt_plugindir}/platformthemes/libqgtk3.so
+
+%package -n qt5-platformtheme-gtk3-devel
+Summary:	Development files for the Qt5 GTK3 platform theme integration
+Group:		Development/KDE and Qt
+Requires:	qt5-platformtheme-gtk3 = %{EVRD}
+
+%description -n qt5-platformtheme-gtk3-devel
+Development files for the Qt5 GTK3 platform theme integration
+
+%files -n qt5-platformtheme-gtk3-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QGtk3ThemePlugin.cmake
 %endif
 
 #----------------------------------------------------------------------------
@@ -1274,6 +1375,7 @@ Helper library for Qt framebuffer support
 %{_includedir}/qt%{api}/QtFbSupport
 %{_libdir}/libQt%{api}FbSupport.a
 %{_libdir}/libQt%{api}FbSupport.prl
+%{_libdir}/cmake/Qt%{api}Gui/Qt%{api}Gui_QLinuxFb*.cmake
 
 #----------------------------------------------------------------------------
 %package -n %{qtfontdatabasesupportd}
