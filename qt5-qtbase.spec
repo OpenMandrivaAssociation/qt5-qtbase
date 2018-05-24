@@ -1563,7 +1563,7 @@ sed -i -e 's,\$(CXX) -o,\$(CXX) \$(CXXFLAGS) -o,' qmake/Makefile.unix
 pushd src/3rdparty
 mkdir UNUSED
 # FIXME
-#mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
+mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 popd
 
 # Check for clang bug #28194
