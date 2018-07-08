@@ -1,2 +1,4 @@
+removed_sources:
+  qtbase-opensource-src-5.9.2.tar.xz: 65332ea9fbeb31384a87fd22ff5ad2d6251bf893
 sources:
-  qtbase-opensource-src-5.8.0.tar.xz: eacdd022615734ccdba4e7a92f1f5f3366c0c415
+  qtbase-opensource-src-5.9.6.tar.xz: 2b191d464d8c795ba81e5b6871fc88559e6e75aa

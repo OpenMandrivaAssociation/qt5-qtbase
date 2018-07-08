@@ -1,19 +1,5 @@
-From 4e90ef83e0d418220b8a8410e6231db98b3c6021 Mon Sep 17 00:00:00 2001
-From: "Richard J. Moore" <rich@kde.org>
-Date: Sun, 24 Jul 2016 13:53:40 +0100
-Subject: [PATCH 04/23] Port qsslkey
-
-Change-Id: If9a798b5dd2f4a2b895d4e37b792a467fe6d63cb
----
- src/network/ssl/qsslkey_openssl.cpp            | 42 +++++++++++++-------------
- src/network/ssl/qsslsocket_openssl_symbols.cpp |  7 +++++
- src/network/ssl/qsslsocket_openssl_symbols_p.h |  4 +++
- 3 files changed, 32 insertions(+), 21 deletions(-)
-
-diff --git a/src/network/ssl/qsslkey_openssl.cpp b/src/network/ssl/qsslkey_openssl.cpp
-index 79df33e..344a809 100644
---- a/src/network/ssl/qsslkey_openssl.cpp
-+++ b/src/network/ssl/qsslkey_openssl.cpp
+--- qtbase-opensource-src-5.9.2/src/network/ssl/qsslkey_openssl.cpp.0053~	2017-10-02 10:43:38.000000000 +0200
++++ qtbase-opensource-src-5.9.2/src/network/ssl/qsslkey_openssl.cpp	2017-10-06 14:07:40.057013276 +0200
 @@ -39,6 +39,7 @@
  
  
@@ -22,10 +8,10 @@ index 79df33e..344a809 100644
  #include "qsslkey_p.h"
  #include "qsslsocket_openssl_symbols_p.h"
  #include "qsslsocket.h"
-@@ -84,32 +85,30 @@ void QSslKeyPrivate::clear(bool deep)
+@@ -87,32 +88,32 @@ bool QSslKeyPrivate::fromEVP_PKEY(EVP_PK
+     if (pkey == nullptr)
+         return false;
  
- bool QSslKeyPrivate::fromEVP_PKEY(EVP_PKEY *pkey)
- {
 -    if (pkey->type == EVP_PKEY_RSA) {
 +    int keyType = q_EVP_PKEY_type(q_EVP_PKEY_base_id(pkey));
 +
@@ -33,7 +19,7 @@ index 79df33e..344a809 100644
          isNull = false;
          algorithm = QSsl::Rsa;
          type = QSsl::PrivateKey;
--
+ 
 -        rsa = q_RSA_new();
 -        memcpy(rsa, q_EVP_PKEY_get1_RSA(pkey), sizeof(RSA));
 +        rsa = q_EVP_PKEY_get1_RSA(pkey);
@@ -45,7 +31,7 @@ index 79df33e..344a809 100644
          isNull = false;
          algorithm = QSsl::Dsa;
          type = QSsl::PrivateKey;
--
+ 
 -        dsa = q_DSA_new();
 -        memcpy(dsa, q_EVP_PKEY_get1_DSA(pkey), sizeof(DSA));
 +        dsa = q_EVP_PKEY_get1_DSA(pkey);
@@ -63,7 +49,7 @@ index 79df33e..344a809 100644
  
          return true;
      }
-@@ -178,8 +177,8 @@ int QSslKeyPrivate::length() const
+@@ -181,8 +182,8 @@ int QSslKeyPrivate::length() const
          return -1;
  
      switch (algorithm) {
@@ -74,7 +60,7 @@ index 79df33e..344a809 100644
  #ifndef OPENSSL_NO_EC
          case QSsl::Ec: return q_EC_GROUP_get_degree(q_EC_KEY_get0_group(ec));
  #endif
-@@ -273,7 +272,7 @@ Qt::HANDLE QSslKeyPrivate::handle() const
+@@ -276,7 +277,7 @@ Qt::HANDLE QSslKeyPrivate::handle() cons
  
  static QByteArray doCrypt(QSslKeyPrivate::Cipher cipher, const QByteArray &data, const QByteArray &key, const QByteArray &iv, int enc)
  {
@@ -83,7 +69,7 @@ index 79df33e..344a809 100644
      const EVP_CIPHER* type = 0;
      int i = 0, len = 0;
  
-@@ -291,21 +290,22 @@ static QByteArray doCrypt(QSslKeyPrivate::Cipher cipher, const QByteArray &data,
+@@ -294,21 +295,22 @@ static QByteArray doCrypt(QSslKeyPrivate
  
      QByteArray output;
      output.resize(data.size() + EVP_MAX_BLOCK_LENGTH);
@@ -114,11 +100,9 @@ index 79df33e..344a809 100644
  
      return output.left(len);
  }
-diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
-index b2c1c03..a764787 100644
---- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
-+++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
-@@ -165,10 +165,14 @@ DEFINEFUNC(void, CRYPTO_set_id_callback, unsigned long (*a)(), a, return, DUMMYA
+--- qtbase-opensource-src-5.9.2/src/network/ssl/qsslsocket_openssl_symbols.cpp.0053~	2017-10-06 14:03:05.659812295 +0200
++++ qtbase-opensource-src-5.9.2/src/network/ssl/qsslsocket_openssl_symbols.cpp	2017-10-06 14:03:05.660812292 +0200
+@@ -165,10 +165,14 @@ DEFINEFUNC(void, CRYPTO_set_id_callback,
  DEFINEFUNC(void, CRYPTO_free, void *a, a, return, DUMMYARG)
  DEFINEFUNC(DSA *, DSA_new, DUMMYARG, DUMMYARG, return 0, return)
  DEFINEFUNC(void, DSA_free, DSA *a, a, return, DUMMYARG)
@@ -133,7 +117,7 @@ index b2c1c03..a764787 100644
  DEFINEFUNC(void, EVP_CIPHER_CTX_cleanup, EVP_CIPHER_CTX *a, a, return, DUMMYARG)
  DEFINEFUNC(void, EVP_CIPHER_CTX_init, EVP_CIPHER_CTX *a, a, return, DUMMYARG)
  DEFINEFUNC4(int, EVP_CIPHER_CTX_ctrl, EVP_CIPHER_CTX *ctx, ctx, int type, type, int arg, arg, void *ptr, ptr, return 0, return);
-@@ -234,6 +238,7 @@ DEFINEFUNC2(void, RAND_seed, const void *a, a, int b, b, return, DUMMYARG)
+@@ -236,6 +240,7 @@ DEFINEFUNC2(void, RAND_seed, const void
  DEFINEFUNC(int, RAND_status, void, DUMMYARG, return -1, return)
  DEFINEFUNC(RSA *, RSA_new, DUMMYARG, DUMMYARG, return 0, return)
  DEFINEFUNC(void, RSA_free, RSA *a, a, return, DUMMYARG)
@@ -141,7 +125,7 @@ index b2c1c03..a764787 100644
  DEFINEFUNC(int, sk_num, STACK *a, a, return -1, return)
  DEFINEFUNC2(void, sk_pop_free, STACK *a, a, void (*b)(void*), b, return, DUMMYARG)
  #if OPENSSL_VERSION_NUMBER >= 0x10000000L
-@@ -809,6 +814,7 @@ bool q_resolveOpenSslSymbols()
+@@ -810,6 +815,7 @@ bool q_resolveOpenSslSymbols()
      RESOLVEFUNC(CRYPTO_set_locking_callback)
      RESOLVEFUNC(DSA_new)
      RESOLVEFUNC(DSA_free)
@@ -149,7 +133,7 @@ index b2c1c03..a764787 100644
      RESOLVEFUNC(ERR_error_string)
      RESOLVEFUNC(ERR_get_error)
      RESOLVEFUNC(ERR_free_strings)
-@@ -874,6 +880,7 @@ bool q_resolveOpenSslSymbols()
+@@ -877,6 +883,7 @@ bool q_resolveOpenSslSymbols()
      RESOLVEFUNC(RAND_status)
      RESOLVEFUNC(RSA_new)
      RESOLVEFUNC(RSA_free)
@@ -157,11 +141,9 @@ index b2c1c03..a764787 100644
      RESOLVEFUNC(sk_new_null)
      RESOLVEFUNC(sk_push)
      RESOLVEFUNC(sk_free)
-diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
-index 111e3d9..4e3f386 100644
---- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
-+++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
-@@ -253,10 +253,13 @@ void q_CRYPTO_set_id_callback(unsigned long (*a)());
+--- qtbase-opensource-src-5.9.2/src/network/ssl/qsslsocket_openssl_symbols_p.h.0053~	2017-10-06 14:03:05.659812295 +0200
++++ qtbase-opensource-src-5.9.2/src/network/ssl/qsslsocket_openssl_symbols_p.h	2017-10-06 14:03:05.660812292 +0200
+@@ -253,10 +253,13 @@ void q_CRYPTO_set_id_callback(unsigned l
  void q_CRYPTO_free(void *a);
  DSA *q_DSA_new();
  void q_DSA_free(DSA *a);
@@ -175,7 +157,7 @@ index 111e3d9..4e3f386 100644
  void q_EVP_CIPHER_CTX_cleanup(EVP_CIPHER_CTX *a);
  void q_EVP_CIPHER_CTX_init(EVP_CIPHER_CTX *a);
  int q_EVP_CIPHER_CTX_ctrl(EVP_CIPHER_CTX *ctx, int type, int arg, void *ptr);
-@@ -326,6 +329,7 @@ void q_RAND_seed(const void *a, int b);
+@@ -328,6 +331,7 @@ void q_RAND_seed(const void *a, int b);
  int q_RAND_status();
  RSA *q_RSA_new();
  void q_RSA_free(RSA *a);
@@ -183,6 +165,3 @@ index 111e3d9..4e3f386 100644
  int q_sk_num(STACK *a);
  void q_sk_pop_free(STACK *a, void (*b)(void *));
  #if OPENSSL_VERSION_NUMBER >= 0x10000000L
--- 
-2.10.0
-
