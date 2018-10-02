@@ -1507,8 +1507,7 @@ Qt LALR parser generator.
 #----------------------------------------------------------------------------
 
 %prep
-%setup -q -n %qttarballdir
-%autopatch -p1
+%autosetup -q -n %qttarballdir -p1
 
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
@@ -1627,7 +1626,7 @@ export PATH=`pwd`/pybin:$PATH
 	-no-sql-tds \
 	-system-sqlite \
 %if %{without clang}
-%ifarch x86_64
+%ifarch %{x86_64}
 	-platform linux-g++-64 \
 %endif
 %ifarch %{ix86}
@@ -1718,16 +1717,16 @@ export PATH=`pwd`/pybin:$PATH
 	-I %{_includedir}/vg \
 	-D PCRE2_CODE_UNIT_WIDTH=16
 
-%make STRIP=/bin/true || make STRIP=/bin/true
+%make_build STRIP=/bin/true || make STRIP=/bin/true
 
 %if %{with docs}
-%make docs
+%make_build docs
 %endif
 
 %install
-export PATH=`pwd`/pybin:$PATH
+export PATH="$(pwd)/pybin:$PATH"
 
-make install STRIP=/bin/true INSTALL_ROOT=%{buildroot}
+%make_install STRIP=/bin/true INSTALL_ROOT=%{buildroot}
 
 # Drop internal libpng -- we don't actually use it,
 # but the qmake files insist on building it
