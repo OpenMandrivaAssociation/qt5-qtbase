@@ -1507,7 +1507,7 @@ Qt LALR parser generator.
 #----------------------------------------------------------------------------
 
 %prep
-%autosetup -q -n %qttarballdir -p1
+%autosetup -n %qttarballdir -p1
 
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
