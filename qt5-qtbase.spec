@@ -8,6 +8,9 @@
 # https://llvm.org/bugs/show_bug.cgi?id=28194
 %define _disable_lto 1
 
+# (tpg) optimize it a bit
+%global optflags %{optflags} -O3
+
 #% define debug_package %{nil}
 %define beta %{nil}
 %define api 5
@@ -104,7 +107,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1589,10 +1592,11 @@ else
 fi
 
 %build
+%setup_compile_flags
 # build with python2
 mkdir pybin
 ln -s %{_bindir}/python2 pybin/python
-export PATH=`pwd`/pybin:$PATH
+export PATH="$(pwd)/pybin:$PATH"
 
 ./configure \
 	-prefix %{_qt_prefix} \
