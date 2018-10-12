@@ -1713,7 +1713,6 @@ export PATH="$(pwd)/pybin:$PATH"
 %if "%{_qt_libdir}" == "%{_libdir}"
 	-no-rpath \
 %endif
-	-v \
 	-I %{_includedir}/iodbc \
 %if %{with mysql}
 	-I %{_includedir}/mysql \
