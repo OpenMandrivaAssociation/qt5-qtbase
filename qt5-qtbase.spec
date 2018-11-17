@@ -107,7 +107,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
+Release:	4
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -118,6 +118,7 @@ Source1:	qt5.macros
 # (tpg) Use software rendering in case when OpenGL supported by graphics card is older than 2.
 # needs xinitrc
 Source2:	10-qt5-check-opengl.xsetup
+Source3:	qtlogging.ini
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-everywhere-src-5.3.2-QTBUG-35459.patch
 # FIXME check if this has been fixed in 5.6.0 or if the patch needs to
@@ -445,6 +446,7 @@ Qt GUI library.
 %endif
 %{_qt_plugindir}/generic
 %{_qt_plugindir}/printsupport
+%{_qt_datadir}/qtlogging.ini
 
 #----------------------------------------------------------------------------
 
@@ -1811,3 +1813,4 @@ done
 popd
 
 install -p -m755 -D %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
+install -m644 -p -D %{SOURCE3} %{buildroot}%{_qt_datadir}/qtlogging.ini
