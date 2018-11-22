@@ -101,13 +101,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.9.6
+Version:	5.9.7
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-opensource-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
+Release:	1
 %define qttarballdir qtbase-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -166,7 +166,6 @@ Patch102:	qtbase-opensource-src-5.6.0-moc_WORDSIZE.patch
 
 # (tpg) Upstream patches
 #Patch1005:	Merge-the-QDBusMetaTypes-custom-information-to-QDBusConnectionManager.patch
-Patch1006:	qtbase-opensource-src-5.9.6-QTBUG-68939.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
