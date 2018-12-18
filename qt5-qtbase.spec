@@ -101,13 +101,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.11.2
+Version:	5.12.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	4
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -476,7 +476,7 @@ Obsoletes:	%{qtgui}-kms < %{EVRD}
 %if %{with gtk}
 Requires:	%{name}-platformtheme-gtk3 = %{EVRD}
 %endif
-Requires:	qt5-platformtheme-flatpak
+Requires:	qt5-platformtheme-xdgdesktopportal
 Requires:	pkgconfig(gl)
 Requires:	pkgconfig(egl)
 Requires:	pkgconfig(glesv2)
@@ -1228,29 +1228,29 @@ Base macros for Qt 5.
 %{_sysconfdir}/rpm/macros.d/qt5.macros
 
 #----------------------------------------------------------------------------
-%package -n qt5-platformtheme-flatpak
-Summary:	Flatpak platform theme for Qt 5
+%package -n qt5-platformtheme-xdgdesktopportal
+Summary:	XDG Desktop Portal platform theme for Qt 5
 Group:		Graphical desktop/KDE
 Requires:	%{qtgui} = %{EVRD}
-Provides:	%{name}-platformtheme-gtk3 = %{EVRD}
 BuildRequires:	pkgconfig(gtk+-x11-3.0)
+Obsoletes:	qt5-platformtheme-flatpak < %{EVRD}
 
-%description -n qt5-platformtheme-flatpak
-Flatpak platform theme for Qt 5.
+%description -n qt5-platformtheme-xdgdesktopportal
+XDG Desktop Portal platform theme for Qt 5.
 
-%files -n qt5-platformtheme-flatpak
-%{_qt_plugindir}/platformthemes/libqflatpak.so
+%files -n qt5-platformtheme-xdgdesktopportal
+%{_qt_plugindir}/platformthemes/libqxdgdesktopportal.so
 
-%package -n qt5-platformtheme-flatpak-devel
-Summary:	Development files for the Qt5 Flatpak platform theme integration
+%package -n qt5-platformtheme-xdgdesktopportal-devel
+Summary:	Development files for the Qt5 XDG Desktop Portal platform theme integration
 Group:		Development/KDE and Qt
-Requires:	qt5-platformtheme-flatpak = %{EVRD}
+Requires:	qt5-platformtheme-xdgdesktopportal = %{EVRD}
 
-%description -n qt5-platformtheme-flatpak-devel
-Development files for the Qt5 Flatpak platform theme integration
+%description -n qt5-platformtheme-xdgdesktopportal-devel
+Development files for the Qt5 XDG Desktop Portal platform theme integration
 
-%files -n qt5-platformtheme-flatpak-devel
-%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QFlatpakThemePlugin.cmake
+%files -n qt5-platformtheme-xdgdesktopportal-devel
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QXdgDesktopPortalThemePlugin.cmake
 
 #----------------------------------------------------------------------------
 %if %{with gtk}
@@ -1260,7 +1260,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtgui} = %{EVRD}
 Provides:	%{name}-platformtheme-gtk3 = %{EVRD}
 BuildRequires:	pkgconfig(gtk+-x11-3.0)
-# Not really... But the gtk2 platformtheme doesn't exist anymore for 5.7
+# Not really... But the gtk2 platformtheme doesn't exist anymore for >= 5.7
 %rename	qt5-platformtheme-gtk2
 
 %description -n qt5-platformtheme-gtk3
@@ -1699,7 +1699,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-gif \
 	-ico \
 	-c++std c++14 \
-	-xinput2 \
 	-xkb \
 	-confirm-license \
 	-system-proxies \
