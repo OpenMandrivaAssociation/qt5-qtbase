@@ -91,7 +91,12 @@
 # We can leave gtkstyle support enabled.
 %bcond_without gtk
 
+%ifarch %{aarch64}
+# Attempted workaround for signal/slot breakage at runtime
+%bcond_with clang
+%else
 %bcond_without clang
+%endif
 %bcond_without mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
@@ -107,7 +112,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1585,8 +1590,6 @@ if LC_ALL=C %{__cxx} -Os -gdwarf-4 -flto -fPIC -shared -fuse-ld=gold -o test.so 
 	sed -i -e 's,Operator,ComparisonOperator,g' src/gui/opengl/qopengl.cpp
 elif ! echo %{__cxx} |grep -q clang; then
 	echo "Not using clang - workaround not needed"
-elif %{__cxx} --version |grep -q "3\.8"; then
-	echo "But not present in clang 3.8.x"
 else
 	echo "Clang bug #28194 is fixed, please remove the workaround"
 	echo "(search the spec file for \"Check for clang bug #28194\")"
@@ -1632,7 +1635,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-no-sql-tds \
 	-system-sqlite \
 %if %{without clang}
-%ifarch %{x86_64}
+%ifarch %{x86_64} %{aarch64}
 	-platform linux-g++-64 \
 %endif
 %ifarch %{ix86}
@@ -1670,6 +1673,15 @@ export PATH="$(pwd)/pybin:$PATH"
 	-no-sse4.2 \
 	-no-avx \
 	-no-avx2 \
+%endif
+%ifarch znver1
+	-sse2 \
+	-sse3 \
+	-ssse3 \
+	-sse4.1 \
+	-sse4.2 \
+	-avx \
+	-avx2 \
 %endif
 %if 0
 #arch %{ix86} x86_64
