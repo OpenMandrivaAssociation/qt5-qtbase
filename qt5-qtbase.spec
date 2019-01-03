@@ -9,7 +9,13 @@
 %define _disable_lto 1
 
 # (tpg) optimize it a bit
+%ifarch %{aarch64}
+# Workaround for weird signal/slot problem
+# (slots defined as lambdas never called)
+%global optflags %{optflags} -O2 -fuse-ld=bfd
+%else
 %global optflags %{optflags} -O3
+%endif
 
 #% define debug_package %{nil}
 %define beta %{nil}
@@ -112,7 +118,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	3
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
