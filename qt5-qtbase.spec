@@ -988,8 +988,6 @@ Development files for version 5 of the QtTest library.
 
 #----------------------------------------------------------------------------
 
-#----------------------------------------------------------------------------
-
 %package -n %{qtwidgets}
 Summary:	Qt Widget library
 Group:		System/Libraries
@@ -1243,7 +1241,9 @@ Base macros for Qt 5.
 Summary:	XDG Desktop Portal platform theme for Qt 5
 Group:		Graphical desktop/KDE
 Requires:	%{qtgui} = %{EVRD}
+%if %{with gtk}
 BuildRequires:	pkgconfig(gtk+-x11-3.0)
+%endif
 Obsoletes:	qt5-platformtheme-flatpak < %{EVRD}
 
 %description -n qt5-platformtheme-xdgdesktopportal
