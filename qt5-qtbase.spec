@@ -1666,7 +1666,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-icu \
 	-inotify \
 	-eventfd \
-	-iconv \
 	-no-strip \
 	-no-pch \
 	-nomake tests \
