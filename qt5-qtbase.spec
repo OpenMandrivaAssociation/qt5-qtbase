@@ -118,7 +118,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
+Release:	4
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -151,8 +151,8 @@ Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
 # just built QtCore. This should be fixed properly in the Makefiles.
 BuildConflicts:	%{mklibname -d qt5core} < %{version}
 
-BuildRequires:	jpeg-devel
-BuildRequires:	double-conversion-devel
+BuildRequires:	pkgconfig(libjpeg)
+BuildRequires:	cmake(double-conversion)
 # PCRE 2.x
 BuildRequires:	pkgconfig(libpcre2-16)
 # Build scripts
@@ -1689,6 +1689,11 @@ export PATH="$(pwd)/pybin:$PATH"
 	-avx \
 	-avx2 \
 %endif
+%ifarch x86_64
+	-sse2 \
+	-sse3 \
+	-avx \
+%endif
 %if 0
 #arch %{ix86} x86_64
 	-reduce-relocations \
@@ -1706,11 +1711,7 @@ export PATH="$(pwd)/pybin:$PATH"
 %endif
 	-fontconfig \
 	-accessibility \
-%ifarch %armx
 	-opengl desktop -egl -eglfs -kms \
-%else
-	-opengl desktop -egl -eglfs -kms \
-%endif
 	-gnumake \
 	-pkg-config \
 	-sm \
