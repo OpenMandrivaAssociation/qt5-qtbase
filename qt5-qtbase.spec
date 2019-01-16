@@ -1657,7 +1657,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-system-libpng \
 	-system-libjpeg \
 	-ssl \
-	-openssl-linked \
+	-openssl-runtime \
 	-system-pcre \
 	-system-xcb \
 	-system-harfbuzz \
