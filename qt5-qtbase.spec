@@ -6,7 +6,8 @@
 %define _no_default_doc_files 1
 
 # https://llvm.org/bugs/show_bug.cgi?id=28194
-#define _disable_lto 1
+# (tpg) 2019-01-16 still needs to be disabled
+%define _disable_lto 1
 
 # (tpg) optimize it a bit
 %ifarch %{aarch64}
