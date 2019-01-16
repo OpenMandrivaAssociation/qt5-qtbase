@@ -1705,8 +1705,8 @@ export PATH="$(pwd)/pybin:$PATH"
 %else
 	-no-directfb \
 %endif
-%if %{without gtk}
-	-no-gtkstyle \
+%if %{with gtk}
+	-gtk \
 %endif
 	-fontconfig \
 	-accessibility \
