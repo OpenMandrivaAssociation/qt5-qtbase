@@ -1629,17 +1629,14 @@ export PATH="$(pwd)/pybin:$PATH"
 	-no-sql-db2 \
 	-no-sql-ibase \
 %if %{with mysql}
-	-plugin-sql-mysql \
+	-sql-mysql \
 %else
 	-no-sql-mysql \
 %endif
-	-no-sql-oci \
-	-plugin-sql-odbc \
-	-plugin-sql-psql \
-	-plugin-sql-sqlite \
-	-no-sql-sqlite2 \
-	-no-sql-tds \
-	-system-sqlite \
+	-sql-odbc \
+	-sql-psql \
+	-sql-sqlite \
+	-sqlite \
 %if %{without clang}
 %ifarch %{x86_64} %{aarch64}
 	-platform linux-g++-64 \
@@ -1653,20 +1650,21 @@ export PATH="$(pwd)/pybin:$PATH"
 %else
 	-platform linux-clang \
 %endif
-	-system-zlib \
-	-system-libpng \
-	-system-libjpeg \
+	-zlib \
+	-libpng \
+	-libjpeg \
 	-ssl \
 	-openssl-runtime \
-	-system-pcre \
-	-system-xcb \
-	-system-harfbuzz \
+	-pcre \
+	-xcb \
+	-harfbuzz \
 	-optimized-qmake \
 	-optimized-tools \
 	-cups \
 	-icu \
 	-inotify \
 	-eventfd \
+	-iconv \
 	-no-strip \
 	-no-pch \
 	-nomake tests \
@@ -1699,7 +1697,6 @@ export PATH="$(pwd)/pybin:$PATH"
 %else
 	-no-reduce-relocations \
 %endif
-	-xcb \
 %if %{with directfb}
 	-directfb \
 %else
@@ -1709,8 +1706,9 @@ export PATH="$(pwd)/pybin:$PATH"
 	-gtk \
 %endif
 	-fontconfig \
+	-freetype  \
 	-accessibility \
-	-opengl desktop -egl -eglfs -kms \
+	-opengl desktop -eglfs -gbm -kms \
 	-gnumake \
 	-pkg-config \
 	-sm \
@@ -1725,8 +1723,12 @@ export PATH="$(pwd)/pybin:$PATH"
 	-journald \
 	-linuxfb \
 	-evdev \
-	-verbose \
-	-system-xkbcommon \
+	-libudev \
+	-xkbcommon \
+	-libproxy \
+	-qpa xcb \
+	-xcb-xlib \
+	-xcb-xinput \
 	-no-separate-debug-info \
 	-no-strip \
 %if "%{_qt_libdir}" == "%{_libdir}"
