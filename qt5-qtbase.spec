@@ -6,7 +6,7 @@
 %define _no_default_doc_files 1
 
 # https://llvm.org/bugs/show_bug.cgi?id=28194
-%define _disable_lto 1
+#define _disable_lto 1
 
 # (tpg) optimize it a bit
 %ifarch %{aarch64}
@@ -95,7 +95,7 @@
 # command line if x11-libs/cairo is built with USE=qt4 (bug 433826)
 # Our cairo actually isn't built with --enable-qt because nothing uses that combo.
 # We can leave gtkstyle support enabled.
-%bcond_without gtk
+%bcond_with gtk
 
 %ifarch %{aarch64}
 # Attempted workaround for signal/slot breakage at runtime
@@ -1694,8 +1694,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-sse3 \
 	-avx \
 %endif
-%if 0
-#arch %{ix86} x86_64
+%ifarch %{ix86} %{x86_64}
 	-reduce-relocations \
 %else
 	-no-reduce-relocations \
