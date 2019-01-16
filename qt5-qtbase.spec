@@ -1657,6 +1657,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-system-xcb \
 	-system-harfbuzz \
 	-system-xkbcommon \
+	-system-freetype  \
 	-optimized-qmake \
 	-optimized-tools \
 	-ssl \
@@ -1707,7 +1708,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-gtk \
 %endif
 	-fontconfig \
-	-freetype  \
 	-accessibility \
 	-opengl desktop -eglfs -gbm -kms \
 	-gnumake \
