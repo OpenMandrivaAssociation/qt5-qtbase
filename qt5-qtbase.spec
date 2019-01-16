@@ -89,13 +89,7 @@
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
 %bcond_with docs
-# https://bugs.gentoo.org/show_bug.cgi?id=433826
-# 100%-related for cooker
-# disable gtkstyle because it adds qt4 include paths to the compiler
-# command line if x11-libs/cairo is built with USE=qt4 (bug 433826)
-# Our cairo actually isn't built with --enable-qt because nothing uses that combo.
-# We can leave gtkstyle support enabled.
-%bcond_with gtk
+%bcond_without gtk
 
 %ifarch %{aarch64}
 # Attempted workaround for signal/slot breakage at runtime
@@ -118,7 +112,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	4
+Release:	5
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
