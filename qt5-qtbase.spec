@@ -90,7 +90,7 @@
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
 %bcond_with docs
-%bcond_without gtk
+%bcond_with gtk
 
 %ifarch %{aarch64}
 # Attempted workaround for signal/slot breakage at runtime
