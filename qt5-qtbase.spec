@@ -1650,16 +1650,17 @@ export PATH="$(pwd)/pybin:$PATH"
 %else
 	-platform linux-clang \
 %endif
-	-zlib \
-	-libpng \
-	-libjpeg \
-	-ssl \
-	-openssl-runtime \
-	-pcre \
-	-xcb \
-	-harfbuzz \
+	-system-zlib \
+	-system-libpng \
+	-system-libjpeg \
+	-system-pcre \
+	-system-xcb \
+	-system-harfbuzz \
+	-system-xkbcommon \
 	-optimized-qmake \
 	-optimized-tools \
+	-ssl \
+	-openssl-runtime \
 	-cups \
 	-icu \
 	-inotify \
@@ -1724,7 +1725,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-linuxfb \
 	-evdev \
 	-libudev \
-	-xkbcommon \
 	-libproxy \
 	-qpa xcb \
 	-xcb-xlib \
