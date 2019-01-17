@@ -1602,6 +1602,8 @@ export PATH="$(pwd)/pybin:$PATH"
 # As of Qt 5.12.0, clang 7.0.1 (and gcc 8.2.0),
 # -reduce-relocations breaks the signal/slot system badly.
 # Immediately obvious effect: sddm crashes
+# Probably related to
+# https://bugreports.qt.io/browse/QTBUG-52439
 ./configure \
 	-prefix %{_qt_prefix} \
 	-bindir %{_qt_bindir} \
