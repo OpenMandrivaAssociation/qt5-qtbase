@@ -1599,6 +1599,9 @@ mkdir pybin
 ln -s %{_bindir}/python2 pybin/python
 export PATH="$(pwd)/pybin:$PATH"
 
+# As of Qt 5.12.0, clang 7.0.1 (and gcc 8.2.0),
+# -reduce-relocations breaks the signal/slot system badly.
+# Immediately obvious effect: sddm crashes
 ./configure \
 	-prefix %{_qt_prefix} \
 	-bindir %{_qt_bindir} \
