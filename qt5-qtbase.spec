@@ -89,7 +89,7 @@
 
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
-%bcond_without docs
+%bcond_with docs
 %bcond_without gtk
 
 %ifarch %{aarch64}
