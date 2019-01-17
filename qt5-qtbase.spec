@@ -5,10 +5,6 @@
 # this makes sure the files dont get marked as docs
 %define _no_default_doc_files 1
 
-# https://llvm.org/bugs/show_bug.cgi?id=28194
-# (tpg) 2019-01-16 still needs to be disabled
-%define _disable_lto 1
-
 # (tpg) optimize it a bit
 %ifarch %{aarch64}
 # Workaround for weird signal/slot problem
@@ -113,7 +109,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	8
+Release:	9
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -223,7 +219,6 @@ BuildRequires:	pkgconfig(atspi-2)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(libcap)
-BuildRequires:	pkgconfig(libproxy-1.0)
 BuildRequires:	pkgconfig(libinput)
 BuildRequires:	pkgconfig(libcrypto)
 BuildRequires:	pkgconfig(libssl)
@@ -1715,7 +1710,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-linuxfb \
 	-evdev \
 	-libudev \
-	-libproxy \
 	-qpa xcb \
 	-xcb-xlib \
 	-xcb-xinput \
