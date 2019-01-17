@@ -89,8 +89,8 @@
 
 %bcond_with directfb
 # Requires qdoc5 and qt5-tools to build
-%bcond_with docs
-%bcond_with gtk
+%bcond_without docs
+%bcond_without gtk
 
 %ifarch %{aarch64}
 # Attempted workaround for signal/slot breakage at runtime
@@ -113,7 +113,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	6
+Release:	7
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
