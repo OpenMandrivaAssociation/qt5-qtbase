@@ -103,13 +103,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.12.0
+Version:	5.12.1
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	9
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -176,7 +176,6 @@ BuildRequires:	pkgconfig(gstreamer-plugins-base-1.0)
 BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(openal)
-BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(xorg-evdev)
 # For XCB platform plugin:
 BuildRequires:	pkgconfig(xcb) >= 1.5
@@ -943,6 +942,22 @@ SQLite 3.x support for the QtSql library v5.
 
 #----------------------------------------------------------------------------
 
+%package -n %{qtsql}-tds
+Summary:	TDS (MS SQL) support for the QtSql library v5
+Group:		System/Libraries
+Requires:	%{qtsql} = %{EVRD}
+Provides:	%{name}-database-plugin-tds = %{EVRD}
+BuildRequires:	freetds-devel
+
+%description -n %{qtsql}-tds
+TDS (MS SQL) support for the QtSql library v5.
+
+%files -n %{qtsql}-tds
+%{_qt_plugindir}/sqldrivers/libqsqltds.so
+
+
+#----------------------------------------------------------------------------
+
 %package -n %{qttest}
 Summary:	Qt unit test library
 Group:		System/Libraries
@@ -1651,7 +1666,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-system-pcre \
 	-system-xcb \
 	-system-harfbuzz \
-	-system-xkbcommon \
 	-system-freetype  \
 	-optimized-qmake \
 	-optimized-tools \
