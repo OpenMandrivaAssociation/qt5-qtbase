@@ -1,0 +1,41 @@
+From e96641d881f2106151995c812fabb9d6c58beccb Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Mon, 14 Jan 2019 11:30:36 +0100
+Subject: [PATCH 123/166] Fix xbm image format handler: properly reject invalid
+ files
+
+The read_xbm_header() function is used to check for valid file header,
+containing valid width and height values. But in case of an invalid file,
+the check could depend on uninitialized variables.
+
+Change-Id: I9f933ed6e38d86109e5b5a8d55fe763ab928d749
+Reviewed-by: Allan Sandfeld Jensen <allan.jensen@qt.io>
+---
+ src/gui/image/qxbmhandler.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/gui/image/qxbmhandler.cpp b/src/gui/image/qxbmhandler.cpp
+index 24d86e116d..7ba44049b4 100644
+--- a/src/gui/image/qxbmhandler.cpp
++++ b/src/gui/image/qxbmhandler.cpp
+@@ -97,6 +97,8 @@ static bool read_xbm_header(QIODevice *device, int& w, int& h)
+     if (r1.indexIn(sbuf) == 0 &&
+          r2.indexIn(sbuf, r1.matchedLength()) == r1.matchedLength())
+         w = QByteArray(&buf[r1.matchedLength()]).trimmed().toInt();
++    else
++        return false;
+ 
+     // "#define .._height <num>"
+     readBytes = device->readLine(buf, buflen);
+@@ -109,6 +111,8 @@ static bool read_xbm_header(QIODevice *device, int& w, int& h)
+     if (r1.indexIn(sbuf) == 0 &&
+          r2.indexIn(sbuf, r1.matchedLength()) == r1.matchedLength())
+         h = QByteArray(&buf[r1.matchedLength()]).trimmed().toInt();
++    else
++        return false;
+ 
+     // format error
+     if (w <= 0 || w > 32767 || h <= 0 || h > 32767)
+-- 
+2.20.1
+

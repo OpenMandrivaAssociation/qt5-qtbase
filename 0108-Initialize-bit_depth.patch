@@ -1,0 +1,39 @@
+From 50447bb7a32dcdf5070f769cb9ef26112d2f4c04 Mon Sep 17 00:00:00 2001
+From: Albert Astals Cid <albert.astals.cid@kdab.com>
+Date: Thu, 31 Jan 2019 09:41:18 +0100
+Subject: [PATCH 108/166] Initialize bit_depth
+
+==12==WARNING: MemorySanitizer: use-of-uninitialized-value
+   #0 0x6b90ea in setup_qt /src/qtbase/src/gui/image/qpnghandler.cpp:360:32
+
+Change-Id: Idf04130e645dcf589dfb6260661be18a71b7bdc2
+Reviewed-by: Eirik Aavitsland <eirik.aavitsland@qt.io>
+---
+ src/gui/image/qpnghandler.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/gui/image/qpnghandler.cpp b/src/gui/image/qpnghandler.cpp
+index 110ee1670b..808037f434 100644
+--- a/src/gui/image/qpnghandler.cpp
++++ b/src/gui/image/qpnghandler.cpp
+@@ -233,7 +233,7 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, QSize scal
+ 
+     png_uint_32 width;
+     png_uint_32 height;
+-    int bit_depth;
++    int bit_depth = 0;
+     int color_type = 0;
+     png_bytep trans_alpha = 0;
+     png_color_16p trans_color_p = 0;
+@@ -678,7 +678,7 @@ QImage::Format QPngHandlerPrivate::readImageFormat()
+ {
+         QImage::Format format = QImage::Format_Invalid;
+         png_uint_32 width, height;
+-        int bit_depth, color_type = 0;
++        int bit_depth = 0, color_type = 0;
+         png_colorp palette;
+         int num_palette;
+         png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, 0, 0, 0);
+-- 
+2.20.1
+

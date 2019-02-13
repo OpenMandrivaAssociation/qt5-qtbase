@@ -1,0 +1,78 @@
+From 7024090e1dc7043e7a2a692ede105bcb7952781d Mon Sep 17 00:00:00 2001
+From: Christian Ehrlicher <ch.ehrlicher@gmx.de>
+Date: Sun, 27 Jan 2019 21:15:52 +0100
+Subject: [PATCH 138/166] QToolButton: fix handling multi-line texts
+
+The patch to elide the QToolButton text when there is not enough space
+introduced a regression with multi-line text.
+Fix it by using the newly introduced common function to elide multi-line
+text.
+
+Fixes: QTBUG-72226
+Change-Id: I066ebbd2f360add93406cc29bb4bbbebf599ba42
+Reviewed-by: Samuel Gaist <samuel.gaist@idiap.ch>
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+---
+ src/widgets/styles/qcommonstyle.cpp | 22 ++++++++++++++++++++--
+ src/widgets/styles/qcommonstyle_p.h |  5 +++++
+ 2 files changed, 25 insertions(+), 2 deletions(-)
+
+diff --git a/src/widgets/styles/qcommonstyle.cpp b/src/widgets/styles/qcommonstyle.cpp
+index 867e91ab3e..79e338a6e7 100644
+--- a/src/widgets/styles/qcommonstyle.cpp
++++ b/src/widgets/styles/qcommonstyle.cpp
+@@ -1157,6 +1157,25 @@ void QCommonStylePrivate::viewItemLayout(const QStyleOptionViewItem *opt,  QRect
+ }
+ #endif // QT_CONFIG(itemviews)
+ 
++#if QT_CONFIG(toolbutton)
++QString QCommonStylePrivate::toolButtonElideText(const QStyleOptionToolButton *option,
++                                                 const QRect &textRect, int flags) const
++{
++    if (option->fontMetrics.horizontalAdvance(option->text) <= textRect.width())
++        return option->text;
++
++    QString text = option->text;
++    text.replace('\n', QChar::LineSeparator);
++    QTextOption textOption;
++    textOption.setWrapMode(QTextOption::ManualWrap);
++    textOption.setTextDirection(option->direction);
++
++    return calculateElidedText(text, textOption,
++                               option->font, textRect, Qt::AlignTop,
++                               Qt::ElideMiddle, flags,
++                               false, nullptr);
++}
++#endif // QT_CONFIG(toolbutton)
+ 
+ #if QT_CONFIG(tabbar)
+ /*! \internal
+@@ -1705,8 +1724,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
+                         alignment |= Qt::AlignLeft | Qt::AlignVCenter;
+                     }
+                     tr.translate(shiftX, shiftY);
+-                    const QString text = toolbutton->fontMetrics.elidedText(toolbutton->text, Qt::ElideMiddle,
+-                                                                            tr.width(), alignment);
++                    const QString text = d->toolButtonElideText(toolbutton, tr, alignment);
+                     proxy()->drawItemText(p, QStyle::visualRect(opt->direction, rect, tr), alignment, toolbutton->palette,
+                                  toolbutton->state & State_Enabled, text,
+                                  QPalette::ButtonText);
+diff --git a/src/widgets/styles/qcommonstyle_p.h b/src/widgets/styles/qcommonstyle_p.h
+index f0131b7a58..296f89ce5f 100644
+--- a/src/widgets/styles/qcommonstyle_p.h
++++ b/src/widgets/styles/qcommonstyle_p.h
+@@ -115,6 +115,11 @@ public:
+                && option.viewItemPosition == cachedOption->viewItemPosition);
+     }
+ #endif
++#if QT_CONFIG(toolbutton)
++    QString toolButtonElideText(const QStyleOptionToolButton *toolbutton,
++                                const QRect &textRect, int flags) const;
++#endif
++
+     mutable QIcon tabBarcloseButtonIcon;
+ #if QT_CONFIG(tabbar)
+     void tabLayout(const QStyleOptionTab *opt, const QWidget *widget, QRect *textRect, QRect *pixmapRect) const;
+-- 
+2.20.1
+

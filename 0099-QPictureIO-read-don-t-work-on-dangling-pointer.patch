@@ -1,0 +1,41 @@
+From 0bde49bd92b0d4366b91c5cdd1585e0e1fb623bc Mon Sep 17 00:00:00 2001
+From: Christian Ehrlicher <ch.ehrlicher@gmx.de>
+Date: Fri, 25 Jan 2019 22:09:46 +0100
+Subject: [PATCH 099/166] QPictureIO::read(): don't work on dangling pointer
+
+QPictureIO::read() is using pictureFormat() when the format has to be
+guessed. pictureFormat() returns a QByteArray which was implicit
+casted into a char* and then pointed to uninitialized memory.
+Fix it by using a QByteArray instead a plain char*.
+
+Change-Id: If9ae286ed68134af597f0b0c779789e40f9efaed
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+---
+ src/gui/image/qpicture.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/gui/image/qpicture.cpp b/src/gui/image/qpicture.cpp
+index 7eede5ee26..2f2f85f68d 100644
+--- a/src/gui/image/qpicture.cpp
++++ b/src/gui/image/qpicture.cpp
+@@ -1866,7 +1866,7 @@ QList<QByteArray> QPictureIO::outputFormats()
+ bool QPictureIO::read()
+ {
+     QFile           file;
+-    const char          *picture_format;
++    QByteArray      picture_format;
+     QPictureHandler *h;
+ 
+     if (d->iodev) {                                // read from io device
+@@ -1882,7 +1882,7 @@ bool QPictureIO::read()
+     if (d->frmt.isEmpty()) {
+         // Try to guess format
+         picture_format = pictureFormat(d->iodev);        // get picture format
+-        if (!picture_format) {
++        if (picture_format.isEmpty()) {
+             if (file.isOpen()) {                        // unknown format
+                 file.close();
+                 d->iodev = 0;
+-- 
+2.20.1
+

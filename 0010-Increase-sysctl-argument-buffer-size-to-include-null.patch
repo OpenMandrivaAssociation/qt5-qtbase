@@ -1,0 +1,60 @@
+From 0330db86fdd42ef1be1354cdbbd6e0ffc21d9a80 Mon Sep 17 00:00:00 2001
+From: Roland Rossgotterer <roland.rossgotterer@gmail.com>
+Date: Tue, 8 Jan 2019 16:03:02 +0100
+Subject: [PATCH 010/166] Increase sysctl argument buffer size to include null
+ character
+
+An UUID is 36 characters long, but sysctl and sysctlbyname return a
+null terminated string with 37 characters. That was too long for the
+provided buffer. Surprisingly the return code was still 0 instead of -1.
+The returned buffer was empty though.
+
+Change-Id: Ic4d20ecc1b2b3a3e98468d31ac304957d56deee9
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+---
+ src/corelib/global/qglobal.cpp | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/corelib/global/qglobal.cpp b/src/corelib/global/qglobal.cpp
+index 0109bb3568..d15a8ba6ae 100644
+--- a/src/corelib/global/qglobal.cpp
++++ b/src/corelib/global/qglobal.cpp
+@@ -2899,18 +2899,18 @@ enum {
+ QByteArray QSysInfo::machineUniqueId()
+ {
+ #ifdef Q_OS_BSD4
+-    char uuid[UuidStringLen];
++    char uuid[UuidStringLen + 1];
+     size_t uuidlen = sizeof(uuid);
+ #  ifdef KERN_HOSTUUID
+     int name[] = { CTL_KERN, KERN_HOSTUUID };
+     if (sysctl(name, sizeof name / sizeof name[0], &uuid, &uuidlen, nullptr, 0) == 0
+             && uuidlen == sizeof(uuid))
+-        return QByteArray(uuid, uuidlen);
++        return QByteArray(uuid, uuidlen - 1);
+ 
+ #  else
+     // Darwin: no fixed value, we need to search by name
+     if (sysctlbyname("kern.uuid", uuid, &uuidlen, nullptr, 0) == 0 && uuidlen == sizeof(uuid))
+-        return QByteArray(uuid, uuidlen);
++        return QByteArray(uuid, uuidlen - 1);
+ #  endif
+ #elif defined(Q_OS_UNIX)
+     // The modern name on Linux is /etc/machine-id, but that path is
+@@ -2974,11 +2974,11 @@ QByteArray QSysInfo::bootUniqueId()
+     }
+ #elif defined(Q_OS_DARWIN)
+     // "kern.bootsessionuuid" is only available by name
+-    char uuid[UuidStringLen];
++    char uuid[UuidStringLen + 1];
+     size_t uuidlen = sizeof(uuid);
+     if (sysctlbyname("kern.bootsessionuuid", uuid, &uuidlen, nullptr, 0) == 0
+             && uuidlen == sizeof(uuid))
+-        return QByteArray(uuid, uuidlen);
++        return QByteArray(uuid, uuidlen - 1);
+ #endif
+     return QByteArray();
+ };
+-- 
+2.20.1
+

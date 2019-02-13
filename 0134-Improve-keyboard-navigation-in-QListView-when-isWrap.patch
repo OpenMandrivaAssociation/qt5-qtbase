@@ -1,0 +1,120 @@
+From f6edb0ef721c5c3734c2c05352febf0f9003ef6a Mon Sep 17 00:00:00 2001
+From: Alexander Volkov <a.volkov@rusbitech.ru>
+Date: Fri, 1 Feb 2019 15:34:49 +0300
+Subject: [PATCH 134/166] Improve keyboard navigation in QListView when
+ isWrapping is enabled
+
+Search the previous item or the next item in a model instead
+of searching them on visual layout. This way the cursor will
+not stop at the beginning or at the end of a row or a column.
+
+Fixes: QTBUG-14444
+Change-Id: I0ef203a4dcd876e4c50559fb87e61585f07434d1
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+---
+ src/widgets/itemviews/qlistview.cpp           | 34 ++++++++++++++++---
+ .../itemviews/qlistview/tst_qlistview.cpp     | 25 +++++++++++---
+ 2 files changed, 51 insertions(+), 8 deletions(-)
+
+diff --git a/src/widgets/itemviews/qlistview.cpp b/src/widgets/itemviews/qlistview.cpp
+index 1248e91c8c..6b5857f1ca 100644
+--- a/src/widgets/itemviews/qlistview.cpp
++++ b/src/widgets/itemviews/qlistview.cpp
+@@ -1100,19 +1100,45 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
+     Q_D(QListView);
+     Q_UNUSED(modifiers);
+ 
+-    QModelIndex current = currentIndex();
+-    if (!current.isValid()) {
++    auto findAvailableRowBackward = [d](int row) {
++        while (row >= 0 && d->isHiddenOrDisabled(row))
++            --row;
++        return row;
++    };
++
++    auto findAvailableRowForward = [d](int row) {
+         int rowCount = d->model->rowCount(d->root);
+         if (!rowCount)
+-            return QModelIndex();
+-        int row = 0;
++            return -1;
+         while (row < rowCount && d->isHiddenOrDisabled(row))
+             ++row;
+         if (row >= rowCount)
++            return -1;
++        return row;
++    };
++
++    QModelIndex current = currentIndex();
++    if (!current.isValid()) {
++        int row = findAvailableRowForward(0);
++        if (row == -1)
+             return QModelIndex();
+         return d->model->index(row, d->column, d->root);
+     }
+ 
++    if ((d->flow == LeftToRight && cursorAction == MoveLeft) ||
++            (d->flow == TopToBottom && (cursorAction == MoveUp || cursorAction == MovePrevious))) {
++        const int row = findAvailableRowBackward(current.row() - 1);
++        if (row == -1)
++            return current;
++        return d->model->index(row, d->column, d->root);
++    } else if ((d->flow == LeftToRight && cursorAction == MoveRight) ||
++               (d->flow == TopToBottom && (cursorAction == MoveDown || cursorAction == MoveNext))) {
++        const int row = findAvailableRowForward(current.row() + 1);
++        if (row == -1)
++            return current;
++        return d->model->index(row, d->column, d->root);
++    }
++
+     const QRect initialRect = rectForIndex(current);
+     QRect rect = initialRect;
+     if (rect.isEmpty()) {
+diff --git a/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp b/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp
+index 5227db64ec..9175c0bff4 100644
+--- a/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp
++++ b/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp
+@@ -380,8 +380,11 @@ void tst_QListView::cursorMove()
+              << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up
+              << Qt::Key_Left << Qt::Key_Left << Qt::Key_Up << Qt::Key_Down;
+ 
+-    int displayRow    = rows / displayColumns - 1;
+-    int displayColumn = displayColumns - (rows % displayColumns) - 1;
++    int lastRow = rows / displayColumns - 1;
++    int lastColumn = displayColumns - 1;
++
++    int displayRow    = lastRow;
++    int displayColumn = lastColumn - (rows % displayColumns);
+ 
+     QApplication::instance()->processEvents();
+     for (int i = 0; i < keymoves.size(); ++i) {
+@@ -395,10 +398,24 @@ void tst_QListView::cursorMove()
+             displayRow = qMin(rows / displayColumns - 1, displayRow + 1);
+             break;
+         case Qt::Key_Left:
+-            displayColumn = qMax(0, displayColumn - 1);
++            if (displayColumn > 0) {
++                displayColumn--;
++            } else {
++                if (displayRow > 0) {
++                    displayRow--;
++                    displayColumn = lastColumn;
++                }
++            }
+             break;
+         case Qt::Key_Right:
+-            displayColumn = qMin(displayColumns-1, displayColumn + 1);
++            if (displayColumn < lastColumn) {
++                displayColumn++;
++            } else {
++                if (displayRow < lastRow) {
++                    displayRow++;
++                    displayColumn = 0;
++                }
++            }
+             break;
+         default:
+             QVERIFY(false);
+-- 
+2.20.1
+

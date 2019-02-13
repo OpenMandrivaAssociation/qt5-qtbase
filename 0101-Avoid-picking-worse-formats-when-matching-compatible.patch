@@ -1,0 +1,32 @@
+From d8d2025f06d653b4402651576ede94cf35710d77 Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Tue, 29 Jan 2019 15:39:57 +0100
+Subject: [PATCH 101/166] Avoid picking worse formats when matching compatible
+ formats
+
+Like we do with fully matching format, pick the first matching one,
+instead of the last matching one.
+
+Fixes: QTBUG-72785
+Change-Id: I466e0152a229348b6a3786d5464d1f8ab325d67a
+Reviewed-by: Gatis Paeglis <gatis.paeglis@qt.io>
+---
+ src/platformsupport/glxconvenience/qglxconvenience.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/platformsupport/glxconvenience/qglxconvenience.cpp b/src/platformsupport/glxconvenience/qglxconvenience.cpp
+index d7cc36627a..238f31994d 100644
+--- a/src/platformsupport/glxconvenience/qglxconvenience.cpp
++++ b/src/platformsupport/glxconvenience/qglxconvenience.cpp
+@@ -241,6 +241,8 @@ GLXFBConfig qglx_findConfig(Display *display, int screen , QSurfaceFormat format
+             if (requestedAlpha && actualAlpha < requestedAlpha)
+                 continue;
+             compatibleCandidate = candidate;
++            if (!compatibleCandidate) // Only pick up the first compatible one offered by the server
++                compatibleCandidate = candidate;
+ 
+             if (requestedRed && actualRed != requestedRed)
+                 continue;
+-- 
+2.20.1
+

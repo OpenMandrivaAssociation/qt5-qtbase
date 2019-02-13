@@ -1,0 +1,44 @@
+From b611eb81c822ed2bcd3107ba098b56952ae0685c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Morten=20Johan=20S=C3=B8rvig?= <morten.sorvig@qt.io>
+Date: Tue, 5 Feb 2019 11:43:04 +0100
+Subject: [PATCH 145/166] Fix QDeadlineTimer::Forever case in QWaitCondition
+
+The timeout will never be larger than numeric_limits<quint64>::max(),
+especially on platforms with 32-bit longs.
+
+Instead, test if the timeout is exactly numeric_limits<unsigned long>::max(),
+which matches the ULONG_MAX value which is documented
+to indicate no timeout.
+
+Change-Id: Ib663eddb5703797c50c04fd4eae60bd64f379d1c
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+---
+ src/corelib/thread/qwaitcondition_unix.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/corelib/thread/qwaitcondition_unix.cpp b/src/corelib/thread/qwaitcondition_unix.cpp
+index c93328b4bc..0ba90763cf 100644
+--- a/src/corelib/thread/qwaitcondition_unix.cpp
++++ b/src/corelib/thread/qwaitcondition_unix.cpp
+@@ -204,7 +204,7 @@ void QWaitCondition::wakeAll()
+ 
+ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
+ {
+-    if (quint64(time) > quint64(std::numeric_limits<qint64>::max()))
++    if (time == std::numeric_limits<unsigned long>::max())
+         return wait(mutex, QDeadlineTimer(QDeadlineTimer::Forever));
+     return wait(mutex, QDeadlineTimer(time));
+ }
+@@ -231,6 +231,8 @@ bool QWaitCondition::wait(QMutex *mutex, QDeadlineTimer deadline)
+ 
+ bool QWaitCondition::wait(QReadWriteLock *readWriteLock, unsigned long time)
+ {
++    if (time == std::numeric_limits<unsigned long>::max())
++        return wait(readWriteLock, QDeadlineTimer(QDeadlineTimer::Forever));
+     return wait(readWriteLock, QDeadlineTimer(time));
+ }
+ 
+-- 
+2.20.1
+

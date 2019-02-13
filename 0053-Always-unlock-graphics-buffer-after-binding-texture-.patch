@@ -1,0 +1,35 @@
+From c907becbf166593c1b6b21e92eef032fefe48aba Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Tue, 22 Jan 2019 18:19:54 +0100
+Subject: [PATCH 053/166] Always unlock graphics buffer after binding texture
+ during composeAndFlush
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The code path for re-generating the texture already has the unlock, but the
+non-regenerating code-path was missing an unlock, causing asserts when the
+graphics buffer was then attempted to be locked (again) at a later point.
+
+Change-Id: Ic65add838360079829b7e81d7c1cfe2274959059
+Reviewed-by: Laszlo Agocs <laszlo.agocs@qt.io>
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+---
+ src/gui/painting/qplatformbackingstore.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/gui/painting/qplatformbackingstore.cpp b/src/gui/painting/qplatformbackingstore.cpp
+index 3081a4b1b6..afb4613ba5 100644
+--- a/src/gui/painting/qplatformbackingstore.cpp
++++ b/src/gui/painting/qplatformbackingstore.cpp
+@@ -411,6 +411,7 @@ void QPlatformBackingStore::composeAndFlush(QWindow *window, const QRegion &regi
+         } else if (!region.isEmpty()){
+             funcs->glBindTexture(GL_TEXTURE_2D, d_ptr->textureId);
+             QPlatformGraphicsBufferHelper::lockAndBindToTexture(graphicsBuffer, &d_ptr->needsSwizzle, &d_ptr->premultiplied);
++            graphicsBuffer->unlock();
+         }
+ 
+         if (graphicsBuffer->origin() == QPlatformGraphicsBuffer::OriginBottomLeft)
+-- 
+2.20.1
+

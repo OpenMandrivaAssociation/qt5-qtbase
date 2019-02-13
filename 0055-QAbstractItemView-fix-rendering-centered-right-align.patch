@@ -1,0 +1,104 @@
+From 25133a1b77c059e32760f3d288c985183d86da4a Mon Sep 17 00:00:00 2001
+From: Christian Ehrlicher <ch.ehrlicher@gmx.de>
+Date: Wed, 2 Jan 2019 21:24:46 +0100
+Subject: [PATCH 055/166] QAbstractItemView: fix rendering centered/right
+ aligned item text
+
+Commit 5712c62d1cfdcf56c772d8a63d52ad58945f194c introduced a regression
+for item texts which were aligned right or horizontally centered. The
+layoutRect was calculated wrong and started below zero and later the
+correct x offset could not be calculated since QTextLine::x() does not
+return a calculated value.
+Fix it by first calculating the complete string and pass it completely
+to QTextLayout::draw() instead trying to draw the single lines on our
+own - QTextLayout has a better working algorithm so no need to reinvent
+the wheel here.
+
+[ChangeLog][QtWidgets][ItemViews] Fixed a regression with wrongly drawn
+centered/right aligned item texts
+
+Fixes: QTBUG-34133
+Fixes: QTBUG-56759
+Fixes: QTBUG-72805
+Fixes: QTBUG-72869
+Change-Id: I0ed521c3a9d35446d190ac22aa9f2374814fd278
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+---
+ src/widgets/styles/qcommonstyle.cpp | 36 ++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
+
+diff --git a/src/widgets/styles/qcommonstyle.cpp b/src/widgets/styles/qcommonstyle.cpp
+index 9fbbe1893a..3d626a57fa 100644
+--- a/src/widgets/styles/qcommonstyle.cpp
++++ b/src/widgets/styles/qcommonstyle.cpp
+@@ -943,17 +943,20 @@ void QCommonStylePrivate::viewItemDrawText(QPainter *p, const QStyleOptionViewIt
+     const QRectF boundingRect = textLayout.boundingRect();
+     const QRect layoutRect = QStyle::alignedRect(option->direction, option->displayAlignment,
+                                                  boundingRect.size().toSize(), textRect);
+-    const QPointF position = layoutRect.topLeft();
+-    const int lineCount = textLayout.lineCount();
++    QPointF paintPosition = QPointF(textRect.x(), layoutRect.top());
+ 
++    QString newText;
+     qreal height = 0;
++    const int lineCount = textLayout.lineCount();
+     for (int i = 0; i < lineCount; ++i) {
+         const QTextLine line = textLayout.lineAt(i);
+         height += line.height();
+ 
+         // above visible rect
+-        if (height + layoutRect.top() <= textRect.top())
++        if (height + layoutRect.top() <= textRect.top()) {
++            paintPosition.ry() += line.height();
+             continue;
++        }
+ 
+         const int start = line.textStart();
+         const int length = line.textLength();
+@@ -968,26 +971,33 @@ void QCommonStylePrivate::viewItemDrawText(QPainter *p, const QStyleOptionViewIt
+                 elideLastVisibleLine = true;
+         }
+ 
++        QString text = textLayout.text().mid(start, length);
+         if (drawElided || elideLastVisibleLine) {
+-            QString text = textLayout.text().mid(start, length);
+-            if (elideLastVisibleLine)
++            if (elideLastVisibleLine) {
++                if (text.endsWith(QChar::LineSeparator))
++                    text.chop(1);
+                 text += QChar(0x2026);
++            }
+             const QStackTextEngine engine(text, option->font);
+-            const QString elidedText = engine.elidedText(option->textElideMode, textRect.width());
+-            const QPointF pos(position.x() + line.x(),
+-                              position.y() + line.y() + line.ascent());
+-            p->save();
+-            p->setFont(option->font);
+-            p->drawText(pos, elidedText);
+-            p->restore();
++            newText += engine.elidedText(option->textElideMode, textRect.width());
++            // sometimes drawElided is true but no eliding is done so the text ends
++            // with QChar::LineSeparator - don't add another one. This happened with
++            // arabic text in the testcase for QTBUG-72805
++            if (i < lineCount - 1 &&
++                !newText.endsWith(QChar::LineSeparator))
++                newText += QChar::LineSeparator;
+         } else {
+-            line.draw(p, position);
++            newText += text;
+         }
+ 
+         // below visible text, can stop
+         if (height + layoutRect.top() >= textRect.bottom())
+             break;
+     }
++
++    textLayout.setText(newText);
++    viewItemTextLayout(textLayout, textRect.width());
++    textLayout.draw(p, paintPosition);
+ }
+ 
+ /*! \internal
+-- 
+2.20.1
+

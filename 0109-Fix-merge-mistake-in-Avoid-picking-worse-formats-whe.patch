@@ -1,0 +1,31 @@
+From 4513cf47f14e63ae1c97fa53555ab9c63914cb7a Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Thu, 31 Jan 2019 16:04:38 +0100
+Subject: [PATCH 109/166] Fix merge mistake in 'Avoid picking worse formats
+ when ...'
+
+When spliting the patch the edit become an addition instead.
+
+Task-number: QTBUG-72785
+Change-Id: I92105d0e23e9b8426228f4202d46fa41f928fb94
+Reviewed-by: Christian Andersen <csandersen3@gmail.com>
+Reviewed-by: Gatis Paeglis <gatis.paeglis@qt.io>
+---
+ src/platformsupport/glxconvenience/qglxconvenience.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/platformsupport/glxconvenience/qglxconvenience.cpp b/src/platformsupport/glxconvenience/qglxconvenience.cpp
+index 238f31994d..6bd73de8f3 100644
+--- a/src/platformsupport/glxconvenience/qglxconvenience.cpp
++++ b/src/platformsupport/glxconvenience/qglxconvenience.cpp
+@@ -240,7 +240,6 @@ GLXFBConfig qglx_findConfig(Display *display, int screen , QSurfaceFormat format
+                 continue;
+             if (requestedAlpha && actualAlpha < requestedAlpha)
+                 continue;
+-            compatibleCandidate = candidate;
+             if (!compatibleCandidate) // Only pick up the first compatible one offered by the server
+                 compatibleCandidate = candidate;
+ 
+-- 
+2.20.1
+

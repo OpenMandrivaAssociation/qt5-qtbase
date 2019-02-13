@@ -1,0 +1,72 @@
+From 9501e92841d0a97ff5083f0000947a2e795f61a2 Mon Sep 17 00:00:00 2001
+From: Jesus Fernandez <jesus.fernandez@qt.io>
+Date: Wed, 13 Dec 2017 13:43:49 +0100
+Subject: [PATCH 100/166] Replace executedQuery when executing a new query
+
+Only the first successful query was stored in the variable. When a new
+query is executed the function QSqlResult::setActive was not replacing
+the last executed query.
+
+Fixes: QTBUG-28883
+Change-Id: Ib4938c42e6264f9edd0764b4a392da7988f68fc0
+Reviewed-by: Andy Shaw <andy.shaw@qt.io>
+---
+ src/sql/kernel/qsqlresult.cpp                 |  2 +-
+ .../sql/kernel/qsqlquery/tst_qsqlquery.cpp    | 21 +++++++++++++++++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/src/sql/kernel/qsqlresult.cpp b/src/sql/kernel/qsqlresult.cpp
+index 915a980bf0..589088238b 100644
+--- a/src/sql/kernel/qsqlresult.cpp
++++ b/src/sql/kernel/qsqlresult.cpp
+@@ -386,7 +386,7 @@ const QSqlDriver *QSqlResult::driver() const
+ void QSqlResult::setActive(bool active)
+ {
+     Q_D(QSqlResult);
+-    if (active && d->executedQuery.isEmpty())
++    if (active)
+         d->executedQuery = d->sql;
+ 
+     d->active = active;
+diff --git a/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp b/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp
+index c4cf2e752f..710f26b72d 100644
+--- a/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp
++++ b/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp
+@@ -158,6 +158,8 @@ private slots:
+     void lastInsertId();
+     void lastQuery_data() { generic_data(); }
+     void lastQuery();
++    void lastQueryTwoQueries_data() { generic_data(); }
++    void lastQueryTwoQueries();
+     void bindBool_data() { generic_data(); }
+     void bindBool();
+     void psql_bindWithDoubleColonCastOperator_data() { generic_data("QPSQL"); }
+@@ -2813,6 +2815,25 @@ void tst_QSqlQuery::lastQuery()
+     QCOMPARE( q.executedQuery(), sql );
+ }
+ 
++void tst_QSqlQuery::lastQueryTwoQueries()
++{
++    QFETCH(QString, dbName);
++    QSqlDatabase db = QSqlDatabase::database(dbName);
++    CHECK_DATABASE(db);
++
++    QSqlQuery q(db);
++
++    QString sql = QLatin1String("select * from ") + qtest;
++    QVERIFY_SQL(q, exec(sql));
++    QCOMPARE(q.lastQuery(), sql);
++    QCOMPARE(q.executedQuery(), sql);
++
++    sql = QLatin1String("select id from ") + qtest;
++    QVERIFY_SQL(q, exec(sql));
++    QCOMPARE(q.lastQuery(), sql);
++    QCOMPARE(q.executedQuery(), sql);
++}
++
+ void tst_QSqlQuery::psql_bindWithDoubleColonCastOperator()
+ {
+     QFETCH( QString, dbName );
+-- 
+2.20.1
+

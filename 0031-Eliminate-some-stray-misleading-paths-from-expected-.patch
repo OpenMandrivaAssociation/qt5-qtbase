@@ -1,0 +1,131 @@
+From a53500f5bf75a89e2a616781c806553568531e5a Mon Sep 17 00:00:00 2001
+From: Edward Welbourne <edward.welbourne@qt.io>
+Date: Wed, 16 Jan 2019 13:47:12 +0100
+Subject: [PATCH 031/166] Eliminate some stray misleading paths from expected
+ output files
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The output files for the tuplediagnostics selftest of testlib had a
+stray non-canoical path fragment in them; so replaced with its
+canonical form.
+
+Change-Id: Ib421380036c3fb1b91447eb8c87be4ad0dfe5c96
+Reviewed-by: Jędrzej Nowacki <jedrzej.nowacki@qt.io>
+---
+ .../testlib/selftests/expected_tuplediagnostics.lightxml  | 4 ++--
+ .../auto/testlib/selftests/expected_tuplediagnostics.tap  | 8 ++++----
+ .../testlib/selftests/expected_tuplediagnostics.teamcity  | 4 ++--
+ .../auto/testlib/selftests/expected_tuplediagnostics.txt  | 4 ++--
+ .../auto/testlib/selftests/expected_tuplediagnostics.xml  | 4 ++--
+ 5 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/tests/auto/testlib/selftests/expected_tuplediagnostics.lightxml b/tests/auto/testlib/selftests/expected_tuplediagnostics.lightxml
+index 810941d894..85f8fac42a 100644
+--- a/tests/auto/testlib/selftests/expected_tuplediagnostics.lightxml
++++ b/tests/auto/testlib/selftests/expected_tuplediagnostics.lightxml
+@@ -12,7 +12,7 @@
+     <Duration msecs="0"/>
+ </TestFunction>
+ <TestFunction name="testSimpleTuple">
+-<Incident type="fail" file="/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
++<Incident type="fail" file="qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
+     <Description><![CDATA[Compared values are not the same
+    Actual   (std::tuple<int>{1}): std::tuple(1)
+    Expected (std::tuple<int>{2}): std::tuple(2)]]></Description>
+@@ -20,7 +20,7 @@
+     <Duration msecs="0"/>
+ </TestFunction>
+ <TestFunction name="testTuple">
+-<Incident type="fail" file="/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
++<Incident type="fail" file="qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
+     <Description><![CDATA[Compared values are not the same
+    Actual   (tuple1): std::tuple(42, 'Y', "tuple1")
+    Expected (tuple2): std::tuple(42, 'Y', "tuple2")]]></Description>
+diff --git a/tests/auto/testlib/selftests/expected_tuplediagnostics.tap b/tests/auto/testlib/selftests/expected_tuplediagnostics.tap
+index 9e007c14e1..a079a9bf40 100644
+--- a/tests/auto/testlib/selftests/expected_tuplediagnostics.tap
++++ b/tests/auto/testlib/selftests/expected_tuplediagnostics.tap
+@@ -10,8 +10,8 @@ not ok 3 - testSimpleTuple()
+   found: std::tuple(1) (std::tuple<int>{1})
+   expected: std::tuple(2) (std::tuple<int>{2})
+   actual: std::tuple(1) (std::tuple<int>{1})
+-  at: tst_TupleDiagnostics::testSimpleTuple() (/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp:53)
+-  file: /localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp
++  at: tst_TupleDiagnostics::testSimpleTuple() (qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp:53)
++  file: qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp
+   line: 53
+   ...
+ not ok 4 - testTuple()
+@@ -22,8 +22,8 @@ not ok 4 - testTuple()
+   found: std::tuple(42, 'Y', "tuple1") (tuple1)
+   expected: std::tuple(42, 'Y', "tuple2") (tuple2)
+   actual: std::tuple(42, 'Y', "tuple1") (tuple1)
+-  at: tst_TupleDiagnostics::testTuple() (/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp:60)
+-  file: /localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp
++  at: tst_TupleDiagnostics::testTuple() (qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp:60)
++  file: qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp
+   line: 60
+   ...
+ ok 5 - cleanupTestCase()
+diff --git a/tests/auto/testlib/selftests/expected_tuplediagnostics.teamcity b/tests/auto/testlib/selftests/expected_tuplediagnostics.teamcity
+index a395857c60..7256992518 100644
+--- a/tests/auto/testlib/selftests/expected_tuplediagnostics.teamcity
++++ b/tests/auto/testlib/selftests/expected_tuplediagnostics.teamcity
+@@ -4,10 +4,10 @@
+ ##teamcity[testStarted name='testEmptyTuple()' flowId='tst_TupleDiagnostics']
+ ##teamcity[testFinished name='testEmptyTuple()' flowId='tst_TupleDiagnostics']
+ ##teamcity[testStarted name='testSimpleTuple()' flowId='tst_TupleDiagnostics']
+-##teamcity[testFailed name='testSimpleTuple()' message='Failure! |[Loc: /localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)|]' details='Compared values are not the same|n Actual (std::tuple<int>{1}): std::tuple(1)|n Expected (std::tuple<int>{2}): std::tuple(2)' flowId='tst_TupleDiagnostics']
++##teamcity[testFailed name='testSimpleTuple()' message='Failure! |[Loc: qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)|]' details='Compared values are not the same|n Actual (std::tuple<int>{1}): std::tuple(1)|n Expected (std::tuple<int>{2}): std::tuple(2)' flowId='tst_TupleDiagnostics']
+ ##teamcity[testFinished name='testSimpleTuple()' flowId='tst_TupleDiagnostics']
+ ##teamcity[testStarted name='testTuple()' flowId='tst_TupleDiagnostics']
+-##teamcity[testFailed name='testTuple()' message='Failure! |[Loc: /localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)|]' details='Compared values are not the same|n Actual (tuple1): std::tuple(42, |'Y|', "tuple1")|n Expected (tuple2): std::tuple(42, |'Y|', "tuple2")' flowId='tst_TupleDiagnostics']
++##teamcity[testFailed name='testTuple()' message='Failure! |[Loc: qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)|]' details='Compared values are not the same|n Actual (tuple1): std::tuple(42, |'Y|', "tuple1")|n Expected (tuple2): std::tuple(42, |'Y|', "tuple2")' flowId='tst_TupleDiagnostics']
+ ##teamcity[testFinished name='testTuple()' flowId='tst_TupleDiagnostics']
+ ##teamcity[testStarted name='cleanupTestCase()' flowId='tst_TupleDiagnostics']
+ ##teamcity[testFinished name='cleanupTestCase()' flowId='tst_TupleDiagnostics']
+diff --git a/tests/auto/testlib/selftests/expected_tuplediagnostics.txt b/tests/auto/testlib/selftests/expected_tuplediagnostics.txt
+index ce568bf6c0..8d121acc83 100644
+--- a/tests/auto/testlib/selftests/expected_tuplediagnostics.txt
++++ b/tests/auto/testlib/selftests/expected_tuplediagnostics.txt
+@@ -5,11 +5,11 @@ PASS   : tst_TupleDiagnostics::testEmptyTuple()
+ FAIL!  : tst_TupleDiagnostics::testSimpleTuple() Compared values are not the same
+    Actual   (std::tuple<int>{1}): std::tuple(1)
+    Expected (std::tuple<int>{2}): std::tuple(2)
+-   Loc: [/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)]
++   Loc: [qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)]
+ FAIL!  : tst_TupleDiagnostics::testTuple() Compared values are not the same
+    Actual   (tuple1): std::tuple(42, 'Y', "tuple1")
+    Expected (tuple2): std::tuple(42, 'Y', "tuple2")
+-   Loc: [/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)]
++   Loc: [qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp(0)]
+ PASS   : tst_TupleDiagnostics::cleanupTestCase()
+ Totals: 3 passed, 2 failed, 0 skipped, 0 blacklisted, 0ms
+ ********* Finished testing of tst_TupleDiagnostics *********
+diff --git a/tests/auto/testlib/selftests/expected_tuplediagnostics.xml b/tests/auto/testlib/selftests/expected_tuplediagnostics.xml
+index 4c55a6d393..f32974adb4 100644
+--- a/tests/auto/testlib/selftests/expected_tuplediagnostics.xml
++++ b/tests/auto/testlib/selftests/expected_tuplediagnostics.xml
+@@ -14,7 +14,7 @@
+     <Duration msecs="0"/>
+ </TestFunction>
+ <TestFunction name="testSimpleTuple">
+-<Incident type="fail" file="/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
++<Incident type="fail" file="qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
+     <Description><![CDATA[Compared values are not the same
+    Actual   (std::tuple<int>{1}): std::tuple(1)
+    Expected (std::tuple<int>{2}): std::tuple(2)]]></Description>
+@@ -22,7 +22,7 @@
+     <Duration msecs="0"/>
+ </TestFunction>
+ <TestFunction name="testTuple">
+-<Incident type="fail" file="/localqtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
++<Incident type="fail" file="qtbase/tests/auto/testlib/selftests/tuplediagnostics/tst_tuplediagnostics.cpp" line="0">
+     <Description><![CDATA[Compared values are not the same
+    Actual   (tuple1): std::tuple(42, 'Y', "tuple1")
+    Expected (tuple2): std::tuple(42, 'Y', "tuple2")]]></Description>
+-- 
+2.20.1
+

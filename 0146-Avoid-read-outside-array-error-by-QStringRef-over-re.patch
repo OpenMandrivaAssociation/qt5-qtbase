@@ -1,0 +1,86 @@
+From c066656aff4841f9095e77754fa7533f7bbbb66a Mon Sep 17 00:00:00 2001
+From: Edward Welbourne <edward.welbourne@qt.io>
+Date: Thu, 7 Feb 2019 17:04:49 +0100
+Subject: [PATCH 146/166] Avoid read-outside-array error by QStringRef
+ over-reach
+
+Constructing a QStringRef directly from the string, offset and a
+length is UB if the offset + length exceeds the string's length.
+Thanks to Robert Loehning and libFuzzer for finding this.
+QString::midRef (as correctly used in both changed uses of QStringRef,
+since 432d3b69629) takes care of that for us.  Changed one UB case and
+a matching but correct case, for consistency.
+
+In the process, deduplicate a QStringList look-up.
+Added tests to exercise the code (but the one that exercises the
+formerly UB case doesn't crash before the fix, so isn't very useful;
+the invalid read is only outside the array it's scanning, not outside
+allocated memory).
+
+Change-Id: I7051bbbc0267dd7ec0a8f75eee2034d0b7eb75a2
+Reviewed-by: Anton Kudryavtsev <antkudr@mail.ru>
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+---
+ src/corelib/tools/qdatetimeparser.cpp               | 11 ++++++-----
+ .../auto/corelib/tools/qdatetime/tst_qdatetime.cpp  | 13 +++++++++++++
+ 2 files changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/src/corelib/tools/qdatetimeparser.cpp b/src/corelib/tools/qdatetimeparser.cpp
+index e6afd510fd..e8470f6cde 100644
+--- a/src/corelib/tools/qdatetimeparser.cpp
++++ b/src/corelib/tools/qdatetimeparser.cpp
+@@ -1125,13 +1125,14 @@ QDateTimeParser::scanString(const QDateTime &defaultValue,
+ 
+     for (int index = 0; index < sectionNodesCount; ++index) {
+         Q_ASSERT(state != Invalid);
+-        if (QStringRef(input, pos, separators.at(index).size()) != separators.at(index)) {
+-            QDTPDEBUG << "invalid because" << input->midRef(pos, separators.at(index).size())
+-                      << "!=" << separators.at(index)
++        const QString &separator = separators.at(index);
++        if (input->midRef(pos, separator.size()) != separator) {
++            QDTPDEBUG << "invalid because" << input->midRef(pos, separator.size())
++                      << "!=" << separator
+                       << index << pos << currentSectionIndex;
+             return StateNode();
+         }
+-        pos += separators.at(index).size();
++        pos += separator.size();
+         sectionNodes[index].pos = pos;
+         int *current = 0;
+         const SectionNode sn = sectionNodes.at(index);
+@@ -1227,7 +1228,7 @@ QDateTimeParser::scanString(const QDateTime &defaultValue,
+         isSet |= sn.type;
+     }
+ 
+-    if (QStringRef(input, pos, input->size() - pos) != separators.last()) {
++    if (input->midRef(pos) != separators.last()) {
+         QDTPDEBUG << "invalid because" << input->midRef(pos)
+                   << "!=" << separators.last() << pos;
+         return StateNode();
+diff --git a/tests/auto/corelib/tools/qdatetime/tst_qdatetime.cpp b/tests/auto/corelib/tools/qdatetime/tst_qdatetime.cpp
+index 943805e228..b128ccebc5 100644
+--- a/tests/auto/corelib/tools/qdatetime/tst_qdatetime.cpp
++++ b/tests/auto/corelib/tools/qdatetime/tst_qdatetime.cpp
+@@ -2401,6 +2401,19 @@ void tst_QDateTime::fromStringStringFormat_data()
+     QTest::newRow("late") << QString("9999-12-31T23:59:59.999Z")
+                           << QString("yyyy-MM-ddThh:mm:ss.zZ")
+                           << QDateTime(QDate(9999, 12, 31), QTime(23, 59, 59, 999));
++    // Separators match /([^aAdhHMmstyz]*)/
++    QTest::newRow("oddly-separated") // To show broken-separator's format is valid.
++        << QStringLiteral("2018 wilful long working block relief 12-19T21:09 cruel blurb encore flux")
++        << QStringLiteral("yyyy wilful long working block relief MM-ddThh:mm cruel blurb encore flux")
++        << QDateTime(QDate(2018, 12, 19), QTime(21, 9));
++    QTest::newRow("broken-separator")
++        << QStringLiteral("2018 wilful")
++        << QStringLiteral("yyyy wilful long working block relief MM-ddThh:mm cruel blurb encore flux")
++        << invalidDateTime();
++    QTest::newRow("broken-terminator")
++        << QStringLiteral("2018 wilful long working block relief 12-19T21:09 cruel")
++        << QStringLiteral("yyyy wilful long working block relief MM-ddThh:mm cruel blurb encore flux")
++        << invalidDateTime();
+ }
+ 
+ void tst_QDateTime::fromStringStringFormat()
+-- 
+2.20.1
+

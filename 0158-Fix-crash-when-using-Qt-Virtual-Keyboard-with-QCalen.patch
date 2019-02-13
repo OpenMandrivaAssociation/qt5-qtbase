@@ -1,0 +1,59 @@
+From 7faec58d5cccf7e7a5f92116f70cc504821711af Mon Sep 17 00:00:00 2001
+From: Mitch Curtis <mitch.curtis@qt.io>
+Date: Wed, 9 Jan 2019 15:01:16 +0100
+Subject: [PATCH 158/166] Fix crash when using Qt Virtual Keyboard with
+ QCalendarWidget
+
+For some reason, QCalendarWidget gets filtered press events that were
+intended for Qt Virtual Keyboard's input panel (QQuickView), so we have
+to make sure that the window is indeed a QWidget - no static_cast.
+
+Change-Id: Ibc9dce956918ac50d1fed8231a445b7338aef09c
+Fixes: QTBUG-72925
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+---
+ src/widgets/widgets/qcalendarwidget.cpp | 27 ++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
+
+diff --git a/src/widgets/widgets/qcalendarwidget.cpp b/src/widgets/widgets/qcalendarwidget.cpp
+index 4946969360..2ff383d9c7 100644
+--- a/src/widgets/widgets/qcalendarwidget.cpp
++++ b/src/widgets/widgets/qcalendarwidget.cpp
+@@ -3063,19 +3063,22 @@ bool QCalendarWidget::eventFilter(QObject *watched, QEvent *event)
+ {
+     Q_D(QCalendarWidget);
+     if (event->type() == QEvent::MouseButtonPress && d->yearEdit->hasFocus()) {
++        // We can get filtered press events that were intended for Qt Virtual Keyboard's
++        // input panel (QQuickView), so we have to make sure that the window is indeed a QWidget - no static_cast.
++        // In addition, as we have a event filter on the whole application we first make sure that the top level widget
++        // of both this and the watched widget are the same to decide if we should finish the year edition.
+         QWidget *tlw = window();
+-        QWidget *widget = static_cast<QWidget*>(watched);
+-        //as we have a event filter on the whole application we first make sure that the top level widget
+-        //of both this and the watched widget are the same to decide if we should finish the year edition.
+-        if (widget->window() == tlw) {
+-            QPoint mousePos = widget->mapTo(tlw, static_cast<QMouseEvent *>(event)->pos());
+-            QRect geom = QRect(d->yearEdit->mapTo(tlw, QPoint(0, 0)), d->yearEdit->size());
+-            if (!geom.contains(mousePos)) {
+-                event->accept();
+-                d->_q_yearEditingFinished();
+-                setFocus();
+-                return true;
+-            }
++        QWidget *widget = qobject_cast<QWidget *>(watched);
++        if (!widget || widget->window() != tlw)
++            return QWidget::eventFilter(watched, event);
++
++        QPoint mousePos = widget->mapTo(tlw, static_cast<QMouseEvent *>(event)->pos());
++        QRect geom = QRect(d->yearEdit->mapTo(tlw, QPoint(0, 0)), d->yearEdit->size());
++        if (!geom.contains(mousePos)) {
++            event->accept();
++            d->_q_yearEditingFinished();
++            setFocus();
++            return true;
+         }
+     }
+     return QWidget::eventFilter(watched, event);
+-- 
+2.20.1
+

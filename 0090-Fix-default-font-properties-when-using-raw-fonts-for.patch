@@ -1,0 +1,45 @@
+From 4514cf27b27a9b334d49b969760856751d0b227a Mon Sep 17 00:00:00 2001
+From: Eskil Abrahamsen Blomfeldt <eskil.abrahamsen-blomfeldt@qt.io>
+Date: Mon, 28 Jan 2019 08:22:33 +0100
+Subject: [PATCH 090/166] Fix default font properties when using raw fonts for
+ text layouts
+
+When a QRawFont is set explicitly on the layout, we would get certain
+font properties from the QTextCharFormat instead. But when the properties
+had not been set on the QTextCharFormat, we would get the default values
+which were always 0/false, not the actual default values used in QFont.
+
+Instead, we calculate a QFont query based on the format and use the
+properties from this. This will give us the correct default values
+in the cases where they are not overridden.
+
+Change-Id: I53e5103739164c3d9eafaf76fcb4e8bda57bd12a
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+---
+ src/gui/text/qtextengine.cpp | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/src/gui/text/qtextengine.cpp b/src/gui/text/qtextengine.cpp
+index 506df0664d..9ed497839c 100644
+--- a/src/gui/text/qtextengine.cpp
++++ b/src/gui/text/qtextengine.cpp
+@@ -1398,11 +1398,12 @@ void QTextEngine::shapeText(int item) const
+ #ifndef QT_NO_RAWFONT
+     if (useRawFont) {
+         QTextCharFormat f = format(&si);
+-        kerningEnabled = f.fontKerning();
++        QFont font = f.font();
++        kerningEnabled = font.kerning();
+         shapingEnabled = QFontEngine::scriptRequiresOpenType(QChar::Script(si.analysis.script))
+-                || (f.fontStyleStrategy() & QFont::PreferNoShaping) == 0;
+-        wordSpacing = QFixed::fromReal(f.fontWordSpacing());
+-        letterSpacing = QFixed::fromReal(f.fontLetterSpacing());
++                || (font.styleStrategy() & QFont::PreferNoShaping) == 0;
++        wordSpacing = QFixed::fromReal(font.wordSpacing());
++        letterSpacing = QFixed::fromReal(font.letterSpacing());
+         letterSpacingIsAbsolute = true;
+     } else
+ #endif
+-- 
+2.20.1
+

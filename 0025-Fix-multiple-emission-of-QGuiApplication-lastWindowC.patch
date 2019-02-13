@@ -1,0 +1,36 @@
+From b782004149610d5c6af27e12d788acfb213b84d0 Mon Sep 17 00:00:00 2001
+From: Friedemann Kleint <Friedemann.Kleint@qt.io>
+Date: Tue, 15 Jan 2019 16:38:01 +0100
+Subject: [PATCH 025/166] Fix multiple emission of
+ QGuiApplication::lastWindowClosed() when native child widgets are used
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Run the handling in QWindowPrivate::maybeQuitOnLastWindowClosed()
+for top level windows only.
+
+Fixes: QTBUG-73061
+Change-Id: I74deb50b06a64e8ef0e438d2abf14888f778a46e
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+---
+ src/gui/kernel/qwindow.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/gui/kernel/qwindow.cpp b/src/gui/kernel/qwindow.cpp
+index 61ef029cbd..e0da4d0ea7 100644
+--- a/src/gui/kernel/qwindow.cpp
++++ b/src/gui/kernel/qwindow.cpp
+@@ -2588,6 +2588,8 @@ void QWindowPrivate::maybeQuitOnLastWindowClosed()
+         return;
+ 
+     Q_Q(QWindow);
++    if (!q->isTopLevel())
++        return;
+     // Attempt to close the application only if this has WA_QuitOnClose set and a non-visible parent
+     bool quitOnClose = QGuiApplication::quitOnLastWindowClosed() && !q->parent();
+     QWindowList list = QGuiApplication::topLevelWindows();
+-- 
+2.20.1
+

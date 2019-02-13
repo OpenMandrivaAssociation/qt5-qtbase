@@ -1,0 +1,31 @@
+From eb60877fe96d82d9d6e1a834857744799e6de4db Mon Sep 17 00:00:00 2001
+From: Kari Oikarinen <kari.oikarinen@qt.io>
+Date: Wed, 30 Jan 2019 15:25:34 +0200
+Subject: [PATCH 131/166] QWizard: Correctly calculate watermark size hint
+
+If we have have AA_EnableHighDpiScaling on and have loaded a @2x image, layout
+calculations can't use the real pixels of the QPixmap directly.
+
+Fixes: QTBUG-73401
+Change-Id: I1891411a0e359e0148476f73b6cc3a128893a374
+Reviewed-by: Friedemann Kleint <Friedemann.Kleint@qt.io>
+---
+ src/widgets/dialogs/qwizard.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/dialogs/qwizard.cpp b/src/widgets/dialogs/qwizard.cpp
+index 3876cf16c6..21e1ff2778 100644
+--- a/src/widgets/dialogs/qwizard.cpp
++++ b/src/widgets/dialogs/qwizard.cpp
+@@ -456,7 +456,7 @@ public:
+ 
+     QSize minimumSizeHint() const override {
+         if (pixmap() && !pixmap()->isNull())
+-            return pixmap()->size();
++            return pixmap()->size() / pixmap()->devicePixelRatio();
+         return QFrame::minimumSizeHint();
+     }
+ 
+-- 
+2.20.1
+
