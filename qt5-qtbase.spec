@@ -103,13 +103,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.12.1
+Version:	5.12.2
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	4
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -132,51 +132,6 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-# Revert patch allowing multi-threading -- it seems to break sddm
-# with nouveau pretty badly
-# https://bugreports.qt.io/browse/QTBUG-73715
-# FIXME this seems to happen with Nouveau only, so we may want to
-# stop blacklisting non-Nouveau drivers
-Patch5:		https://gitweb.frugalware.org/wip_plasma5/raw/master/source/xlib/qt5-base/revert-97600d2c2885e667ced0926815b5a12a7f25285c.patch
-# Selected bits and pieces from the 5.12 git branch
-Patch6:		0001-QSplashScreen-Fix-positioning-in-multimonitor-setups.patch
-Patch7:		0002-QNetworkReplyHttpImpl-_q_startOperation-remove-a-use.patch
-Patch8:		0003-Emit-paletteChanged-and-send-ApplicationPaletteChang.patch
-Patch9:		0010-Increase-sysctl-argument-buffer-size-to-include-null.patch
-Patch10:	0011-qWaitFor-Prevent-being-stuck-in-QCoreApplication-pro.patch
-Patch11:	0017-QLocale-fix-crash-when-using-qDebug-in-a-global-dest.patch
-Patch12:	0019-fix-out-of-bounds-access-on-trailing-percent-sign-in.patch
-Patch13:	0025-Fix-multiple-emission-of-QGuiApplication-lastWindowC.patch
-Patch14:	0027-QSyntaxHighlighter-cancel-delayed-highlight-if-done-.patch
-Patch15:	0031-Eliminate-some-stray-misleading-paths-from-expected-.patch
-Patch16:	0046-fix-crash-if-no-screens-are-available.patch
-Patch17:	0053-Always-unlock-graphics-buffer-after-binding-texture-.patch
-Patch18:	0055-QAbstractItemView-fix-rendering-centered-right-align.patch
-Patch20:	0066-xcb-Avoid-repaint-lags-with-DnD.patch
-Patch21:	0084-Remove-requirement-to-lock-graphics-buffer-before-ge.patch
-Patch22:	0090-Fix-default-font-properties-when-using-raw-fonts-for.patch
-Patch23:	0098-png-initialize-color_type-to-0.patch
-Patch24:	0099-QPictureIO-read-don-t-work-on-dangling-pointer.patch
-Patch25:	0100-Replace-executedQuery-when-executing-a-new-query.patch
-Patch26:	0101-Avoid-picking-worse-formats-when-matching-compatible.patch
-Patch27:	0103-Fix-session-resumption-with-OpenSSL-1.1.patch
-Patch28:	0105-Fix-regression-in-QPlainTextEdit-updating.patch
-Patch29:	0108-Initialize-bit_depth.patch
-Patch30:	0109-Fix-merge-mistake-in-Avoid-picking-worse-formats-whe.patch
-Patch31:	0122-QMenuItem-fix-rendering-with-css-styling.patch
-Patch32:	0123-Fix-xbm-image-format-handler-properly-reject-invalid.patch
-Patch33:	0124-Painter-path-stroking-fix-capping-of-beziers-ending-.patch
-Patch34:	0125-Fix-QColor-toCmyk-for-rgb-0-0-0.patch
-Patch35:	0131-QWizard-Correctly-calculate-watermark-size-hint.patch
-Patch36:	0134-Improve-keyboard-navigation-in-QListView-when-isWrap.patch
-Patch37:	0137-QCommonStyle-factor-out-elided-text-calculation.patch
-Patch38:	0138-QToolButton-fix-handling-multi-line-texts.patch
-Patch39:	0145-Fix-QDeadlineTimer-Forever-case-in-QWaitCondition.patch
-Patch40:	0146-Avoid-read-outside-array-error-by-QStringRef-over-re.patch
-Patch41:	0147-Fix-QTextTable-insertRows-for-tables-with-spanning-c.patch
-Patch42:	0158-Fix-crash-when-using-Qt-Virtual-Keyboard-with-QCalen.patch
-# https://bugreports.qt.io/browse/QTBUG-73691
-Patch50:	https://bugreports.qt.io/secure/attachment/80855/revert_size_calculations_with_proper_non-UB_checks.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
