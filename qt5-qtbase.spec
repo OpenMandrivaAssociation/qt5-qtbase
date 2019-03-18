@@ -109,7 +109,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1536,19 +1536,10 @@ sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
 OPTFLAGS="%{optflags}"
 %ifarch %{arm}
-# The asm bits in 3rdparty/pixman are pre-unified syntax
 OPTFLAGS="`echo ${OPTFLAGS} |sed -e 's,-mfpu=neon ,-mfpu=neon-vfpv4 ,g;s,-mfpu=neon$,-mfpu=neon-vfpv4,'`"
-%if !%{without clang}
-sed -i -e "s|-O2|${OPTFLAGS} -no-integrated-as|g" mkspecs/common/gcc-base.conf
-sed -i -e "s|-O3|${OPTFLAGS} -no-integrated-as|g" mkspecs/common/gcc-base.conf
-%else
+%endif
 sed -i -e "s|-O2|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
-%endif
-%else
-sed -i -e "s|-O2|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
-sed -i -e "s|-O3|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
-%endif
 %if !%{without clang}
 sed -i -e "s|gcc-nm|llvm-nm|g" mkspecs/common/clang.conf
 # drop flags that clang doesn't recognize
