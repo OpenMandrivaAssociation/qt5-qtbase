@@ -233,6 +233,7 @@ BuildRequires:	gdb
 %if %{with docs}
 BuildRequires:	qdoc5
 BuildRequires:	qt5-qttools
+BuildRequires:	qt5-assistant
 %endif
 # For the Provides: generator
 BuildRequires:	cmake >= 3.11.0-1
