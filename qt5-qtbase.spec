@@ -81,11 +81,17 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%bcond_without bootstrap
+%bcond_with bootstrap
 
 %bcond_with directfb
+# Docs require qdoc5 and qt5-tools to build
+%if %{with bootstrap}
 # Requires qdoc5 and qt5-tools to build
 %bcond_with docs
+%else
+# Requires qdoc5 and qt5-tools to build
+%bcond_without docs
+%endif
 %bcond_without gtk
 
 %ifarch %{aarch64}
@@ -109,7 +115,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	3
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
