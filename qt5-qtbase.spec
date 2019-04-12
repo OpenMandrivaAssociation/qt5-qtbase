@@ -1205,7 +1205,7 @@ BuildArch:	noarch
 QCH documentation for the Qt toolkit.
 
 %files -n qt5-doc
-%{_qt_docdir}/*.qch
+%{_qt_docdir}/*.{tags,qch}
 %endif
 
 #----------------------------------------------------------------------------
@@ -1759,6 +1759,7 @@ rm -f %{buildroot}%{_libdir}/libqtlibpng.*
 
 %if %{with docs}
 make install_qch_docs INSTALL_ROOT=%{buildroot}
+cp doc/*/*.tags %{buildroot}%{_qt_docdir}/
 %endif
 
 # Probably not useful outside of Qt source tree?
