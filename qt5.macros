@@ -12,20 +12,20 @@
 
 %qmake_qt5 \
   %setup_compile_flags \
-  CPPFLAGS="${CPPFLAGS:-$CPPFLAGS -DPIC -fPIC}" ; export CPPFLAGS ; \
-  CFLAGS="${CFLAGS:-$CFLAGS -DPIC -fPIC}" ; export CFLAGS ; \
-  CXXFLAGS="${CXXFLAGS:-$CXXFLAGS -DPIC -fPIC}" ; export CXXFLAGS ; \
-  LDFLAGS="${LDFLAGS:-$LDFLAGS -DPIC -fPIC -Wl,-Bsymbolic-functions}" ; export LDFLAGS ; \
+  CPPFLAGS="${CPPFLAGS:-$CPPFLAGS}" ; export CPPFLAGS ; \
+  CFLAGS="${CFLAGS:-$CFLAGS}" ; export CFLAGS ; \
+  CXXFLAGS="${CXXFLAGS:-$CXXFLAGS}" ; export CXXFLAGS ; \
+  LDFLAGS="${LDFLAGS:-$LDFLAGS -Wl,-Bsymbolic-functions}" ; export LDFLAGS ; \
   %{_bindir}/qmake-qt5 \\\
     %if "%{_lib}" != "lib" \
        libsuff=64 \\\
     %endif \
-    QMAKE_CFLAGS="${CFLAGS:-$CFLAGS -DPIC -fPIC}" \\\
-    QMAKE_CFLAGS_RELEASE="${CFLAGS:-$CFLAGS -DPIC -fPIC}" \\\
-    QMAKE_CFLAGS_OPTIMIZE="${CFLAGS:-$CFLAGS -DPIC -fPIC}" \\\
-    QMAKE_CFLAGS_OPTIMIZE_FULL="${CFLAGS:-$CFLAGS -DPIC -fPIC}" \\\
-    QMAKE_CXXFLAGS="${CXXFLAGS:-$CXXFLAGS -DPIC -fPIC}" \\\
-    QMAKE_CXXFLAGS_RELEASE="${CXXFLAGS:-$CXXFLAGS -DPIC -fPIC}" \\\
+    QMAKE_CFLAGS="${CFLAGS:-$CFLAGS}" \\\
+    QMAKE_CFLAGS_RELEASE="${CFLAGS:-$CFLAGS}" \\\
+    QMAKE_CFLAGS_OPTIMIZE="${CFLAGS:-$CFLAGS}" \\\
+    QMAKE_CFLAGS_OPTIMIZE_FULL="${CFLAGS:-$CFLAGS}" \\\
+    QMAKE_CXXFLAGS="${CXXFLAGS:-$CXXFLAGS}" \\\
+    QMAKE_CXXFLAGS_RELEASE="${CXXFLAGS:-$CXXFLAGS}" \\\
     QMAKE_LFLAGS="$LDFLAGS" \\\
     QMAKE_LFLAGS_RELEASE="$LDFLAGS"
 
@@ -33,10 +33,10 @@
   %setup_compile_flags \
   QTDIR="%{_libdir}/qt5" ; export QTDIR ; \
   PATH="%{_qt5_bindir}:$PATH" ; export PATH ; \
-  CPPFLAGS="${CPPFLAGS:-$CPPFLAGS -DPIC -fPIC}" ; export CPPFLAGS ; \
-  CFLAGS="${CFLAGS:-$CFLAGS -DPIC -fPIC}" ; export CFLAGS ; \
-  CXXFLAGS="${CXXFLAGS:-$CXXFLAGS -DPIC -fPIC}" ; export CXXFLAGS ; \
-  LDFLAGS="${LDFLAGS:-$LDFLAGS -DPIC -fPIC -Wl,-Bsymbolic-functions}" ; export LDFLAGS ; \
+  CPPFLAGS="${CPPFLAGS:-$CPPFLAGS}" ; export CPPFLAGS ; \
+  CFLAGS="${CFLAGS:-$CFLAGS}" ; export CFLAGS ; \
+  CXXFLAGS="${CXXFLAGS:-$CXXFLAGS}" ; export CXXFLAGS ; \
+  LDFLAGS="${LDFLAGS:-$LDFLAGS -Wl,-Bsymbolic-functions}" ; export LDFLAGS ; \
   mkdir -p build \
   cd build \
   %__cmake .. \\\
