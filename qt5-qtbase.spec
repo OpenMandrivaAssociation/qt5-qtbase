@@ -1324,6 +1324,7 @@ Helper library for Qt accessibility support
 %{_includedir}/qt%{api}/QtAccessibilitySupport
 %{_libdir}/libQt%{api}AccessibilitySupport.a
 %{_libdir}/libQt%{api}AccessibilitySupport.prl
+%{_libdir}/pkgconfig/Qt5LinuxAccessibilitySupport.pc
 
 #----------------------------------------------------------------------------
 %package -n %{qtedidsupportd}
@@ -1791,6 +1792,27 @@ cd pkgconfig
 ln -s ../../%{_lib}/qt%{api}/%{_lib}/pkgconfig/*.pc .
 popd
 %endif
+
+if [ -e %{buildroot}%{_libdir}/pkgconfig/Qt5LinuxAccessibilitySupport.pc ]; then
+	echo "Qt5LinuxAccessibilitySupport.pc has been added upstream, remove the workaround"
+	exit 1
+else
+	# This is used by Qt5Wayland -- but never actually created
+	# See also https://bugreports.qt.io/browse/QTBUG-76042
+	cat >%{buildroot}%{_libdir}/pkgconfig/Qt5LinuxAccessibilitySupport.pc <<EOF
+prefix=%{_qt_prefix}
+exec_prefix=\${prefix}
+libdir=%{_libdir}
+includedir=%{_includedir}/qt5
+Name: Qt%{api} Linux Accessibility Support
+Description: Qt%{api} Linux Accessibility Support
+Version: %{version}
+Libs: -lQt%{api}AccessibilitySupport
+Cflags: -I\${includedir}/QtAccessibilitySupport -I\${includedir}
+Requires: Qt%{api}Core
+EOF
+fi
+
 
 # Fix some wrong permissions
 find %{buildroot} -type f -perm -0755 -name "*.png" |xargs --no-run-if-empty chmod 0644
