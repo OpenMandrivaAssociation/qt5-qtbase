@@ -15,7 +15,7 @@
 %endif
 
 #% define debug_package %{nil}
-%define beta rc2
+%define beta rc3
 %define api 5
 %define major 5
 
