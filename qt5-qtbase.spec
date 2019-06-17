@@ -15,7 +15,7 @@
 %endif
 
 #% define debug_package %{nil}
-%define beta %{nil}
+%define beta rc2
 %define api 5
 %define major 5
 
@@ -109,13 +109,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.12.3
+Version:	5.13.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -628,6 +628,10 @@ Development files for the X11 output driver for QtGui v5.
 %files -n %{qtgui}-x11-devel
 %{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QComposePlatformInputContextPlugin.cmake
 %{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QXcb*IntegrationPlugin.cmake
+%{_includedir}/qt5/QtXkbCommonSupport/*/QtXkbCommonSupport
+%{_includedir}/qt5/QtXkbCommonSupport
+%{_libdir}/libQt5XkbCommonSupport.a
+%{_libdir}/libQt5XkbCommonSupport.prl
 
 #----------------------------------------------------------------------------
 
