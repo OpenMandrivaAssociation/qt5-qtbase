@@ -5,14 +5,11 @@
 # this makes sure the files dont get marked as docs
 %define _no_default_doc_files 1
 
-# (tpg) optimize it a bit
-%ifarch %{aarch64}
-# Workaround for weird signal/slot problem
+# If we ever switch back to ld.gold as default
+# linker, we need to add -fuse-ld=bfd or -fuse-ld=lld
+# on aarch64 as workaround for a weird signal/slot problem
 # (slots defined as lambdas never called)
-%global optflags %{optflags} -O2 -fuse-ld=bfd
-%else
-%global optflags %{optflags} -O3
-%endif
+%global optflags %{optflags} -Ofast
 
 #% define debug_package %{nil}
 %define beta %{nil}
@@ -115,7 +112,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
