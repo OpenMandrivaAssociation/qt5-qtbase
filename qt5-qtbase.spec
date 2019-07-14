@@ -91,12 +91,7 @@
 %endif
 %bcond_without gtk
 
-%ifarch %{aarch64}
-# Attempted workaround for signal/slot breakage at runtime
-%bcond_with clang
-%else
 %bcond_without clang
-%endif
 %bcond_without mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
