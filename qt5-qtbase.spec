@@ -508,6 +508,12 @@ Development files for version 5 of the QtGui library.
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Gui.pc
 %endif
+# Should probably go to qt5-qtdeclarative or so, but that's
+# a separate source package...
+%{_libdir}/cmake/Qt%{api}QmlDebug
+%{_libdir}/cmake/Qt%{api}QmlDevTools
+%{_libdir}/cmake/Qt%{api}QuickParticles
+%{_libdir}/cmake/Qt%{api}QuickShapes
 
 #----------------------------------------------------------------------------
 %if %{with directfb}
@@ -765,6 +771,7 @@ Development files for version %{api} of the QtNetwork library.
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Network.pc
 %endif
+%{_libdir}/cmake/Qt5PacketProtocol
 
 #----------------------------------------------------------------------------
 
