@@ -101,13 +101,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.13.0
+Version:	5.13.1
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -247,6 +247,7 @@ Development files for version 5 if the QtBootstrap library.
 %files -n %{qtbootstrapd}
 %{_qt_libdir}/libQt%{api}Bootstrap.a
 %{_qt_libdir}/libQt%{api}Bootstrap.prl
+%{_libdir}/cmake/Qt%{api}Bootstrap
 
 #----------------------------------------------------------------------------
 
@@ -419,6 +420,7 @@ Development files for version 5 of the QtEGLDeviceIntegration library.
 %{_qt_libdir}/libQt%{api}EglFSDeviceIntegration.so
 %{_qt_libdir}/libQt%{api}EglFSDeviceIntegration.prl
 %{_qt_includedir}/QtEglFSDeviceIntegration
+%{_libdir}/cmake/Qt%{api}EglFSDeviceIntegration
 
 #----------------------------------------------------------------------------
 
@@ -624,6 +626,7 @@ Development files for the X11 output driver for QtGui v5.
 %{_includedir}/qt5/QtXkbCommonSupport
 %{_libdir}/libQt5XkbCommonSupport.a
 %{_libdir}/libQt5XkbCommonSupport.prl
+%{_libdir}/cmake/Qt%{api}XkbCommonSupport
 
 #----------------------------------------------------------------------------
 
@@ -686,6 +689,8 @@ Development files for the EGL fullscreen output driver for QtGui v5.
 %{_libdir}/libQt5KmsSupport.a
 %{_libdir}/libQt5KmsSupport.prl
 %{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QEglFS*.cmake
+%{_libdir}/cmake/Qt%{api}EglFsKmsSupport
+%{_libdir}/cmake/Qt%{api}KmsSupport
 
 #----------------------------------------------------------------------------
 
@@ -1058,6 +1063,7 @@ Development files for version 5 of the QtXcbQpa library.
 %files -n %{qtxcbqpad}
 %{_qt_libdir}/libQt%{api}XcbQpa.so
 %{_qt_libdir}/libQt%{api}XcbQpa.prl
+%{_libdir}/cmake/Qt%{api}XcbQpa
 
 
 #----------------------------------------------------------------------------
@@ -1203,6 +1209,7 @@ QCH documentation for the Qt toolkit.
 
 %files -n qt5-doc
 %{_qt_docdir}/*.{tags,qch}
+%{_qt_docdir}/config/exampleurl-*.qdocconf
 %endif
 
 #----------------------------------------------------------------------------
@@ -1317,6 +1324,7 @@ Helper library for Qt accessibility support
 %{_libdir}/libQt%{api}AccessibilitySupport.a
 %{_libdir}/libQt%{api}AccessibilitySupport.prl
 %{_libdir}/pkgconfig/Qt5LinuxAccessibilitySupport.pc
+%{_libdir}/cmake/Qt%{api}AccessibilitySupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtedidsupportd}
@@ -1331,6 +1339,7 @@ Helper library for Qt EDID support
 %{_includedir}/qt%{api}/QtEdidSupport
 %{_libdir}/libQt%{api}EdidSupport.a
 %{_libdir}/libQt%{api}EdidSupport.prl
+%{_libdir}/cmake/Qt%{api}EdidSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtvulkansupportd}
@@ -1346,6 +1355,7 @@ Helper library for Qt Vulkan support
 %{_libdir}/libQt%{api}VulkanSupport.a
 %{_libdir}/libQt%{api}VulkanSupport.prl
 %{_libdir}/qt%{api}/bin/qvkgen
+%{_libdir}/cmake/Qt%{api}VulkanSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtdevicediscoverysupportd}
@@ -1360,6 +1370,7 @@ Helper library for Qt device discovery
 %{_includedir}/qt%{api}/QtDeviceDiscoverySupport
 %{_libdir}/libQt%{api}DeviceDiscoverySupport.a
 %{_libdir}/libQt%{api}DeviceDiscoverySupport.prl
+%{_libdir}/cmake/Qt%{api}DeviceDiscoverySupport
 
 #----------------------------------------------------------------------------
 %package -n %{qteglsupportd}
@@ -1374,6 +1385,7 @@ Helper library for Qt EGL support
 %{_includedir}/qt%{api}/QtEglSupport
 %{_libdir}/libQt%{api}EglSupport.a
 %{_libdir}/libQt%{api}EglSupport.prl
+%{_libdir}/cmake/Qt%{api}EglSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qteventdispatchersupportd}
@@ -1388,6 +1400,7 @@ Helper library for Qt event dispatcher support
 %{_includedir}/qt%{api}/QtEventDispatcherSupport
 %{_libdir}/libQt%{api}EventDispatcherSupport.a
 %{_libdir}/libQt%{api}EventDispatcherSupport.prl
+%{_libdir}/cmake/Qt%{api}EventDispatcherSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtfbsupportd}
@@ -1403,6 +1416,7 @@ Helper library for Qt framebuffer support
 %{_libdir}/libQt%{api}FbSupport.a
 %{_libdir}/libQt%{api}FbSupport.prl
 %{_libdir}/cmake/Qt%{api}Gui/Qt%{api}Gui_QLinuxFb*.cmake
+%{_libdir}/cmake/Qt%{api}FbSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtfontdatabasesupportd}
@@ -1417,6 +1431,7 @@ Helper library for Qt font database support
 %{_includedir}/qt%{api}/QtFontDatabaseSupport
 %{_libdir}/libQt%{api}FontDatabaseSupport.a
 %{_libdir}/libQt%{api}FontDatabaseSupport.prl
+%{_libdir}/cmake/Qt%{api}FontDatabaseSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtglxsupportd}
@@ -1431,6 +1446,7 @@ Helper library for Qt GLX support
 %{_includedir}/qt%{api}/QtGlxSupport
 %{_libdir}/libQt%{api}GlxSupport.a
 %{_libdir}/libQt%{api}GlxSupport.prl
+%{_libdir}/cmake/Qt%{api}GlxSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtinputsupportd}
@@ -1445,6 +1461,7 @@ Helper library for Qt input support
 %{_includedir}/qt%{api}/QtInputSupport
 %{_libdir}/libQt%{api}InputSupport.a
 %{_libdir}/libQt%{api}InputSupport.prl
+%{_libdir}/cmake/Qt%{api}InputSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtlinuxaccessibilitysupportd}
@@ -1459,6 +1476,7 @@ Helper library for Qt Linux accessibility support
 %{_includedir}/qt%{api}/QtLinuxAccessibilitySupport
 %{_libdir}/libQt%{api}LinuxAccessibilitySupport.a
 %{_libdir}/libQt%{api}LinuxAccessibilitySupport.prl
+%{_libdir}/cmake/Qt%{api}LinuxAccessibilitySupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtplatformcompositorsupportd}
@@ -1473,6 +1491,7 @@ Helper library for Qt platform compositor support
 %{_includedir}/qt%{api}/QtPlatformCompositorSupport
 %{_libdir}/libQt%{api}PlatformCompositorSupport.a
 %{_libdir}/libQt%{api}PlatformCompositorSupport.prl
+%{_libdir}/cmake/Qt%{api}PlatformCompositorSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtservicesupportd}
@@ -1487,6 +1506,7 @@ Helper library for Qt service support
 %{_includedir}/qt%{api}/QtServiceSupport
 %{_libdir}/libQt%{api}ServiceSupport.a
 %{_libdir}/libQt%{api}ServiceSupport.prl
+%{_libdir}/cmake/Qt%{api}ServiceSupport
 
 #----------------------------------------------------------------------------
 %package -n %{qtthemesupportd}
@@ -1501,6 +1521,7 @@ Helper library for Qt theme support
 %{_includedir}/qt%{api}/QtThemeSupport
 %{_libdir}/libQt%{api}ThemeSupport.a
 %{_libdir}/libQt%{api}ThemeSupport.prl
+%{_libdir}/cmake/Qt%{api}ThemeSupport
 
 #----------------------------------------------------------------------------
 
@@ -1758,6 +1779,8 @@ rm -f %{buildroot}%{_libdir}/libqtlibpng.*
 %if %{with docs}
 make install_qch_docs INSTALL_ROOT=%{buildroot}
 cp doc/*/*.tags %{buildroot}%{_qt_docdir}/
+%else
+rm -f %{buildroot}%{_qt_docdir}/config/exampleurl-*.qdocconf
 %endif
 
 # Probably not useful outside of Qt source tree?
