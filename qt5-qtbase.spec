@@ -508,12 +508,6 @@ Development files for version 5 of the QtGui library.
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Gui.pc
 %endif
-# Should probably go to qt5-qtdeclarative or so, but that's
-# a separate source package...
-%{_libdir}/cmake/Qt%{api}QmlDebug
-%{_libdir}/cmake/Qt%{api}QmlDevTools
-%{_libdir}/cmake/Qt%{api}QuickParticles
-%{_libdir}/cmake/Qt%{api}QuickShapes
 
 #----------------------------------------------------------------------------
 %if %{with directfb}
@@ -771,7 +765,6 @@ Development files for version %{api} of the QtNetwork library.
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Network.pc
 %endif
-%{_libdir}/cmake/Qt5PacketProtocol
 
 #----------------------------------------------------------------------------
 
@@ -1789,6 +1782,16 @@ cp doc/*/*.tags %{buildroot}%{_qt_docdir}/
 %else
 rm -f %{buildroot}%{_qt_docdir}/config/exampleurl-*.qdocconf
 %endif
+
+# Those will eventually get installed... By the qt5-qtdeclarative
+# source package.
+# Not sure why they exist in the qtcore sources as well, probably an
+# upstream packaging bug.
+rm -rf	%{buildroot}%{_libdir}/cmake/Qt%{api}PacketProtocol \
+	%{buildroot}%{_libdir}/cmake/Qt%{api}QmlDebug \
+	%{buildroot}%{_libdir}/cmake/Qt%{api}QmlDevTools \
+	%{buildroot}%{_libdir}/cmake/Qt%{api}QuickParticles \
+	%{buildroot}%{_libdir}/cmake/Qt%{api}QuickShapes
 
 # Probably not useful outside of Qt source tree?
 rm -f %{buildroot}%{_qt_bindir}/qtmodule-configtests
