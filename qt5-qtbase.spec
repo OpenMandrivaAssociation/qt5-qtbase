@@ -138,7 +138,7 @@ Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
 # just built QtCore. This should be fixed properly in the Makefiles.
-BuildConflicts:	%{mklibname -d qt5core} < %{version}
+#BuildConflicts:	%{mklibname -d qt5core} < %{version}
 
 BuildRequires:	pkgconfig(libjpeg)
 BuildRequires:	cmake(double-conversion)
@@ -226,6 +226,7 @@ BuildRequires:	gdb
 BuildRequires:	qdoc5
 BuildRequires:	qt5-qttools
 BuildRequires:	qt5-assistant
+BuildRequires:	qt5-qtdeclarative
 %endif
 # For the Provides: generator
 BuildRequires:	cmake >= 3.11.0-1
