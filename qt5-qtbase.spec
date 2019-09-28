@@ -227,6 +227,7 @@ BuildRequires:	qdoc5
 BuildRequires:	qt5-qttools
 BuildRequires:	qt5-assistant
 BuildRequires:	qt5-qtdeclarative
+BuildRequires:  %{_lib}clang-devel
 %endif
 # For the Provides: generator
 BuildRequires:	cmake >= 3.11.0-1
@@ -1762,10 +1763,10 @@ export PATH="$(pwd)/pybin:$PATH"
 	-I %{_includedir}/vg \
 	-D PCRE2_CODE_UNIT_WIDTH=16
 
-%make_build -j8 STRIP=/bin/true || make STRIP=/bin/true
+%make_build STRIP=/bin/true || make STRIP=/bin/true
 
 %if %{with docs}
-%make_build -j8 docs
+%make_build docs
 %endif
 
 %install
