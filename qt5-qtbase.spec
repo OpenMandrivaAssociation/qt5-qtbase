@@ -1762,10 +1762,10 @@ export PATH="$(pwd)/pybin:$PATH"
 	-I %{_includedir}/vg \
 	-D PCRE2_CODE_UNIT_WIDTH=16
 
-%make_build STRIP=/bin/true || make STRIP=/bin/true
+%make_build -j8 STRIP=/bin/true || make STRIP=/bin/true
 
 %if %{with docs}
-%make_build docs
+%make_build -j8 docs
 %endif
 
 %install
