@@ -227,6 +227,7 @@ BuildRequires:	qdoc5
 BuildRequires:	qt5-qttools
 BuildRequires:	qt5-assistant
 BuildRequires:  %{_lib}clang-devel
+BuildRequires:	%{_lib}gcc1
 %endif
 # For the Provides: generator
 BuildRequires:	cmake >= 3.11.0-1
