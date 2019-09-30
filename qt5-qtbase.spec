@@ -227,6 +227,8 @@ BuildRequires:	qdoc5
 BuildRequires:	qt5-qttools
 BuildRequires:	qt5-assistant
 BuildRequires:  %{_lib}clang-devel
+# Platform plugin required for qhelpgenerator startup
+BuildRequires:	%{qtgui}-minimal
 %endif
 # For the Provides: generator
 BuildRequires:	cmake >= 3.11.0-1
