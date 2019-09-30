@@ -226,7 +226,6 @@ BuildRequires:	gdb
 BuildRequires:	qdoc5
 BuildRequires:	qt5-qttools
 BuildRequires:	qt5-assistant
-BuildRequires:  %{_lib}clang-devel
 # Platform plugin required for qhelpgenerator startup
 BuildRequires:	%{qtgui}-minimal
 %endif
