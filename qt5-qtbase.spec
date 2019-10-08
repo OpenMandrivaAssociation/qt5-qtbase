@@ -149,6 +149,7 @@ BuildRequires:	python >= 3.0
 BuildRequires:	python2
 BuildRequires:	pkgconfig(libpng)
 BuildRequires:	pkgconfig(zlib)
+BuildRequires:	pkgconfig(libsctp)
 # CUPS
 BuildRequires:	cups-devel
 # OpenGL
@@ -156,6 +157,7 @@ BuildRequires:	pkgconfig(gl)
 BuildRequires:	pkgconfig(egl)
 BuildRequires:	pkgconfig(glesv2)
 BuildRequires:	pkgconfig(gbm)
+BuildRequires:	pkgconfig(libdrm)
 # OpenVG
 BuildRequires:	openvg-devel
 # Vulkan
@@ -1695,8 +1697,9 @@ export PATH="$(pwd)/pybin:$PATH"
 	-system-freetype  \
 	-optimized-qmake \
 	-optimized-tools \
+	-sctp \
 	-ssl \
-	-openssl-runtime \
+	-openssl-linked \
 	-cups \
 	-icu \
 	-inotify \
