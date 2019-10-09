@@ -12,7 +12,7 @@
 %global optflags %{optflags} -Ofast
 
 #% define debug_package %{nil}
-%define beta %{nil}
+%define beta beta1
 %define api 5
 %define major 5
 
@@ -78,7 +78,7 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
@@ -101,13 +101,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.13.1
+Version:	5.14.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
-Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%(echo %{beta} |sed -e "s,1$,,")/submodules/%{qttarballdir}.tar.xz
+Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -130,6 +130,7 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
+Patch5:		qt-5.14.0-qtbug-79118.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -1742,7 +1743,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-sm \
 	-gif \
 	-ico \
-	-c++std c++14 \
+	-c++std c++2a \
 	-xkb \
 	-confirm-license \
 	-system-proxies \

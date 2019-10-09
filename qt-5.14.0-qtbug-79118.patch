@@ -1,0 +1,55 @@
+diff -up qtbase-everywhere-src-5.14.0-beta1/qmake/Makefile.unix.omv~ qtbase-everywhere-src-5.14.0-beta1/qmake/Makefile.unix
+--- qtbase-everywhere-src-5.14.0-beta1/qmake/Makefile.unix.omv~	2019-10-09 17:29:35.243225031 +0200
++++ qtbase-everywhere-src-5.14.0-beta1/qmake/Makefile.unix	2019-10-09 17:32:12.156521048 +0200
+@@ -26,7 +26,7 @@ QOBJS = \
+ 	qiodevice.o qsettings.o qtemporaryfile.o qtextstream.o \
+ 	qjsonarray.o qjson.o qjsondocument.o qjsonobject.o qjsonparser.o qjsonvalue.o \
+ 	qmetatype.o qsystemerror.o qvariant.o \
+-	quuid.o \
++	quuid.o qsimd.o \
+ 	qarraydata.o qbitarray.o qbytearray.o qbytearraymatcher.o \
+ 	qcalendar.o qgregoriancalendar.o qromancalendar.o \
+ 	qcryptographichash.o qdatetime.o qhash.o qlist.o \
+@@ -96,6 +96,7 @@ DEPEND_SRC = \
+ 	   $(SOURCE_PATH)/src/corelib/kernel/qsystemerror.cpp \
+ 	   $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp \
+ 	   $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp \
++	   $(SOURCE_PATH)/src/corelib/tools/qsimd.cpp \
+ 	   $(SOURCE_PATH)/src/corelib/serialization/qdatastream.cpp \
+ 	   $(SOURCE_PATH)/src/corelib/serialization/qjsonarray.cpp \
+ 	   $(SOURCE_PATH)/src/corelib/serialization/qjson.cpp \
+@@ -426,6 +427,9 @@ qdiriterator.o: $(SOURCE_PATH)/src/corel
+ quuid.o: $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp
+ 	$(CXX) -c -o $@ $(CXXFLAGS) $<
+ 
++qsimd.o: $(SOURCE_PATH)/src/corelib/tools/qsimd.cpp
++	$(CXX) -DBUILDING_QMAKE -c -o $@ $(CXXFLAGS) $<
++
+ qfileinfo.o: $(SOURCE_PATH)/src/corelib/io/qfileinfo.cpp
+ 	$(CXX) -c -o $@ $(CXXFLAGS) $<
+ 
+diff -up qtbase-everywhere-src-5.14.0-beta1/qmake/qmake.pro.omv~ qtbase-everywhere-src-5.14.0-beta1/qmake/qmake.pro
+--- qtbase-everywhere-src-5.14.0-beta1/qmake/qmake.pro.omv~	2019-10-09 17:23:00.482480285 +0200
++++ qtbase-everywhere-src-5.14.0-beta1/qmake/qmake.pro	2019-10-09 17:23:16.661510807 +0200
+@@ -149,6 +149,7 @@ SOURCES += \
+     qregexp.cpp \
+     qromancalendar.cpp \
+     qsettings.cpp \
++    qsimd.cpp \
+     qstring.cpp \
+     qstringlist.cpp \
+     qsystemerror.cpp \
+diff -up qtbase-everywhere-src-5.14.0-beta1/src/corelib/global/qrandom.cpp.omv~ qtbase-everywhere-src-5.14.0-beta1/src/corelib/global/qrandom.cpp
+diff -up qtbase-everywhere-src-5.14.0-beta1/src/corelib/tools/qsimd.cpp.omv~ qtbase-everywhere-src-5.14.0-beta1/src/corelib/tools/qsimd.cpp
+--- qtbase-everywhere-src-5.14.0-beta1/src/corelib/tools/qsimd.cpp.omv~	2019-10-09 17:20:20.791179003 +0200
++++ qtbase-everywhere-src-5.14.0-beta1/src/corelib/tools/qsimd.cpp	2019-10-09 17:35:30.182894630 +0200
+@@ -43,7 +43,7 @@
+ #include <QByteArray>
+ #include <stdio.h>
+ 
+-#ifdef Q_OS_LINUX
++#if defined(Q_OS_LINUX) && !defined(BUILDING_QMAKE)
+ #  include "../testlib/3rdparty/valgrind_p.h"
+ #endif
+ 
+diff -up qtbase-everywhere-src-5.14.0-beta1/src/corelib/tools/qsimd_p.h.omv~ qtbase-everywhere-src-5.14.0-beta1/src/corelib/tools/qsimd_p.h

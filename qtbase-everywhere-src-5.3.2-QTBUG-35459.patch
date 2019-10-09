@@ -1,12 +1,11 @@
-diff -up qtbase-opensource-src-5.3.2/src/xml/sax/qxml.cpp.QTBUG-35459 qtbase-opensource-src-5.3.2/src/xml/sax/qxml.cpp
-diff -up qtbase-opensource-src-5.3.2/src/xml/sax/qxml_p.h.QTBUG-35459 qtbase-opensource-src-5.3.2/src/xml/sax/qxml_p.h
---- qtbase-opensource-src-5.3.2/src/xml/sax/qxml_p.h.QTBUG-35459	2014-09-11 05:48:05.000000000 -0500
-+++ qtbase-opensource-src-5.3.2/src/xml/sax/qxml_p.h	2014-09-16 09:35:01.189255615 -0500
-@@ -223,7 +223,7 @@ private:
+diff -up qtbase-everywhere-src-5.14.0-beta1/src/xml/sax/qxml_p.h.1~ qtbase-everywhere-src-5.14.0-beta1/src/xml/sax/qxml_p.h
+--- qtbase-everywhere-src-5.14.0-beta1/src/xml/sax/qxml_p.h.1~	2019-10-09 16:46:56.079397180 +0200
++++ qtbase-everywhere-src-5.14.0-beta1/src/xml/sax/qxml_p.h	2019-10-09 16:49:30.852689042 +0200
+@@ -229,7 +229,7 @@ private:
      // for the DTD currently being parsed.
      static const int dtdRecursionLimit = 2;
      // The maximum amount of characters an entity value may contain, after expansion.
--    static const int entityCharacterLimit = 1024;
+-    static const int entityCharacterLimit = 4096;
 +    static const int entityCharacterLimit = 65536;
  
      const QString &string();
