@@ -1167,9 +1167,6 @@ Requires:	pkgconfig(Qt5Location) = %{version}
 Requires:	pkgconfig(Qt5Positioning) = %{version}
 Requires:	pkgconfig(Qt5Sensors) = %{version}
 Requires:	pkgconfig(Qt5Test) = %{version}
-Requires:	pkgconfig(Qt5CLucene) = %{version}
-Requires:	pkgconfig(Qt5Declarative) = %{version}
-Requires:	pkgconfig(Qt5DesignerComponents) = %{version}
 Requires:	pkgconfig(Qt5Designer) = %{version}
 Requires:	pkgconfig(Qt5Help) = %{version}
 Requires:	pkgconfig(Qt5Multimedia) = %{version}
@@ -1177,7 +1174,6 @@ Requires:	pkgconfig(Qt5MultimediaWidgets) = %{version}
 Requires:	pkgconfig(Qt5Nfc) = %{version}
 Requires:	pkgconfig(Qt5Qml) = %{version}
 Requires:	pkgconfig(Qt5Quick) = %{version}
-Requires:	pkgconfig(Qt5QuickParticles) = %{version}
 Requires:	pkgconfig(Qt5QuickTest) = %{version}
 Requires:	pkgconfig(Qt5QuickWidgets) = %{version}
 Requires:	pkgconfig(Qt5Script) = %{version}
@@ -1188,8 +1184,6 @@ Suggests:	pkgconfig(Qt5WaylandCompositor) = %{version}
 %ifnarch %arm
 Requires:	pkgconfig(Qt5WebEngine) = %{version}
 %endif
-Requires:	pkgconfig(Qt5WebKit) = %{version}
-Requires:	pkgconfig(Qt5WebKitWidgets) = %{version}
 Requires:	pkgconfig(Qt5WebChannel) = %{version}
 Requires:	pkgconfig(Qt5WebSockets) = %{version}
 Requires:	pkgconfig(Qt5XmlPatterns) = %{version}
