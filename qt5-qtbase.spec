@@ -150,6 +150,7 @@ BuildRequires:	python >= 3.0
 BuildRequires:	python2
 BuildRequires:	pkgconfig(libpng)
 BuildRequires:	pkgconfig(zlib)
+BuildRequires:	pkgconfig(libzstd)
 BuildRequires:	pkgconfig(libsctp)
 # CUPS
 BuildRequires:	cups-devel
