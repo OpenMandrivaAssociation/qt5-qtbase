@@ -130,7 +130,8 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-Patch5:		qt-5.14.0-qtbug-79118.patch
+Patch5:		qt5-qtbase-fixes-from-git-5.14-branch.patch
+Patch6:		qt-5.14.0-qtbug-79118.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -1184,7 +1185,7 @@ Requires:	pkgconfig(Qt5Svg) = %{version}
 Suggests:	pkgconfig(Qt5WaylandClient) = %{version}
 Suggests:	pkgconfig(Qt5WaylandCompositor) = %{version}
 %ifnarch %arm
-Requires:	pkgconfig(Qt5WebEngine) = %{version}
+Requires:	pkgconfig(Qt5WebEngine) >= %{version}
 %endif
 Requires:	pkgconfig(Qt5WebChannel) = %{version}
 Requires:	pkgconfig(Qt5WebSockets) = %{version}
