@@ -345,6 +345,9 @@ Development files for version 5 of the QtCore library.
 %{_bindir}/rcc-qt%{api}
 %{_qt_bindir}/rcc
 %{_bindir}/rcc
+%{_qt_bindir}/tracegen
+%{_bindir}/tracegen
+%{_bindir}/tracegen-qt5
 %{_qt_includedir}/QtCore
 %{_qt_libdir}/libQt%{api}Core.so
 %{_qt_libdir}/libQt%{api}Core.prl
@@ -1811,7 +1814,7 @@ rm -f %{buildroot}%{_qt_libdir}/libQt%{api}MultimediaQuick_p.so %{buildroot}%{_q
 rm -f %{buildroot}%{_qt_translationsdir}/qtconfig_*.qm
 # Let's make life easier for packagers
 mkdir -p %{buildroot}%{_bindir}
-for i in qmake moc uic rcc qdbuscpp2xml qdbusxml2cpp; do
+for i in qmake moc uic rcc tracegen qdbuscpp2xml qdbusxml2cpp; do
     ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i-qt%{api}
     ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i
 done
