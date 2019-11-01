@@ -12,7 +12,7 @@
 %global optflags %{optflags} -Ofast
 
 #% define debug_package %{nil}
-%define beta beta1
+%define beta beta2
 %define api 5
 %define major 5
 
@@ -103,7 +103,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.14.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.2
+Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
@@ -130,7 +130,6 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-Patch5:		qt5-qtbase-fixes-from-git-5.14-branch.patch
 Patch6:		qt-5.14.0-qtbug-79118.patch
 
 ### Fedora patches
