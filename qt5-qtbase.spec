@@ -12,7 +12,7 @@
 %global optflags %{optflags} -Ofast
 
 #% define debug_package %{nil}
-%define beta beta2
+%define beta beta3
 %define api 5
 %define major 5
 

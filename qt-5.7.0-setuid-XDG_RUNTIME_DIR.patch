@@ -1,19 +1,19 @@
-diff -up qtbase-everywhere-src-5.14.0-beta1/src/corelib/io/qstandardpaths_unix.cpp.2~ qtbase-everywhere-src-5.14.0-beta1/src/corelib/io/qstandardpaths_unix.cpp
---- qtbase-everywhere-src-5.14.0-beta1/src/corelib/io/qstandardpaths_unix.cpp.2~	2019-10-09 16:49:55.538735597 +0200
-+++ qtbase-everywhere-src-5.14.0-beta1/src/corelib/io/qstandardpaths_unix.cpp	2019-10-09 17:05:00.317442410 +0200
-@@ -151,7 +151,10 @@ QString QStandardPaths::writableLocation
-             xdgRuntimeDir = QDir::tempPath() + QLatin1String("/runtime-") + userName;
-             fileInfo.setFile(xdgRuntimeDir);
-             if (!fileInfo.isDir()) {
--                if (!QDir().mkdir(xdgRuntimeDir)) {
-+                mode_t old_umask = umask(0077);
-+                bool const ok = QDir().mkdir(xdgRuntimeDir);
-+                umask(old_umask);
-+                if (!ok) {
+diff -up qtbase-everywhere-src-5.14.0-beta3/src/corelib/io/qstandardpaths_unix.cpp.2~ qtbase-everywhere-src-5.14.0-beta3/src/corelib/io/qstandardpaths_unix.cpp
+--- qtbase-everywhere-src-5.14.0-beta3/src/corelib/io/qstandardpaths_unix.cpp.2~	2019-11-12 22:34:58.944593204 +0100
++++ qtbase-everywhere-src-5.14.0-beta3/src/corelib/io/qstandardpaths_unix.cpp	2019-11-12 22:42:13.087787539 +0100
+@@ -167,7 +167,10 @@ QString QStandardPaths::writableLocation
+             }
+         } else {
+             QFileSystemEntry entry(xdgRuntimeDir);
+-            if (!QFileSystemEngine::createDirectory(entry, false)) {
++            mode_t old_umask = umask(0077);
++            bool const ok = QFileSystemEngine::createDirectory(entry, false);
++            umask(old_umask);
++            if (!ok) {
+                 if (errno != EEXIST) {
                      qErrnoWarning("QStandardPaths: error creating runtime directory %ls",
                                    qUtf16Printable(xdgRuntimeDir));
-                     return QString();
-@@ -175,10 +178,19 @@ QString QStandardPaths::writableLocation
+@@ -184,10 +187,19 @@ QString QStandardPaths::writableLocation
          }
          // "The directory MUST be owned by the user"
          if (fileInfo.ownerId() != myUid) {
@@ -25,15 +25,15 @@ diff -up qtbase-everywhere-src-5.14.0-beta1/src/corelib/io/qstandardpaths_unix.c
 +            xdgRuntimeDir = QFile::decodeName("/run/user/") + QString::number(myUid);
 +            fileInfo.setFile(xdgRuntimeDir);
 +            if(!fileInfo.isDir()) {
-+                    mode_t old_umask = umask(0077);
-+                    bool const ok = QDir().mkdir(xdgRuntimeDir);
-+                    umask(old_umask);
-+                    if(!ok) {
-+                        qWarning("QStandardPaths: error creating runtime directory %s: %s", qPrintable(xdgRuntimeDir), qPrintable(qt_error_string(errno)));
-+                        return QString();
-+                    }
++                mode_t old_umask = umask(0077);
++                bool const ok = QDir().mkdir(xdgRuntimeDir);
++                umask(old_umask);
++                if(!ok) {
++                    qWarning("QStandardPaths: error creating runtime directory %s: %s", qPrintable(xdgRuntimeDir), qPrintable(qt_error_string(errno)));
++                    return QString();
++                }
 +            }
 +            return xdgRuntimeDir;
          }
          // "and he MUST be the only one having read and write access to it. Its Unix access mode MUST be 0700."
-         // since the current user is the owner, set both xxxUser and xxxOwner
+         if (fileInfo.permissions() != wantedPerms) {
