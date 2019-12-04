@@ -12,7 +12,7 @@
 %global optflags %{optflags} -Ofast
 
 #% define debug_package %{nil}
-%define beta beta3
+%define beta rc
 %define api 5
 %define major 5
 
@@ -130,7 +130,6 @@ Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
-Patch6:		qt-5.14.0-qtbug-79118.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -956,6 +955,8 @@ Requires:	%{qtsql} = %{EVRD}
 Provides:	%{name}-database-plugin-sqlite = %{EVRD}
 %rename		qt5-database-plugin-sqlite
 BuildRequires:	pkgconfig(sqlite3)
+# Let's not build support for prehistoric sqlite 2.x
+BuildConflicts:	pkgconfig(sqlite)
 
 %description -n %{qtsql}-sqlite
 SQLite 3.x support for the QtSql library v5.
