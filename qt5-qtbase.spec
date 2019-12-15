@@ -91,7 +91,11 @@
 %endif
 %bcond_without gtk
 
+%ifarch %{riscv}
+%bcond_with clang
+%else
 %bcond_without clang
+%endif
 %bcond_without mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
