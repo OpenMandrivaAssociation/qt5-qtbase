@@ -78,7 +78,7 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
@@ -176,7 +176,9 @@ BuildRequires:	pkgconfig(gstreamer-1.0)
 BuildRequires:	pkgconfig(gstreamer-plugins-base-1.0)
 BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(alsa)
+%if 0
 BuildRequires:	pkgconfig(openal)
+%endif
 BuildRequires:	pkgconfig(xorg-evdev)
 # For XCB platform plugin:
 BuildRequires:	pkgconfig(xcb) >= 1.5
