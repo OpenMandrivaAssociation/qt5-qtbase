@@ -78,7 +78,11 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
+%ifarch %{riscv}
+%bcond_without bootstrap
+%else
 %bcond_with bootstrap
+%endif
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
