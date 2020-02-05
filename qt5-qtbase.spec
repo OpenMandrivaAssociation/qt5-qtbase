@@ -81,7 +81,7 @@
 %ifarch %{riscv}
 %bcond_without bootstrap
 %else
-%bcond_with bootstrap
+%bcond_without bootstrap
 %endif
 
 %bcond_with directfb
