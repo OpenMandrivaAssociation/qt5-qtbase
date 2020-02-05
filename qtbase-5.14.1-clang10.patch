@@ -1,0 +1,24 @@
+diff -up qtbase-everywhere-src-5.14.1/src/gui/text/qfontdatabase.cpp.omv~ qtbase-everywhere-src-5.14.1/src/gui/text/qfontdatabase.cpp
+--- qtbase-everywhere-src-5.14.1/src/gui/text/qfontdatabase.cpp.omv~	2020-02-05 17:33:59.779968788 +0100
++++ qtbase-everywhere-src-5.14.1/src/gui/text/qfontdatabase.cpp	2020-02-05 17:34:15.990969503 +0100
+@@ -198,9 +198,6 @@ struct QtFontStyle
+             return (style == other.style && weight == other.weight &&
+                     (stretch == 0 || other.stretch == 0 || stretch == other.stretch));
+         }
+-        bool operator!=(const Key &other) {
+-            return !operator==(other);
+-        }
+         bool operator <(const Key &o) {
+             int x = (style << 12) + (weight << 14) + stretch;
+             int y = (o.style << 12) + (o.weight << 14) + o.stretch;
+diff -up qtbase-everywhere-src-5.14.1/src/widgets/dialogs/qwizard.cpp.omv~ qtbase-everywhere-src-5.14.1/src/widgets/dialogs/qwizard.cpp
+--- qtbase-everywhere-src-5.14.1/src/widgets/dialogs/qwizard.cpp.omv~	2020-02-05 17:46:18.004001340 +0100
++++ qtbase-everywhere-src-5.14.1/src/widgets/dialogs/qwizard.cpp	2020-02-05 17:47:41.688005030 +0100
+@@ -256,7 +256,6 @@ public:
+     bool sideWidget = false;
+ 
+     bool operator==(const QWizardLayoutInfo &other);
+-    inline bool operator!=(const QWizardLayoutInfo &other) { return !operator==(other); }
+ };
+ 
+ bool QWizardLayoutInfo::operator==(const QWizardLayoutInfo &other)
