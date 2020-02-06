@@ -1576,6 +1576,13 @@ Qt LALR parser generator.
 %prep
 %autosetup -n %qttarballdir -p1
 
+%ifarch %{ix86}
+# FIXME
+# Workaround for https://bugs.llvm.org/show_bug.cgi?id=44812
+# Remove once the bug is fixed
+sed -i -e '/gradients/d' examples/widgets/painting/*.pro
+%endif
+
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
