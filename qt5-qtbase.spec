@@ -1623,6 +1623,7 @@ mkdir UNUSED
 mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 popd
 
+%ifnarch %{riscv}
 # Check for clang bug #28194
 cat >test1.cpp <<'EOF'
 struct A {} a;
@@ -1642,6 +1643,7 @@ else
 	echo "(search the spec file for \"Check for clang bug #28194\")"
 	exit 1
 fi
+%endif
 
 %build
 %setup_compile_flags
