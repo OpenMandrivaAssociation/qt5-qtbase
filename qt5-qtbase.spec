@@ -78,11 +78,7 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%ifarch %{riscv}
 %bcond_without bootstrap
-%else
-%bcond_without bootstrap
-%endif
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
@@ -95,11 +91,7 @@
 %endif
 %bcond_without gtk
 
-%ifarch %{riscv}
-%bcond_with clang
-%else
 %bcond_without clang
-%endif
 %bcond_without mysql
 
 %define qtmajor %(echo %{version} |cut -d. -f1)
