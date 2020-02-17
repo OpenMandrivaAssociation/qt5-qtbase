@@ -12,7 +12,7 @@
 %global optflags %{optflags} -Ofast
 
 #% define debug_package %{nil}
-%define beta %{nil}
+%define beta alpha
 %define api 5
 %define major 5
 
@@ -78,7 +78,7 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
@@ -101,13 +101,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.14.1
+Version:	5.15.0
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	4
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -311,6 +311,7 @@ Qt Core library.
 %{_libdir}/libQt%{api}Core.so.%{major}*
 %endif
 %dir %{_qt_plugindir}
+%{_libdir}/metatypes/qt5core_metatypes.json
 
 #----------------------------------------------------------------------------
 %package -n qt5-qtchooser
@@ -461,6 +462,7 @@ Qt GUI library.
 %{_qt_plugindir}/generic
 %{_qt_plugindir}/printsupport
 %{_qt_datadir}/qtlogging.ini
+%{_libdir}/metatypes/qt5gui_metatypes.json
 
 #----------------------------------------------------------------------------
 
@@ -1030,6 +1032,7 @@ Qt Widget library.
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/libQt%{api}Widgets.so.%{major}*
 %endif
+%{_libdir}/metatypes/qt5widgets_metatypes.json
 
 #----------------------------------------------------------------------------
 
@@ -1694,20 +1697,22 @@ export PATH="$(pwd)/pybin:$PATH"
 	-system-libpng \
 	-system-libjpeg \
 	-system-pcre \
-	-system-xcb \
 	-system-harfbuzz \
 	-system-freetype  \
+	-system-doubleconversion \
 	-optimized-qmake \
 	-optimized-tools \
 	-sctp \
 	-ssl \
+	-xcb \
 	-openssl-linked \
 	-cups \
 	-icu \
 	-inotify \
 	-eventfd \
 	-no-strip \
-	-no-pch \
+	-pch \
+	-ltcg \
 	-nomake tests \
 	-dbus-linked \
 %ifarch %{armx}
@@ -1733,6 +1738,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-sse3 \
 	-avx \
 %endif
+	-reduce-exports \
 	-no-reduce-relocations \
 %if %{with directfb}
 	-directfb \
@@ -1744,17 +1750,15 @@ export PATH="$(pwd)/pybin:$PATH"
 %endif
 	-fontconfig \
 	-accessibility \
-	-opengl desktop -eglfs -gbm -kms \
+	-opengl desktop -egl -eglfs -gbm -kms \
 	-gnumake \
 	-pkg-config \
 	-sm \
 	-gif \
 	-ico \
 	-c++std c++2a \
-	-xkb \
 	-confirm-license \
 	-system-proxies \
-	-glib \
 	-mtdev \
 	-journald \
 	-linuxfb \
@@ -1762,9 +1766,9 @@ export PATH="$(pwd)/pybin:$PATH"
 	-libudev \
 	-qpa xcb \
 	-xcb-xlib \
-	-xcb-xinput \
 	-no-separate-debug-info \
 	-no-strip \
+	-xkbcommon \
 %if "%{_qt_libdir}" == "%{_libdir}"
 	-no-rpath \
 %endif
@@ -1773,6 +1777,9 @@ export PATH="$(pwd)/pybin:$PATH"
 	-I %{_includedir}/mysql \
 %endif
 	-I %{_includedir}/vg \
+%if 0%{cross_compiling}
+	-sysroot %{_prefix}%{_target_platform} -gcc-sysroot \
+%endif
 	-D PCRE2_CODE_UNIT_WIDTH=16
 
 %make_build STRIP=/bin/true || make STRIP=/bin/true
