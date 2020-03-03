@@ -1612,11 +1612,11 @@ sed -i -e 's,/lib\\,/%{_lib}\\,g' configure
 sed -i -e 's,\$(CXX) -o,\$(CXX) \$(CXXFLAGS) -o,' qmake/Makefile.unix
 
 # move some bundled libs to ensure they're not accidentally used
-pushd src/3rdparty
+cd src/3rdparty
 mkdir UNUSED
 # FIXME
 mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
-popd
+cd -
 
 %ifnarch %{riscv}
 # Check for clang bug #28194
@@ -1700,6 +1700,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-system-harfbuzz \
 	-system-freetype  \
 	-system-doubleconversion \
+	-zstd \
 	-optimized-qmake \
 	-optimized-tools \
 	-sctp \
@@ -1751,6 +1752,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-fontconfig \
 	-accessibility \
 	-opengl desktop -egl -eglfs -gbm -kms \
+	-opengles3 \
 	-gnumake \
 	-pkg-config \
 	-sm \
@@ -1766,6 +1768,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-libudev \
 	-qpa xcb \
 	-xcb-xlib \
+	-bundled-xcb-xinput \
 	-no-separate-debug-info \
 	-no-strip \
 	-xkbcommon \
