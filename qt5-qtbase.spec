@@ -158,6 +158,7 @@ BuildRequires:	cups-devel
 BuildRequires:	pkgconfig(gl)
 BuildRequires:	pkgconfig(egl)
 BuildRequires:	pkgconfig(glesv2)
+BuildRequires:	pkgconfig(dri)
 BuildRequires:	pkgconfig(gbm)
 BuildRequires:	pkgconfig(libdrm)
 # OpenVG
@@ -190,6 +191,7 @@ BuildRequires:	pkgconfig(xcb-render)
 BuildRequires:	pkgconfig(sm)
 BuildRequires:	pkgconfig(xinerama)
 BuildRequires:	pkgconfig(xcb-xinerama)
+BuildRequires:	pkgconfig(xcb-xinput)
 BuildRequires:	pkgconfig(xcb-shape)
 BuildRequires:	pkgconfig(xv)
 BuildRequires:	pkgconfig(xcb-xv)
@@ -1752,7 +1754,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-fontconfig \
 	-accessibility \
 	-opengl desktop -egl -eglfs -gbm -kms \
-	-opengles3 \
 	-gnumake \
 	-pkg-config \
 	-sm \
@@ -1768,7 +1769,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-libudev \
 	-qpa xcb \
 	-xcb-xlib \
-	-bundled-xcb-xinput \
+	-no-bundled-xcb-xinput \
 	-no-separate-debug-info \
 	-no-strip \
 	-xkbcommon \
