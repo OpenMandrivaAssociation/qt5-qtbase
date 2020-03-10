@@ -103,7 +103,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.15.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.8
+Release:	0.%{beta}.9
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
@@ -227,6 +227,7 @@ BuildRequires:	pkgconfig(libinput)
 BuildRequires:	pkgconfig(libcrypto)
 BuildRequires:	pkgconfig(libssl)
 BuildRequires:	pkgconfig(krb5-gssapi)
+BuildConflicts:	heimdal-libs
 BuildRequires:	flex bison gperf
 # Used for CPU feature detection in configure step
 BuildRequires:	gdb
