@@ -103,7 +103,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.15.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.1
+Release:	0.%{beta}.2
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
@@ -132,6 +132,9 @@ Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 Patch5:		qtbase-5.14.1-clang10.patch
 Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
+# Fix cmake files (from upstream)
+Patch10:	7e7c6498.patch
+Patch11:	3f9862db.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
