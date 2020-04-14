@@ -103,7 +103,7 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.15.0
 %if "%{beta}" != ""
-Release:	0.%{beta}.2
+Release:	0.%{beta}.3
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
@@ -121,9 +121,9 @@ Source2:	10-qt5-check-opengl.xsetup
 Source3:	qtlogging.ini
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-everywhere-src-5.3.2-QTBUG-35459.patch
-# FIXME check if this has been fixed in 5.6.0 or if the patch needs to
-# be updated
-#Patch1:		0001-Fix-to-make-QtWayland-compositor-work-with-the-iMX6-.patch
+# https://bugreports.qt.io/browse/QTBUG-83207
+# https://code.qt.io/cgit/qt/qtbase.git/patch/?id=276fa8383a7535765be7182883ef4aade17ce013
+Patch1:		615204e0762c2e12077e8c8dd3c6d29b9648f163..276fa8383a7535765be7182883ef4aade17ce013.patch
 # Fix XDG_RUNTIME_DIR for setuid applications
 # https://issues.openmandriva.org/show_bug.cgi?id=1641
 Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
