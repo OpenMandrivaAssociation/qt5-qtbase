@@ -1746,7 +1746,6 @@ export PATH="$(pwd)/pybin:$PATH"
 %endif
 	-reduce-exports \
 	-no-reduce-relocations \
-%endif
 %if %{with directfb}
 	-directfb \
 %else
