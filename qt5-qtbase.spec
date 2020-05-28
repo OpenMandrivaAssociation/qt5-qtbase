@@ -107,7 +107,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	3
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1654,6 +1654,9 @@ export PATH="$(pwd)/pybin:$PATH"
 # Immediately obvious effect: sddm crashes
 # Probably related to
 # https://bugreports.qt.io/browse/QTBUG-52439
+# (tpg) 2020-05-28 according to this bugs, it's clang issue
+# https://bugreports.qt.io/browse/QTBUG-43556
+# https://bugreports.qt.io/browse/QTBUG-61710
 ./configure \
 	-prefix %{_qt_prefix} \
 	-bindir %{_qt_bindir} \
@@ -1742,9 +1745,6 @@ export PATH="$(pwd)/pybin:$PATH"
 	-avx \
 %endif
 	-reduce-exports \
-%ifarch %{x86_64}
-	-reduce-relocations \
-%else
 	-no-reduce-relocations \
 %endif
 %if %{with directfb}
