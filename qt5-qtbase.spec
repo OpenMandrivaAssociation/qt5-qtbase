@@ -107,7 +107,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -1742,7 +1742,11 @@ export PATH="$(pwd)/pybin:$PATH"
 	-avx \
 %endif
 	-reduce-exports \
+%ifarch %{x86_64}
+	-reduce-relocations \
+%else
 	-no-reduce-relocations \
+%endif
 %if %{with directfb}
 	-directfb \
 %else
@@ -1767,7 +1771,7 @@ export PATH="$(pwd)/pybin:$PATH"
 	-linuxfb \
 	-evdev \
 	-libudev \
-	-qpa xcb \
+	-qpa "xcb;wayland" \
 	-xcb-xlib \
 	-no-bundled-xcb-xinput \
 	-no-separate-debug-info \
