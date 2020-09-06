@@ -31,6 +31,8 @@
 %define _qt_testsdir %{_qt_prefix}/tests
 %define _qt_translationsdir %{_qt_datadir}/translations
 
+%define gltype desktop
+
 # qt base components
 %define qtbootstrapd %mklibname qt%{api}bootstrap -d
 %define qtconcurrent %mklibname qt%{api}concurrent %{major}
@@ -1449,6 +1451,7 @@ Helper library for Qt font database support
 %{_libdir}/cmake/Qt%{api}FontDatabaseSupport
 
 #----------------------------------------------------------------------------
+%if  "%{gltype}" == "desktop"
 %package -n %{qtglxsupportd}
 Summary:	Helper library for Qt GLX support
 Group:		Graphical desktop/KDE
@@ -1462,6 +1465,7 @@ Helper library for Qt GLX support
 %{_libdir}/libQt%{api}GlxSupport.a
 %{_libdir}/libQt%{api}GlxSupport.prl
 %{_libdir}/cmake/Qt%{api}GlxSupport
+%endif
 
 #----------------------------------------------------------------------------
 %package -n %{qtinputsupportd}
@@ -1620,7 +1624,11 @@ mkdir UNUSED
 mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 cd -
 
-%ifnarch %{riscv}
+# FIXME this is still a valid bug, but it only occurs with the
+# combination of clang, LTO and -fuse-ld=gold.
+# Since we default to lld these days, the workaround is no
+# longer needed.
+%if 0
 # Check for clang bug #28194
 cat >test1.cpp <<'EOF'
 struct A {} a;
@@ -1756,7 +1764,7 @@ export PATH="$(pwd)/pybin:$PATH"
 %endif
 	-fontconfig \
 	-accessibility \
-	-opengl desktop -egl -eglfs -gbm -kms \
+	-opengl %{gltype} -egl -eglfs -gbm -kms \
 	-gnumake \
 	-pkg-config \
 	-sm \
