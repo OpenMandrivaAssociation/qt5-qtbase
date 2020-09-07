@@ -31,7 +31,7 @@
 %define _qt_testsdir %{_qt_prefix}/tests
 %define _qt_translationsdir %{_qt_datadir}/translations
 
-%define gltype desktop
+%define gltype es2
 
 # qt base components
 %define qtbootstrapd %mklibname qt%{api}bootstrap -d
@@ -109,7 +109,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	5
+Release:	6
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
