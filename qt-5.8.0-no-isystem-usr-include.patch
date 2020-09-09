@@ -1,6 +1,7 @@
---- qtbase-opensource-src-5.8.0-beta/qmake/generators/unix/unixmake2.cpp.omv~	2016-11-07 22:21:28.964737064 +0100
-+++ qtbase-opensource-src-5.8.0-beta/qmake/generators/unix/unixmake2.cpp	2016-11-07 22:24:06.382976494 +0100
-@@ -180,7 +180,7 @@ UnixMakefileGenerator::writeMakeParts(QT
+diff -up qtbase-everywhere-src-5.15.1/qmake/generators/unix/unixmake2.cpp.4~ qtbase-everywhere-src-5.15.1/qmake/generators/unix/unixmake2.cpp
+--- qtbase-everywhere-src-5.15.1/qmake/generators/unix/unixmake2.cpp.4~	2020-09-09 18:05:48.666478040 +0200
++++ qtbase-everywhere-src-5.15.1/qmake/generators/unix/unixmake2.cpp	2020-09-09 18:10:55.541102171 +0200
+@@ -201,7 +201,7 @@ UnixMakefileGenerator::writeMakeParts(QT
          const ProStringList &incs = project->values("INCLUDEPATH");
          for(int i = 0; i < incs.size(); ++i) {
              const ProString &inc = incs.at(i);
@@ -8,4 +9,4 @@
 +            if (inc.isEmpty() || inc.toQString() == "/usr/include")
                  continue;
  
-             if (!isystem.isEmpty() && isSystemInclude(inc.toQString()))
+             t << " -I" << escapeFilePath(inc);
