@@ -11,7 +11,7 @@
 %_qt5_translationsdir %{_datadir}/qt5/translations
 
 %qmake_qt5 \
-  %setup_compile_flags \
+  %set_build_flags \
   CPPFLAGS="${CPPFLAGS:-$CPPFLAGS}" ; export CPPFLAGS ; \
   CFLAGS="${CFLAGS:-$CFLAGS}" ; export CFLAGS ; \
   CXXFLAGS="${CXXFLAGS:-$CXXFLAGS}" ; export CXXFLAGS ; \
@@ -30,7 +30,7 @@
     QMAKE_LFLAGS_RELEASE="$LDFLAGS"
 
 %cmake_qt5 \
-  %setup_compile_flags \
+  %set_build_flags \
   QTDIR="%{_libdir}/qt5" ; export QTDIR ; \
   PATH="%{_qt5_bindir}:$PATH" ; export PATH ; \
   CPPFLAGS="${CPPFLAGS:-$CPPFLAGS}" ; export CPPFLAGS ; \
