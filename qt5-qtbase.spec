@@ -31,7 +31,11 @@
 %define _qt_testsdir %{_qt_prefix}/tests
 %define _qt_translationsdir %{_qt_datadir}/translations
 
+%ifarch %{arm} %{aarch64}
 %define gltype es2
+%else
+%define gltype desktop
+%endif
 
 # qt base components
 %define qtbootstrapd %mklibname qt%{api}bootstrap -d
@@ -109,7 +113,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	2
+Release:	3
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -131,6 +135,7 @@ Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 Patch5:		qtbase-5.14.1-clang10.patch
 Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
+Patch7:		https://gitweb.frugalware.org/frugalware-current/raw/master/source/xlib/qt5-base/QTBUG-86604.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
