@@ -31,6 +31,18 @@
 %define _qt_testsdir %{_qt_prefix}/tests
 %define _qt_translationsdir %{_qt_datadir}/translations
 
+# OpenGL ES is less cluttered and there's a couple of
+# chipsets (esp. in ARM SOCs) that do only ES.
+# ES is also closer to WebGL - which should be a nice
+# performance boost there.
+# However, as of Mesa 20.2, Qt 5.15.1, gltype es2 seems
+# to break:
+# - plasmashell when using the nouveau driver
+# - Launching obs-studio
+# - VirtualBox
+# Until those are fixed, let's stick with OpenGL
+# Desktop on x86 and use ES on platforms that may
+# not have anything else.
 %ifarch %{arm} %{aarch64}
 %define gltype es2
 %else
