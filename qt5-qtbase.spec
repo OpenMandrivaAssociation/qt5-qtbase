@@ -119,13 +119,13 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.15.1
+Version:	5.15.2
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
+Release:	1
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -141,13 +141,12 @@ Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-everywhere-src-5.3.2-QTBUG-35459.patch
 # Fix XDG_RUNTIME_DIR for setuid applications
 # https://issues.openmandriva.org/show_bug.cgi?id=1641
-Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
+#Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 Patch5:		qtbase-5.14.1-clang10.patch
 Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
-Patch7:		https://gitweb.frugalware.org/frugalware-current/raw/master/source/xlib/qt5-base/QTBUG-86604.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -274,7 +273,6 @@ Development files for version 5 if the QtBootstrap library.
 %files -n %{qtbootstrapd}
 %{_qt_libdir}/libQt%{api}Bootstrap.a
 %{_qt_libdir}/libQt%{api}Bootstrap.prl
-%{_libdir}/cmake/Qt%{api}Bootstrap
 
 #----------------------------------------------------------------------------
 
