@@ -125,7 +125,7 @@ Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	1
+Release:	2
 %define qttarballdir qtbase-everywhere-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
 %endif
@@ -151,6 +151,8 @@ Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
 ### END OF FEDORA PATCHES
+# (tpg) https://bugreports.qt.io/browse/QTBUG-88491
+Patch103:	0001-Avoid-SIGABRT-on-platform-plugin-initialization-fail.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -1594,10 +1596,10 @@ Qt LALR parser generator.
 %autosetup -n %qttarballdir -p1
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
-sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{ldflags}|" mkspecs/common/g++-unix.conf
+sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{build_ldflags}|" mkspecs/common/g++-unix.conf
 OPTFLAGS="%{optflags}"
 %ifarch %{arm}
-OPTFLAGS="`echo ${OPTFLAGS} |sed -e 's,-mfpu=neon ,-mfpu=neon-vfpv4 ,g;s,-mfpu=neon$,-mfpu=neon-vfpv4,'`"
+OPTFLAGS="$(echo ${OPTFLAGS} |sed -e 's,-mfpu=neon ,-mfpu=neon-vfpv4 ,g;s,-mfpu=neon$,-mfpu=neon-vfpv4,')"
 %endif
 sed -i -e "s|-O2|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-O3|${OPTFLAGS}|g" mkspecs/common/gcc-base.conf
@@ -1667,7 +1669,7 @@ fi
 %endif
 
 %build
-%setup_compile_flags
+%set_build_flags
 # build with python2
 mkdir pybin
 ln -s %{_bindir}/python2 pybin/python
