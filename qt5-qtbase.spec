@@ -165,7 +165,6 @@ BuildRequires:	cmake(double-conversion)
 BuildRequires:	pkgconfig(libpcre2-16)
 # Build scripts
 BuildRequires:	python >= 3.0
-BuildRequires:	python2
 BuildRequires:	pkgconfig(libpng)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	pkgconfig(libzstd)
@@ -1670,10 +1669,6 @@ fi
 
 %build
 %set_build_flags
-# build with python2
-mkdir pybin
-ln -s %{_bindir}/python2 pybin/python
-export PATH="$(pwd)/pybin:$PATH"
 
 # As of Qt 5.12.0, clang 7.0.1 (and gcc 8.2.0),
 # -reduce-relocations breaks the signal/slot system badly.
@@ -1822,8 +1817,6 @@ export PATH="$(pwd)/pybin:$PATH"
 %endif
 
 %install
-export PATH="$(pwd)/pybin:$PATH"
-
 %make_install STRIP=/bin/true INSTALL_ROOT=%{buildroot}
 
 # Drop internal libpng -- we don't actually use it,
