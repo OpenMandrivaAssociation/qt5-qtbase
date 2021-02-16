@@ -1,13 +1,18 @@
 # Qt5 macros, test version
+
 %_qt5_datadir %{_datadir}/qt5
 %_qt5_bindir %{_libdir}/qt5/bin
 %_qt5_docdir %{_docdir}/qt5
 %_qt5_libdir %{_libdir}
+%_qt5_archdatadir %{_libdir}/qt5
 %_qt5_includedir %{_includedir}/qt5
-%_qt5_plugindir %{_libdir}/qt5/plugins
-%_qt5_demodir %{_libdir}/qt5/demos
-%_qt5_exampledir %{_libdir}/qt5/examples
-%_qt5_importdir %{_libdir}/qt5/imports
+%_qt5_plugindir %{_qt5_archdatadir}/plugins
+%_qt5_demodir %{_qt5_archdatadir}/demos
+%_qt5_exampledir %{_qt5_archdatadir}/examples
+%_qt5_importdir %{_qt5_archdatadir}/imports
+%_qt5_qmldir %{_qt5_archdatadir}/qml
+%_qt5_settingsdir %{_sysconfdir}/xdg
+%_qt5_sysconfdir %{_qt5_settingsdir}
 %_qt5_translationsdir %{_datadir}/qt5/translations
 
 %qmake_qt5 \
