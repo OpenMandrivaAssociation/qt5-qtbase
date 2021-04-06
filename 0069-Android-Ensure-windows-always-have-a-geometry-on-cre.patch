@@ -1,0 +1,93 @@
+From 65647d01f1509dc6d1e545a75b882addafb2dcfa Mon Sep 17 00:00:00 2001
+From: Piotr Mikolajczyk <piotr.mikolajczyk@qt.io>
+Date: Mon, 16 Nov 2020 11:46:16 +0100
+Subject: [PATCH 069/171] [Android] Ensure windows always have a geometry on
+ creation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A QWindow created without an explicit geometry needs to pick up
+a default geometry in the platform plugin. If the window has a
+maximized of fullscreen window state, it will fill the entire
+available geometry of the parent window (or the screen if there's
+not parent window).
+
+Fixes: QTBUG-69159
+Fixes: QTBUG-69156
+Fixes: QTBUG-69154
+Change-Id: If8565d92a97bb4b3fa44757e68969d54d0bc7ebe
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit f92e1953699b2529cc6ea2fd399fe4f2b887e83c)
+Reviewed-by: Assam Boudjelthia <assam.boudjelthia@qt.io>
+---
+ .../platforms/android/qandroidplatformwindow.cpp      | 11 +++++++++++
+ tests/auto/gui/kernel/qwindow/BLACKLIST               |  9 ---------
+ 2 files changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/src/plugins/platforms/android/qandroidplatformwindow.cpp b/src/plugins/platforms/android/qandroidplatformwindow.cpp
+index 4f691ce112..e6f81e7054 100644
+--- a/src/plugins/platforms/android/qandroidplatformwindow.cpp
++++ b/src/plugins/platforms/android/qandroidplatformwindow.cpp
+@@ -46,6 +46,7 @@
+ 
+ #include <qguiapplication.h>
+ #include <qpa/qwindowsysteminterface.h>
++#include <private/qhighdpiscaling_p.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+@@ -58,6 +59,15 @@ QAndroidPlatformWindow::QAndroidPlatformWindow(QWindow *window)
+     m_windowState = Qt::WindowNoState;
+     m_windowId = winIdGenerator.fetchAndAddRelaxed(1) + 1;
+     setWindowState(window->windowStates());
++
++    const bool forceMaximize = m_windowState & (Qt::WindowMaximized | Qt::WindowFullScreen);
++    const QRect requestedGeometry = forceMaximize ? QRect() : window->geometry();
++    const QRect availableGeometry = (window->parent()) ? window->parent()->geometry() : platformScreen()->availableGeometry();
++    const QRect finalGeometry = QPlatformWindow::initialGeometry(window, requestedGeometry,
++                                                                 availableGeometry.width(), availableGeometry.height());
++
++   if (requestedGeometry != finalGeometry)
++       setGeometry(QHighDpi::toNativePixels(finalGeometry, window));
+ }
+ 
+ void QAndroidPlatformWindow::lower()
+@@ -73,6 +83,7 @@ void QAndroidPlatformWindow::raise()
+ 
+ void QAndroidPlatformWindow::setGeometry(const QRect &rect)
+ {
++    QPlatformWindow::setGeometry(rect);
+     QWindowSystemInterface::handleGeometryChange(window(), rect);
+ }
+ 
+diff --git a/tests/auto/gui/kernel/qwindow/BLACKLIST b/tests/auto/gui/kernel/qwindow/BLACKLIST
+index 37ad98b157..db7e261243 100644
+--- a/tests/auto/gui/kernel/qwindow/BLACKLIST
++++ b/tests/auto/gui/kernel/qwindow/BLACKLIST
+@@ -10,9 +10,6 @@ macos ci
+ # QTBUG-66851
+ # QTBUG-69160
+ opensuse-leap
+-[setVisible]
+-# QTBUG-69154
+-android
+ [modalWindowEnterEventOnHide_QTBUG35109]
+ osx
+ [spuriousMouseMove]
+@@ -20,12 +17,6 @@ osx
+ windows-10
+ [testInputEvents]
+ rhel-7.4
+-[initialSize]
+-# QTBUG-69159
+-android
+ [modalWindowPosition]
+ # QTBUG-69161
+ android
+-[childWindowPositioning:show]
+-# QTBUG-69156
+-android
+-- 
+2.31.1
+

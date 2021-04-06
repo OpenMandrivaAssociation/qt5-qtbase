@@ -1,0 +1,56 @@
+From 1a33e443903b9c61e49bcb3247340a85c58ca286 Mon Sep 17 00:00:00 2001
+From: Zhang Yu <zhangyub@uniontech.com>
+Date: Sun, 8 Nov 2020 21:12:40 +0800
+Subject: [PATCH 053/171] Fix regular expression initialize with incorrect
+ filters
+
+The filters used to construct regular expression is the parameter of
+QDirIteratorPrivate constructor,and not the member variable
+'filters' of QDirIteratorPrivate.
+
+When using filters as QDir::NoFilter to construct QDirIteratorPrivate,
+then the regular expression will incorrectly initialize with
+QDir::CaseSensitive(result of QDir::NoFilter),and not
+Qt::CaseInsensitive(result of QDir::AllEntries).
+
+Therefore, using the '_filters' to replace the parameter 'filters'
+
+Fixes: QTBUG-88227
+Change-Id: I8a21fe1075fd95981e328a161a978e4fe546c9ca
+Reviewed-by: Simon Hausmann <hausmann@gmail.com>
+Reviewed-by: Oliver Wolff <oliver.wolff@qt.io>
+(cherry picked from commit f353519e78380c04cffecfa4ceef222f37e8d83a)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/corelib/io/qdiriterator.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/corelib/io/qdiriterator.cpp b/src/corelib/io/qdiriterator.cpp
+index 7411eab68b..c58dde8bfd 100644
+--- a/src/corelib/io/qdiriterator.cpp
++++ b/src/corelib/io/qdiriterator.cpp
+@@ -125,7 +125,7 @@ class QDirIteratorPrivate
+ {
+ public:
+     QDirIteratorPrivate(const QFileSystemEntry &entry, const QStringList &nameFilters,
+-                        QDir::Filters filters, QDirIterator::IteratorFlags flags, bool resolveEngine = true);
++                        QDir::Filters _filters, QDirIterator::IteratorFlags flags, bool resolveEngine = true);
+ 
+     void advance();
+ 
+@@ -164,10 +164,10 @@ public:
+     \internal
+ */
+ QDirIteratorPrivate::QDirIteratorPrivate(const QFileSystemEntry &entry, const QStringList &nameFilters,
+-                                         QDir::Filters filters, QDirIterator::IteratorFlags flags, bool resolveEngine)
++                                         QDir::Filters _filters, QDirIterator::IteratorFlags flags, bool resolveEngine)
+     : dirEntry(entry)
+       , nameFilters(nameFilters.contains(QLatin1String("*")) ? QStringList() : nameFilters)
+-      , filters(QDir::NoFilter == filters ? QDir::AllEntries : filters)
++      , filters(QDir::NoFilter == _filters ? QDir::AllEntries : _filters)
+       , iteratorFlags(flags)
+ {
+ #if defined(QT_BOOTSTRAPPED)
+-- 
+2.31.1
+

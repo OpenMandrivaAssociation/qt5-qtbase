@@ -1,0 +1,28 @@
+From bf91b4a155ad373f75d818dba125192ae4e40067 Mon Sep 17 00:00:00 2001
+From: Hiweed Mandriva <hiweedmandriva@163.com>
+Date: Thu, 29 Oct 2020 09:00:15 +0800
+Subject: [PATCH 013/171] doc : fix typo 'consise' => 'concise
+
+Change-Id: Ife2fc3b61b03b741b41bd703c3caf8180c6868fa
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 300953ed9eab080c4f065f713146e9c2d2bf5ec0)
+---
+ src/widgets/kernel/qwidget.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/kernel/qwidget.cpp b/src/widgets/kernel/qwidget.cpp
+index 479d91be0e..878b286aaf 100644
+--- a/src/widgets/kernel/qwidget.cpp
++++ b/src/widgets/kernel/qwidget.cpp
+@@ -11400,7 +11400,7 @@ QString QWidget::accessibleName() const
+   \brief the widget's description as seen by assistive technologies
+ 
+   The accessible description of a widget should convey what a widget does.
+-  While the \l accessibleName should be a short and consise string (e.g. \gui{Save}),
++  While the \l accessibleName should be a short and concise string (e.g. \gui{Save}),
+   the description should give more context, such as \gui{Saves the current document}.
+ 
+   This property has to be \l{Internationalization with Qt}{localized}.
+-- 
+2.31.1
+

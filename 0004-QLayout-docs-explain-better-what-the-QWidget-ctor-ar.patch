@@ -1,0 +1,220 @@
+From e6993df95eb12597ea2241559f49927d03db7a34 Mon Sep 17 00:00:00 2001
+From: Ahmad Samir <a.samirh78@gmail.com>
+Date: Mon, 26 Oct 2020 18:08:57 +0200
+Subject: [PATCH 004/171] QLayout docs: explain better what the QWidget ctor
+ arg does
+
+Make it clear in the docs that an alternative to calling QWidget::setLayout()
+is to pass the parent widget to the Q*BoxLayout constructor. This basically
+just copies the relevant bits from the the docs of QWidget and Q*Layout.
+
+Change-Id: Id196dcdf9a876d9141aa145f23a83c45f8cda5f8
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit 1e904ab342c1aaabbef67cbcc25cf3de9e35e755)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/widgets/doc/snippets/layouts/layouts.cpp | 12 ++---
+ src/widgets/kernel/qboxlayout.cpp            | 54 ++++++++++++++------
+ src/widgets/kernel/qformlayout.cpp           |  4 ++
+ src/widgets/kernel/qgridlayout.cpp           |  6 +++
+ 4 files changed, 53 insertions(+), 23 deletions(-)
+
+diff --git a/src/widgets/doc/snippets/layouts/layouts.cpp b/src/widgets/doc/snippets/layouts/layouts.cpp
+index 6d2ea580b4..4b15cc6d1a 100644
+--- a/src/widgets/doc/snippets/layouts/layouts.cpp
++++ b/src/widgets/doc/snippets/layouts/layouts.cpp
+@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
+ //! [2]
+ 
+ //! [3]
+-    QHBoxLayout *layout = new QHBoxLayout;
++    QHBoxLayout *layout = new QHBoxLayout(window);
+ //! [3] //! [4]
+     layout->addWidget(button1);
+     layout->addWidget(button2);
+@@ -75,7 +75,6 @@ int main(int argc, char *argv[])
+     layout->addWidget(button4);
+     layout->addWidget(button5);
+ 
+-    window->setLayout(layout);
+ //! [4]
+     window->setWindowTitle("QHBoxLayout");
+ //! [5]
+@@ -96,7 +95,7 @@ int main(int argc, char *argv[])
+ //! [8]
+ 
+ //! [9]
+-    QVBoxLayout *layout = new QVBoxLayout;
++    QVBoxLayout *layout = new QVBoxLayout(window);
+ //! [9] //! [10]
+     layout->addWidget(button1);
+     layout->addWidget(button2);
+@@ -104,7 +103,6 @@ int main(int argc, char *argv[])
+     layout->addWidget(button4);
+     layout->addWidget(button5);
+ 
+-    window->setLayout(layout);
+ //! [10]
+     window->setWindowTitle("QVBoxLayout");
+ //! [11]
+@@ -125,7 +123,7 @@ int main(int argc, char *argv[])
+ //! [14]
+ 
+ //! [15]
+-    QGridLayout *layout = new QGridLayout;
++    QGridLayout *layout = new QGridLayout(window);
+ //! [15] //! [16]
+     layout->addWidget(button1, 0, 0);
+     layout->addWidget(button2, 0, 1);
+@@ -133,7 +131,6 @@ int main(int argc, char *argv[])
+     layout->addWidget(button4, 2, 0);
+     layout->addWidget(button5, 2, 1);
+ 
+-    window->setLayout(layout);
+ //! [16]
+     window->setWindowTitle("QGridLayout");
+ //! [17]
+@@ -156,14 +153,13 @@ int main(int argc, char *argv[])
+     QLineEdit *lineEdit3 = new QLineEdit();
+ //! [20]
+ //! [21]
+-    QFormLayout *layout = new QFormLayout;
++    QFormLayout *layout = new QFormLayout(window);
+ //! [21]
+ //! [22]
+     layout->addRow(button1, lineEdit1);
+     layout->addRow(button2, lineEdit2);
+     layout->addRow(button3, lineEdit3);
+ 
+-    window->setLayout(layout);
+ //! [22]
+     window->setWindowTitle("QFormLayout");
+ //! [23]
+diff --git a/src/widgets/kernel/qboxlayout.cpp b/src/widgets/kernel/qboxlayout.cpp
+index 7b09adfbf0..c1052c5b9d 100644
+--- a/src/widgets/kernel/qboxlayout.cpp
++++ b/src/widgets/kernel/qboxlayout.cpp
+@@ -548,7 +548,11 @@ QLayoutItem* QBoxLayoutPrivate::replaceAt(int index, QLayoutItem *item)
+     Constructs a new QBoxLayout with direction \a dir and parent widget \a
+     parent.
+ 
+-    \sa direction()
++    The layout is set directly as the top-level layout for \a parent.
++    There can be only one top-level layout for a widget. It is returned
++    by QWidget::layout().
++
++    \sa direction(), QWidget::setLayout()
+ */
+ QBoxLayout::QBoxLayout(Direction dir, QWidget *parent)
+     : QLayout(*new QBoxLayoutPrivate, nullptr, parent)
+@@ -1232,11 +1236,16 @@ QBoxLayout::Direction QBoxLayout::direction() const
+     \snippet layouts/layouts.cpp 4
+     \snippet layouts/layouts.cpp 5
+ 
+-    First, we create the widgets we want in the layout. Then, we
+-    create the QHBoxLayout object and add the widgets into the
+-    layout. Finally, we call QWidget::setLayout() to install the
+-    QHBoxLayout object onto the widget. At that point, the widgets in
+-    the layout are reparented to have \c window as their parent.
++    First, we create the widgets we want to add to the layout. Then,
++    we create the QHBoxLayout object, setting \c window as parent by
++    passing it in the constructor; next we add the widgets to the
++    layout. \c window will be the parent of the widgets that are
++    added to the layout.
++
++    If you don't pass parent \c window in the constrcutor, you can
++    at a later point use QWidget::setLayout() to install the QHBoxLayout
++    object onto \c window. At that point, the widgets in the layout are
++    reparented to have \c window as their parent.
+ 
+     \image qhboxlayout-with-5-children.png Horizontal box layout with five child widgets
+ 
+@@ -1245,8 +1254,13 @@ QBoxLayout::Direction QBoxLayout::direction() const
+ 
+ 
+ /*!
+-    Constructs a new top-level horizontal box with
+-    parent \a parent.
++    Constructs a new top-level horizontal box with parent \a parent.
++
++    The layout is set directly as the top-level layout for \a parent.
++    There can be only one top-level layout for a widget. It is returned
++    by QWidget::layout().
++
++    \sa QWidget::setLayout()
+ */
+ QHBoxLayout::QHBoxLayout(QWidget *parent)
+     : QBoxLayout(LeftToRight, parent)
+@@ -1295,11 +1309,16 @@ QHBoxLayout::~QHBoxLayout()
+     \snippet layouts/layouts.cpp 10
+     \snippet layouts/layouts.cpp 11
+ 
+-    First, we create the widgets we want in the layout. Then, we
+-    create the QVBoxLayout object and add the widgets into the
+-    layout. Finally, we call QWidget::setLayout() to install the
+-    QVBoxLayout object onto the widget. At that point, the widgets in
+-    the layout are reparented to have \c window as their parent.
++    First, we create the widgets we want to add to the layout. Then,
++    we create the QVBoxLayout object, setting \c window as parent by
++    passing it in the constructor; next we add the widgets to the
++    layout. \c window will be the parent of the widgets that are
++    added to the layout.
++
++    If you don't pass parent \c window in the constrcutor, you can
++    at a later point use QWidget::setLayout() to install the QVBoxLayout
++    object onto \c window. At that point, the widgets in the layout are
++    reparented to have \c window as their parent.
+ 
+     \image qvboxlayout-with-5-children.png Horizontal box layout with five child widgets
+ 
+@@ -1307,8 +1326,13 @@ QHBoxLayout::~QHBoxLayout()
+ */
+ 
+ /*!
+-    Constructs a new top-level vertical box with
+-    parent \a parent.
++    Constructs a new top-level vertical box with parent \a parent.
++
++    The layout is set directly as the top-level layout for \a parent.
++    There can be only one top-level layout for a widget. It is returned
++    by QWidget::layout().
++
++    \sa QWidget::setLayout()
+ */
+ QVBoxLayout::QVBoxLayout(QWidget *parent)
+     : QBoxLayout(TopToBottom, parent)
+diff --git a/src/widgets/kernel/qformlayout.cpp b/src/widgets/kernel/qformlayout.cpp
+index 4ffa226d7f..1eac4986d9 100644
+--- a/src/widgets/kernel/qformlayout.cpp
++++ b/src/widgets/kernel/qformlayout.cpp
+@@ -1189,6 +1189,10 @@ QLayoutItem* QFormLayoutPrivate::replaceAt(int index, QLayoutItem *newitem)
+ /*!
+     Constructs a new form layout with the given \a parent widget.
+ 
++    The layout is set directly as the top-level layout for \a parent.
++    There can be only one top-level layout for a widget. It is returned
++    by QWidget::layout().
++
+     \sa QWidget::setLayout()
+ */
+ QFormLayout::QFormLayout(QWidget *parent)
+diff --git a/src/widgets/kernel/qgridlayout.cpp b/src/widgets/kernel/qgridlayout.cpp
+index b4ac263c2b..b4e8541172 100644
+--- a/src/widgets/kernel/qgridlayout.cpp
++++ b/src/widgets/kernel/qgridlayout.cpp
+@@ -1073,6 +1073,12 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
+     Constructs a new QGridLayout with parent widget, \a parent.  The
+     layout has one row and one column initially, and will expand when
+     new items are inserted.
++
++    The layout is set directly as the top-level layout for \a parent.
++    There can be only one top-level layout for a widget. It is returned
++    by QWidget::layout().
++
++    \sa QWidget::setLayout()
+ */
+ QGridLayout::QGridLayout(QWidget *parent)
+     : QLayout(*new QGridLayoutPrivate, nullptr, parent)
+-- 
+2.31.1
+

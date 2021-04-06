@@ -1,0 +1,80 @@
+From 5b0d53863868dd9895cab7f37967a644baf3d586 Mon Sep 17 00:00:00 2001
+From: Assam Boudjelthia <assam.boudjelthia@qt.io>
+Date: Sun, 25 Oct 2020 21:30:22 +0200
+Subject: [PATCH 063/171] Android: fix android java and templates targets with
+ -developer-build
+
+On Windows with -developer-build java and templates files are not copied
+properly, this makes sure to copy the files and dir for both targets.
+
+Also, avoid creating a a deployment-settings.json file by adding
+"TEMPLATE = aux".
+
+Fixes: QTBUG-87627
+Change-Id: Iae269c3180a7b6d904fdba2e69fb3f815bbb1211
+Reviewed-by: Andy Shaw <andy.shaw@qt.io>
+Reviewed-by: Alexandru Croitor <alexandru.croitor@qt.io>
+(cherry picked from commit 73e64a98c696f516aed204cf79bacce7d2179030)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/android/java/java.pro           |  6 +++++-
+ src/android/templates/templates.pro | 14 ++++++++++----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/src/android/java/java.pro b/src/android/java/java.pro
+index 7f0dfa8a1b..e8967a82db 100644
+--- a/src/android/java/java.pro
++++ b/src/android/java/java.pro
+@@ -1,5 +1,7 @@
+-CONFIG += single_arch
++TEMPLATE = aux
++TARGET = dummy
+ 
++CONFIG += single_arch
+ CONFIG -= qt android_install
+ 
+ javaresources.files = \
+@@ -11,6 +13,8 @@ javaresources.path = $$[QT_INSTALL_PREFIX]/src/android/java
+ INSTALLS += javaresources
+ 
+ !prefix_build:!equals(OUT_PWD, $$PWD) {
++    COPIES += javaresources
++
+     RETURN = $$escape_expand(\\n\\t)
+     equals(QMAKE_HOST.os, Windows) {
+         RETURN = $$escape_expand(\\r\\n\\t)
+diff --git a/src/android/templates/templates.pro b/src/android/templates/templates.pro
+index 9a64251ee3..35a63498f8 100644
+--- a/src/android/templates/templates.pro
++++ b/src/android/templates/templates.pro
+@@ -1,17 +1,23 @@
+-CONFIG += single_arch
++TEMPLATE = aux
++TARGET = dummy
+ 
++CONFIG += single_arch
+ CONFIG -= qt android_install
+ 
+ templates.files = \
+     $$PWD/AndroidManifest.xml \
+-    $$PWD/build.gradle \
+-    $$PWD/res
++    $$PWD/build.gradle
++
++templates_dirs.files += $$PWD/res
+ 
+ templates.path = $$[QT_INSTALL_PREFIX]/src/android/templates
++templates_dirs.path = $${templates.path}
+ 
+-INSTALLS += templates
++INSTALLS += templates templates_dirs
+ 
+ !prefix_build:!equals(OUT_PWD, $$PWD) {
++    COPIES += templates templates_dirs
++
+     RETURN = $$escape_expand(\\n\\t)
+     equals(QMAKE_HOST.os, Windows) {
+         RETURN = $$escape_expand(\\r\\n\\t)
+-- 
+2.31.1
+

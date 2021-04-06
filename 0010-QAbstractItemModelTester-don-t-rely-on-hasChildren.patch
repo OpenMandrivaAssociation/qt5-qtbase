@@ -1,0 +1,90 @@
+From dfa856a0e8d848f4a80d28142e3c999a734e11c0 Mon Sep 17 00:00:00 2001
+From: David Faure <david.faure@kdab.com>
+Date: Fri, 23 Oct 2020 19:07:05 +0200
+Subject: [PATCH 010/171] QAbstractItemModelTester: don't rely on hasChildren()
+
+Dynamic models which use fetchMore to asynchronously fill subdirs
+(like KDirModel) return true in hasChildren() for dirs that are expected
+to have children (so that the "+" shows in the treeview) but do not
+actually have children readily available.
+They will be inserted later on once the async listing job is done
+(as a result of fetchMore triggering that job).
+
+So QAbstractItemModelTester should use rowCount instead, to find out
+if there are children present.
+
+This detected a bug in QConcatenateTablesProxyModel: it returned
+a non-zero rowCount for its items, while it's flat.
+
+Change-Id: Idcdc86159f1fc79ed5297075dfcf30c09896287a
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 72e0d699cec09458ca9325035d477d4899e8e47b)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/corelib/itemmodels/qconcatenatetablesproxymodel.cpp | 4 ++--
+ src/testlib/qabstractitemmodeltester.cpp                | 9 +++++----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/src/corelib/itemmodels/qconcatenatetablesproxymodel.cpp b/src/corelib/itemmodels/qconcatenatetablesproxymodel.cpp
+index 0e29714677..1c2d5e9f9e 100644
+--- a/src/corelib/itemmodels/qconcatenatetablesproxymodel.cpp
++++ b/src/corelib/itemmodels/qconcatenatetablesproxymodel.cpp
+@@ -313,8 +313,8 @@ QModelIndex QConcatenateTablesProxyModel::parent(const QModelIndex &index) const
+ int QConcatenateTablesProxyModel::rowCount(const QModelIndex &parent) const
+ {
+     Q_D(const QConcatenateTablesProxyModel);
+-    Q_ASSERT(checkIndex(parent, QAbstractItemModel::CheckIndexOption::ParentIsInvalid)); // flat model
+-    Q_UNUSED(parent);
++    if (parent.isValid())
++        return 0; // flat model
+     return d->m_rowCount;
+ }
+ 
+diff --git a/src/testlib/qabstractitemmodeltester.cpp b/src/testlib/qabstractitemmodeltester.cpp
+index 4c86d65e77..2348f8fdfe 100644
+--- a/src/testlib/qabstractitemmodeltester.cpp
++++ b/src/testlib/qabstractitemmodeltester.cpp
+@@ -438,7 +438,7 @@ void QAbstractItemModelTesterPrivate::parent()
+     // when asked for the parent of an invalid index.
+     MODELTESTER_VERIFY(!model->parent(QModelIndex()).isValid());
+ 
+-    if (!model->hasChildren())
++    if (model->rowCount() == 0)
+         return;
+ 
+     // Column 0                | Column 1    |
+@@ -449,11 +449,12 @@ void QAbstractItemModelTesterPrivate::parent()
+     // Common error test #1, make sure that a top level index has a parent
+     // that is a invalid QModelIndex.
+     QModelIndex topIndex = model->index(0, 0, QModelIndex());
++    MODELTESTER_VERIFY(topIndex.isValid());
+     MODELTESTER_VERIFY(!model->parent(topIndex).isValid());
+ 
+     // Common error test #2, make sure that a second level index has a parent
+     // that is the first level index.
+-    if (model->hasChildren(topIndex)) {
++    if (model->rowCount(topIndex) > 0) {
+         QModelIndex childIndex = model->index(0, 0, topIndex);
+         MODELTESTER_VERIFY(childIndex.isValid());
+         MODELTESTER_COMPARE(model->parent(childIndex), topIndex);
+@@ -465,7 +466,7 @@ void QAbstractItemModelTesterPrivate::parent()
+     if (model->hasIndex(0, 1)) {
+         QModelIndex topIndex1 = model->index(0, 1, QModelIndex());
+         MODELTESTER_VERIFY(topIndex1.isValid());
+-        if (model->hasChildren(topIndex) && model->hasChildren(topIndex1)) {
++        if (model->rowCount(topIndex) > 0 && model->rowCount(topIndex1) > 0) {
+             QModelIndex childIndex = model->index(0, 0, topIndex);
+             MODELTESTER_VERIFY(childIndex.isValid());
+             QModelIndex childIndex1 = model->index(0, 0, topIndex1);
+@@ -583,7 +584,7 @@ void QAbstractItemModelTesterPrivate::checkChildren(const QModelIndex &parent, i
+  */
+ void QAbstractItemModelTesterPrivate::data()
+ {
+-    if (!model->hasChildren())
++    if (model->rowCount() == 0 || model->columnCount() == 0)
+         return;
+ 
+     MODELTESTER_VERIFY(model->index(0, 0).isValid());
+-- 
+2.31.1
+

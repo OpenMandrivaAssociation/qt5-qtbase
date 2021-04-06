@@ -1,0 +1,108 @@
+From 6c6a6f4aa9f97e5edad8592e3e8e939db2755dc4 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Fri, 20 Nov 2020 17:39:12 +0100
+Subject: [PATCH 114/171] QSslConfiguration - improve code coverage
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+By adding auto-tests that were missing/not triggering the paths found
+by LCOV.
+
+Change-Id: I472f59e8e7292786c80d7c8dcebde53a2982e1ec
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 1157167a5c69e253fdeb6c8ad532c5d52e150769)
+---
+ tests/auto/network/ssl/qdtls/tst_qdtls.cpp    | 16 ++++++++++
+ .../network/ssl/qsslsocket/tst_qsslsocket.cpp | 29 +++++++++++++++++--
+ 2 files changed, 43 insertions(+), 2 deletions(-)
+
+diff --git a/tests/auto/network/ssl/qdtls/tst_qdtls.cpp b/tests/auto/network/ssl/qdtls/tst_qdtls.cpp
+index 1fc46ca36a..b80ca8593b 100644
+--- a/tests/auto/network/ssl/qdtls/tst_qdtls.cpp
++++ b/tests/auto/network/ssl/qdtls/tst_qdtls.cpp
+@@ -40,10 +40,13 @@
+ #include <QtNetwork/qssl.h>
+ 
+ #include <QtCore/qcryptographichash.h>
++#include <QtCore/qscopeguard.h>
+ #include <QtCore/qbytearray.h>
+ #include <QtCore/qvector.h>
++#include <QtCore/qobject.h>
+ #include <QtCore/qstring.h>
+ #include <QtCore/qobject.h>
++#include <QtCore/qlist.h>
+ 
+ #include <algorithm>
+ 
+@@ -312,6 +315,19 @@ void tst_QDtls::configuration()
+         QCOMPARE(dtls.dtlsError(), QDtlsError::InvalidOperation);
+         QCOMPARE(dtls.dtlsConfiguration(), config);
+     }
++
++    static bool doneAlready = false;
++    if (!doneAlready) {
++        doneAlready = true;
++        QSslConfiguration nullConfig;
++        const auto defaultDtlsConfig = QSslConfiguration::defaultDtlsConfiguration();
++        const auto restoreDefault = qScopeGuard([&defaultDtlsConfig] {
++            QSslConfiguration::setDefaultDtlsConfiguration(defaultDtlsConfig);
++        });
++        QSslConfiguration::setDefaultDtlsConfiguration(nullConfig);
++        QCOMPARE(QSslConfiguration::defaultDtlsConfiguration(), nullConfig);
++        QVERIFY(QSslConfiguration::defaultDtlsConfiguration() != defaultDtlsConfig);
++    }
+ }
+ 
+ void tst_QDtls::invalidConfiguration()
+diff --git a/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp b/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp
+index 5903eb6488..ef02a5ff2d 100644
+--- a/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp
++++ b/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp
+@@ -191,7 +191,7 @@ private slots:
+     void setLocalCertificate();
+     void localCertificateChain();
+     void setLocalCertificateChain();
+-    void setPrivateKey();
++    void tlsConfiguration();
+     void setSocketDescriptor();
+     void setSslConfiguration_data();
+     void setSslConfiguration();
+@@ -1562,8 +1562,33 @@ void tst_QSslSocket::setLocalCertificateChain()
+     QCOMPARE(chain[1].serialNumber(), QByteArray("3b:eb:99:c5:ea:d8:0b:5d:0b:97:5d:4f:06:75:4b:e1"));
+ }
+ 
+-void tst_QSslSocket::setPrivateKey()
++void tst_QSslSocket::tlsConfiguration()
+ {
++    QFETCH_GLOBAL(const bool, setProxy);
++    if (setProxy)
++        return;
++    // Test some things not covered by any other auto-test.
++    QSslSocket socket;
++    auto tlsConfig = socket.sslConfiguration();
++    QVERIFY(tlsConfig.sessionCipher().isNull());
++    QCOMPARE(tlsConfig.addCaCertificates(QStringLiteral("nonexisting/chain.crt")), false);
++    QCOMPARE(tlsConfig.sessionProtocol(), QSsl::UnknownProtocol);
++    QSslConfiguration nullConfig;
++    QVERIFY(nullConfig.isNull());
++#ifndef QT_NO_OPENSSL
++    nullConfig.setEllipticCurves(tlsConfig.ellipticCurves());
++    QCOMPARE(nullConfig.ellipticCurves(), tlsConfig.ellipticCurves());
++#endif
++    QMap<QByteArray, QVariant> backendConfig;
++    backendConfig["DTLSMTU"] = QVariant::fromValue(1024);
++    backendConfig["DTLSTIMEOUTMS"] = QVariant::fromValue(1000);
++    nullConfig.setBackendConfiguration(backendConfig);
++    QCOMPARE(nullConfig.backendConfiguration(), backendConfig);
++    QTest::ignoreMessage(QtWarningMsg, "QSslConfiguration::setPeerVerifyDepth: cannot set negative depth of -1000");
++    nullConfig.setPeerVerifyDepth(-1000);
++    QVERIFY(nullConfig.peerVerifyDepth() != -1000);
++    nullConfig.setPeerVerifyDepth(100);
++    QCOMPARE(nullConfig.peerVerifyDepth(), 100);
+ }
+ 
+ void tst_QSslSocket::setSocketDescriptor()
+-- 
+2.31.1
+

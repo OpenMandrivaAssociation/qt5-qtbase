@@ -1,0 +1,39 @@
+From 3bf5dc6eadbe4f182beca3e1eb9626438cc502dd Mon Sep 17 00:00:00 2001
+From: Ahmad Samir <a.samirh78@gmail.com>
+Date: Wed, 2 Dec 2020 13:58:43 +0200
+Subject: [PATCH 146/171] QStringView: operator==(), operator<(), operator>()
+ currently Qt6 only
+
+These operators don't exist in Qt5.
+
+Change-Id: I3cb21521bd3e3f11e217cf901940320f0f1aa0b3
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+---
+ src/corelib/text/qstringview.cpp | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/corelib/text/qstringview.cpp b/src/corelib/text/qstringview.cpp
+index 1cbfb90d0f..c9e9aeee9d 100644
+--- a/src/corelib/text/qstringview.cpp
++++ b/src/corelib/text/qstringview.cpp
+@@ -705,8 +705,6 @@ QT_BEGIN_NAMESPACE
+ 
+     If \a cs is Qt::CaseSensitive (the default), the comparison is case sensitive;
+     otherwise the comparison is case-insensitive.
+-
+-    \sa operator==(), operator<(), operator>()
+ */
+ 
+ /*!
+@@ -720,8 +718,6 @@ QT_BEGIN_NAMESPACE
+ 
+     If \a cs is Qt::CaseSensitive (the default), the comparison is case sensitive;
+     otherwise the comparison is case-insensitive.
+-
+-    \sa operator==(), operator<(), operator>()
+ */
+ 
+ /*!
+-- 
+2.31.1
+

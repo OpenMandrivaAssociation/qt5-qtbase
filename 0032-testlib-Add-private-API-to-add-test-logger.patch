@@ -1,0 +1,135 @@
+From 1de28b6212967324cd764eab0bda73a0e20c5120 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Fri, 30 Oct 2020 12:07:58 +0100
+Subject: [PATCH 032/171] testlib: Add private API to add test logger
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Allows adding test loggers outside of testlib.
+
+Change-Id: Iabcc780e441de96032a05fc0a386dd52e2f2f404
+Reviewed-by: Simon Hausmann <hausmann@gmail.com>
+(cherry picked from commit d4cd1bf861b87e827793e316bc8fd3930b8caedf)
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+---
+ src/testlib/qabstracttestlogger_p.h |  7 ++++---
+ src/testlib/qtestlog.cpp            | 24 +++++++++++++++++++-----
+ src/testlib/qtestlog_p.h            |  2 ++
+ 3 files changed, 25 insertions(+), 8 deletions(-)
+
+diff --git a/src/testlib/qabstracttestlogger_p.h b/src/testlib/qabstracttestlogger_p.h
+index 079f5f87d5..3e4f725a98 100644
+--- a/src/testlib/qabstracttestlogger_p.h
++++ b/src/testlib/qabstracttestlogger_p.h
+@@ -51,7 +51,8 @@
+ // We mean it.
+ //
+ 
+-#include <qglobal.h>
++#include <QtTest/qttestglobal.h>
++
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+@@ -60,7 +61,7 @@ QT_BEGIN_NAMESPACE
+ class QBenchmarkResult;
+ class QTestData;
+ 
+-class QAbstractTestLogger
++class Q_TESTLIB_EXPORT QAbstractTestLogger
+ {
+ public:
+     enum IncidentTypes {
+@@ -184,7 +185,7 @@ namespace QTest
+ namespace QTestPrivate
+ {
+     enum IdentifierPart { TestObject = 0x1, TestFunction = 0x2, TestDataTag = 0x4, AllParts = 0xFFFF };
+-    void generateTestIdentifier(QTestCharBuffer *identifier, int parts = AllParts);
++    void Q_TESTLIB_EXPORT generateTestIdentifier(QTestCharBuffer *identifier, int parts = AllParts);
+ }
+ 
+ QT_END_NAMESPACE
+diff --git a/src/testlib/qtestlog.cpp b/src/testlib/qtestlog.cpp
+index 58ba26d989..da9626a559 100644
+--- a/src/testlib/qtestlog.cpp
++++ b/src/testlib/qtestlog.cpp
+@@ -99,7 +99,7 @@ static void saveCoverageTool(const char * appname, bool testfailed, bool install
+ static QElapsedTimer elapsedFunctionTime;
+ static QElapsedTimer elapsedTotalTime;
+ 
+-#define FOREACH_TEST_LOGGER for (QAbstractTestLogger *logger : QTest::loggers)
++#define FOREACH_TEST_LOGGER for (QAbstractTestLogger *logger : *QTest::loggers())
+ 
+ namespace QTest {
+ 
+@@ -168,7 +168,7 @@ namespace QTest {
+ 
+     static IgnoreResultList *ignoreResultList = nullptr;
+ 
+-    static QVector<QAbstractTestLogger*> loggers;
++    Q_GLOBAL_STATIC(QVector<QAbstractTestLogger *>, loggers)
+ 
+     static int verbosity = 0;
+     static int maxWarnings = 2002;
+@@ -429,7 +429,7 @@ void QTestLog::stopLogging()
+         logger->stopLogging();
+         delete logger;
+     }
+-    QTest::loggers.clear();
++    QTest::loggers()->clear();
+     saveCoverageTool(QTestResult::currentAppName(), failCount() != 0, QTestLog::installedTestCoverage());
+ }
+ 
+@@ -474,12 +474,26 @@ void QTestLog::addLogger(LogMode mode, const char *filename)
+     }
+ 
+     QTEST_ASSERT(logger);
+-    QTest::loggers.append(logger);
++    addLogger(logger);
++}
++
++/*!
++    \internal
++
++    Adds a new logger to the set of loggers that will be used
++    to report incidents and messages during testing.
++
++    The function takes ownership of the logger.
++*/
++void QTestLog::addLogger(QAbstractTestLogger *logger)
++{
++    QTEST_ASSERT(logger);
++    QTest::loggers()->append(logger);
+ }
+ 
+ int QTestLog::loggerCount()
+ {
+-    return QTest::loggers.size();
++    return QTest::loggers()->size();
+ }
+ 
+ bool QTestLog::loggerUsingStdout()
+diff --git a/src/testlib/qtestlog_p.h b/src/testlib/qtestlog_p.h
+index ddaf14ed9b..bdb22acbd3 100644
+--- a/src/testlib/qtestlog_p.h
++++ b/src/testlib/qtestlog_p.h
+@@ -64,6 +64,7 @@ QT_BEGIN_NAMESPACE
+ class QBenchmarkResult;
+ class QRegularExpression;
+ class QTestData;
++class QAbstractTestLogger;
+ 
+ class Q_TESTLIB_EXPORT QTestLog
+ {
+@@ -115,6 +116,7 @@ public:
+     static void stopLogging();
+ 
+     static void addLogger(LogMode mode, const char *filename);
++    static void addLogger(QAbstractTestLogger *logger);
+ 
+     static int loggerCount();
+     static bool loggerUsingStdout();
+-- 
+2.31.1
+

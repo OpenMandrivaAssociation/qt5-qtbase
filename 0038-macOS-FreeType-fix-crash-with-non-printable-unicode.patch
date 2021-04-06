@@ -1,0 +1,37 @@
+From 58d50ee549afe6ae001c229d03f16299b3c3a8e2 Mon Sep 17 00:00:00 2001
+From: Anton Kudryavtsev <anton.kudryavtsev@corp.mail.ru>
+Date: Fri, 30 Oct 2020 11:16:57 +0300
+Subject: [PATCH 038/171] macOS + FreeType: fix crash with non printable
+ unicode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Task-number: QTBUG-84096
+Change-Id: Ia60b7094ef9e82cf24f5a8b7995000ae65bb379a
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit ebfd0b14aadc8d7e1415fa6a698038dffd251cb0)
+Reviewed-by: Anton Kudryavtsev <antkudr@mail.ru>
+---
+ .../fontdatabases/mac/qcoretextfontdatabase.mm               | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/platformsupport/fontdatabases/mac/qcoretextfontdatabase.mm b/src/platformsupport/fontdatabases/mac/qcoretextfontdatabase.mm
+index bf986aab77..69750bdbb0 100644
+--- a/src/platformsupport/fontdatabases/mac/qcoretextfontdatabase.mm
++++ b/src/platformsupport/fontdatabases/mac/qcoretextfontdatabase.mm
+@@ -405,7 +405,10 @@ QFontEngine *QCoreTextFontDatabaseEngineFactory<QFontEngineFT>::fontEngine(const
+         faceId.filename = QString::fromNSString(url.path).toUtf8();
+         return QFontEngineFT::create(fontDef, faceId);
+     }
+-    Q_UNREACHABLE();
++    // We end up here with a descriptor does not contain Qt font data or kCTFontURLAttribute.
++    // Since the FT engine can't deal with a descriptor with just a NSFontNameAttribute,
++    // we should return nullptr.
++    return nullptr;
+ }
+ #endif
+ 
+-- 
+2.31.1
+

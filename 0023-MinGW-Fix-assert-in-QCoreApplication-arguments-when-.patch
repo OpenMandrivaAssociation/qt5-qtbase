@@ -1,0 +1,126 @@
+From 57a31ec2e96bf3aec114d4768098e7b4f46b0ab1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Thu, 22 Oct 2020 16:26:33 +0200
+Subject: [PATCH 023/171] MinGW: Fix assert in QCoreApplication::arguments()
+ when passing globs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+We can't assume that the number of arguments we get from GetCommandLine
+will match what we have from argc, as the former is not wildcard
+expanded on MingGW.
+
+mingw64 will ask __getmainargs to expand wildcards depending on
+the mingw-specific variable _dowildcard. By default this is set
+to 0 (false), but some mingw64-packagers (msys2, mingw-builds)
+pass --enable-wildcard during build, changing this default. As
+a result, the arguments we get through argc/__argc have already
+been expanded. MinGW does not reflect this through GetCommandLine
+though, like MSVC does, which triggered the assert.
+
+Amends dff18b8e80609da91bf9e9134967dcf0d23eca9e.
+
+Fixes: QTBUG-67515
+Task-number: QTBUG-84002
+Change-Id: Ib87961c6901d2894b48ba0f5b9a3d6da2a595f24
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+Reviewed-by: Simon Hausmann <hausmann@gmail.com>
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Reviewed-by: Oliver Wolff <oliver.wolff@qt.io>
+(cherry picked from commit 4e08651bacd8321f124610e4c5680811e1e9a0fa)
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+---
+ src/corelib/kernel/qcoreapplication.cpp | 63 +++++++++++++++----------
+ 1 file changed, 39 insertions(+), 24 deletions(-)
+
+diff --git a/src/corelib/kernel/qcoreapplication.cpp b/src/corelib/kernel/qcoreapplication.cpp
+index a97b68f372..1bb63f80ac 100644
+--- a/src/corelib/kernel/qcoreapplication.cpp
++++ b/src/corelib/kernel/qcoreapplication.cpp
+@@ -398,10 +398,11 @@ static bool quitLockRefEnabled = true;
+ #endif
+ 
+ #if defined(Q_OS_WIN) && !defined(Q_OS_WINRT)
+-// Check whether the command line arguments match those passed to main()
+-// by comparing to the global __argv/__argc (MS extension).
+-// Deep comparison is required since argv/argc is rebuilt by WinMain for
+-// GUI apps or when using MinGW due to its globbing.
++// Check whether the command line arguments passed to QCoreApplication
++// match those passed into main(), to see if the user has modified them
++// before passing them on to us. We do this by comparing to the global
++// __argv/__argc (MS extension). Deep comparison is required since
++// argv/argc is rebuilt by our WinMain entrypoint.
+ static inline bool isArgvModified(int argc, char **argv)
+ {
+     if (__argc != argc || !__argv /* wmain() */)
+@@ -2430,32 +2431,46 @@ QStringList QCoreApplication::arguments()
+         qWarning("QCoreApplication::arguments: Please instantiate the QApplication object first");
+         return list;
+     }
+-    const int ac = self->d_func()->argc;
+-    char ** const av = self->d_func()->argv;
+-    list.reserve(ac);
+-
+-#if defined(Q_OS_WIN) && !defined(Q_OS_WINRT)
+-    // On Windows, it is possible to pass Unicode arguments on
+-    // the command line. To restore those, we split the command line
+-    // and filter out arguments that were deleted by derived application
+-    // classes by index.
+-    QString cmdline = QString::fromWCharArray(GetCommandLine());
+ 
+     const QCoreApplicationPrivate *d = self->d_func();
+-    if (d->origArgv) {
+-        const QStringList allArguments = qWinCmdArgs(cmdline);
+-        Q_ASSERT(allArguments.size() == d->origArgc);
+-        for (int i = 0; i < d->origArgc; ++i) {
+-            if (contains(ac, av, d->origArgv[i]))
+-                list.append(allArguments.at(i));
++
++    const int argc = d->argc;
++    char ** const argv = d->argv;
++    list.reserve(argc);
++
++#if defined(Q_OS_WIN) && !defined(Q_OS_WINRT)
++    const bool argsModifiedByUser = d->origArgv == nullptr;
++    if (!argsModifiedByUser) {
++        // On Windows, it is possible to pass Unicode arguments on
++        // the command line, but we don't implement any of the wide
++        // entry-points (wmain/wWinMain), so get the arguments from
++        // the Windows API instead of using argv. Note that we only
++        // do this when argv were not modified by the user in main().
++        QString cmdline = QString::fromWCharArray(GetCommandLine());
++        QStringList commandLineArguments = qWinCmdArgs(cmdline);
++
++        // Even if the user didn't modify argv before passing them
++        // on to QCoreApplication, derived QApplications might have.
++        // If that's the case argc will differ from origArgc.
++        if (argc != d->origArgc) {
++            // Note: On MingGW the arguments from GetCommandLine are
++            // not wildcard expanded (if wildcard expansion is enabled),
++            // as opposed to the arguments in argv. This means we can't
++            // compare commandLineArguments to argv/origArgc, but
++            // must remove elements by value, based on whether they
++            // were filtered out from argc.
++            for (int i = 0; i < d->origArgc; ++i) {
++                if (!contains(argc, argv, d->origArgv[i]))
++                    commandLineArguments.removeAll(QString::fromLocal8Bit(d->origArgv[i]));
++            }
+         }
+-        return list;
++
++        return commandLineArguments;
+     } // Fall back to rebuilding from argv/argc when a modified argv was passed.
+ #endif // defined(Q_OS_WIN) && !defined(Q_OS_WINRT)
+ 
+-    for (int a = 0; a < ac; ++a) {
+-        list << QString::fromLocal8Bit(av[a]);
+-    }
++    for (int a = 0; a < argc; ++a)
++        list << QString::fromLocal8Bit(argv[a]);
+ 
+     return list;
+ }
+-- 
+2.31.1
+

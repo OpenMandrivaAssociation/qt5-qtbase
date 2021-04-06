@@ -1,0 +1,108 @@
+From 1afaeddfd4694f91d5e5201cddec16259e83c620 Mon Sep 17 00:00:00 2001
+From: Topi Reinio <topi.reinio@qt.io>
+Date: Wed, 12 Aug 2020 15:36:40 +0200
+Subject: [PATCH 079/171] Doc: Fix documentation warnings in Qt Network
+
+Change-Id: I3653977a4511aa5c296a3954399342d98ac71586
+Reviewed-by: Paul Wicking <paul.wicking@qt.io>
+(cherry picked from commit 49e8d0f3d5836e0fc1577ace1f0a3677d0e309b7)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/network/access/qhttp2configuration.cpp | 12 +++++++++---
+ src/network/ssl/qocspresponse.cpp          |  4 ++--
+ src/network/ssl/qsslcertificate.cpp        |  3 ++-
+ 3 files changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/src/network/access/qhttp2configuration.cpp b/src/network/access/qhttp2configuration.cpp
+index bd4318d4e9..408f141e77 100644
+--- a/src/network/access/qhttp2configuration.cpp
++++ b/src/network/access/qhttp2configuration.cpp
+@@ -141,12 +141,12 @@ QHttp2Configuration::QHttp2Configuration(QHttp2Configuration &&other) noexcept
+ }
+ 
+ /*!
+-    Copy-assigns to this QHttp2Configuration.
++    Copy-assigns \a other to this QHttp2Configuration.
+ */
+ QHttp2Configuration &QHttp2Configuration::operator=(const QHttp2Configuration &) = default;
+ 
+ /*!
+-    Move-assigns to this QHttp2Configuration.
++    Move-assigns \a other to this QHttp2Configuration.
+ */
+ QHttp2Configuration &QHttp2Configuration::operator=(QHttp2Configuration &&) noexcept = default;
+ 
+@@ -209,6 +209,8 @@ bool QHttp2Configuration::huffmanCompressionEnabled() const
+     Sets the window size for connection-level flow control.
+     \a size cannot be 0 and must not exceed 2147483647 octets.
+ 
++    Returns \c true on success, \c false otherwise.
++
+     \sa sessionReceiveWindowSize
+ */
+ bool QHttp2Configuration::setSessionReceiveWindowSize(unsigned size)
+@@ -236,6 +238,8 @@ unsigned QHttp2Configuration::sessionReceiveWindowSize() const
+     Sets the window size for stream-level flow control.
+     \a size cannot be 0 and must not exceed 2147483647 octets.
+ 
++    Returns \c true on success, \c false otherwise.
++
+     \sa streamReceiveWindowSize
+  */
+ bool QHttp2Configuration::setStreamReceiveWindowSize(unsigned size)
+@@ -265,6 +269,8 @@ unsigned QHttp2Configuration::streamReceiveWindowSize() const
+     \note While this \a size is required to be within a range between
+     16384 and 16777215 inclusive, the actual payload size in frames
+     that carry payload maybe be less than 16384.
++
++    Returns \c true on success, \c false otherwise.
+ */
+ bool QHttp2Configuration::setMaxFrameSize(unsigned size)
+ {
+@@ -278,7 +284,7 @@ bool QHttp2Configuration::setMaxFrameSize(unsigned size)
+ }
+ 
+ /*!
+-    The maximum payload size that HTTP/2 frames can
++    Returns the maximum payload size that HTTP/2 frames can
+     have. The default (initial) value is 16384 octets.
+ */
+ unsigned QHttp2Configuration::maxFrameSize() const
+diff --git a/src/network/ssl/qocspresponse.cpp b/src/network/ssl/qocspresponse.cpp
+index bf27bb768b..7fc83fa54a 100644
+--- a/src/network/ssl/qocspresponse.cpp
++++ b/src/network/ssl/qocspresponse.cpp
+@@ -145,14 +145,14 @@ QOcspResponse::~QOcspResponse() = default;
+ /*!
+     \since 5.13
+ 
+-    Copy-assigns and returns a reference to this response.
++    Copy-assigns \a other and returns a reference to this response.
+ */
+ QOcspResponse &QOcspResponse::operator=(const QOcspResponse &) = default;
+ 
+ /*!
+     \since 5.13
+ 
+-    Move-assigns to this QOcspResponse instance.
++    Move-assigns \a other to this QOcspResponse instance.
+ */
+ QOcspResponse &QOcspResponse::operator=(QOcspResponse &&) noexcept = default;
+ 
+diff --git a/src/network/ssl/qsslcertificate.cpp b/src/network/ssl/qsslcertificate.cpp
+index f11a59395d..7175f2c9e0 100644
+--- a/src/network/ssl/qsslcertificate.cpp
++++ b/src/network/ssl/qsslcertificate.cpp
+@@ -121,7 +121,8 @@
+ 
+     \value Wildcard This provides a simple pattern matching syntax
+     similar to that used by shells (command interpreters) for "file
+-    globbing". See \l{QRegularExpression Wildcard matching}.
++    globbing". See \l {QRegularExpression#Wildcard matching}
++    {QRegularExpression Wildcard Matching}.
+ 
+     \value FixedString The pattern is a fixed string. This is
+     equivalent to using the RegularExpression pattern on a string in
+-- 
+2.31.1
+

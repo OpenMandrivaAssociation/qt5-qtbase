@@ -1,0 +1,47 @@
+From 0b4adb5b63221d423e4bdd6d07b3460d3d5cc6fe Mon Sep 17 00:00:00 2001
+From: Fabian Kosmale <fabian.kosmale@qt.io>
+Date: Tue, 24 Nov 2020 20:49:32 +0100
+Subject: [PATCH 137/171] Avoid signed overflow in moc
+
+moc's preprocessor needs to implement certain math operation to
+correctly handle #if conditions. Unfortunately, its implementation is
+not overflow safe. However, those are rare enough in practice that we
+in general do not need to care about them.
+This patch adds a workaround for one case where UBSAN run into an
+overflow related issue.
+A complete fix would require to make moc spec compliant (do math with
+std::max_(u)int_t operands; always wrap on overflow) in all operations.
+
+Fixes: QTBUG-88825
+Change-Id: Ic4d2cb097db2fa2f9d4681bbaab3068eaa2745aa
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit df8fbcf382b086e96082a8eb3622c60273e94c4d)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/tools/moc/preprocessor.cpp | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/src/tools/moc/preprocessor.cpp b/src/tools/moc/preprocessor.cpp
+index a99b8cc80c..c6e84c0913 100644
+--- a/src/tools/moc/preprocessor.cpp
++++ b/src/tools/moc/preprocessor.cpp
+@@ -886,7 +886,15 @@ int PP_Expression::multiplicative_expression()
+     int value = unary_expression();
+     switch (next()) {
+     case PP_STAR:
+-        return value * multiplicative_expression();
++    {
++        // get well behaved overflow behavior by converting to long
++        // and then back to int
++        // NOTE: A conformant preprocessor would need to work intmax_t/
++        // uintmax_t according to [cpp.cond], 19.1 §10
++        // But we're not compliant anyway
++        qint64 result = qint64(value) * qint64(multiplicative_expression());
++        return int(result);
++    }
+     case PP_PERCENT:
+     {
+         int remainder = multiplicative_expression();
+-- 
+2.31.1
+

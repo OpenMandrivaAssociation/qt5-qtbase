@@ -1,0 +1,35 @@
+From df834d020fd391725d6aa079f70076026f6a747f Mon Sep 17 00:00:00 2001
+From: Joerg Bornemann <joerg.bornemann@qt.io>
+Date: Tue, 24 Nov 2020 12:24:48 +0100
+Subject: [PATCH 099/171] Doc: Fix documentation of qmake's exists() function
+
+This function may take a wildcard expression, not a general regular
+expression.
+
+Change-Id: Ia7ba3bac47c310bc035620583b9d2102fdc5ffb0
+Reviewed-by: Leena Miettinen <riitta-leena.miettinen@qt.io>
+(cherry picked from commit 116c2115f84ec2f5f12b5d7680cd83ceeef72a6e)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ qmake/doc/src/qmake-manual.qdoc | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/qmake/doc/src/qmake-manual.qdoc b/qmake/doc/src/qmake-manual.qdoc
+index 2782f7664e..8dfcded3cc 100644
+--- a/qmake/doc/src/qmake-manual.qdoc
++++ b/qmake/doc/src/qmake-manual.qdoc
+@@ -4087,8 +4087,9 @@
+ 
+     Tests whether a file with the given \c filename exists.
+     If the file exists, the function succeeds; otherwise it fails.
+-    If a regular expression is specified for the filename, this function
+-    succeeds if any file matches the regular expression specified.
++
++    The \c filename argument may contain wildcards.
++    In that case, this function succeeds if any file matches.
+ 
+     For example:
+     \snippet code/doc_src_qmake-manual.pro 63
+-- 
+2.31.1
+

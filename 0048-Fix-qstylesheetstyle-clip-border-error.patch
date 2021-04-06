@@ -1,0 +1,40 @@
+From 62813f6ed5483fec52f520011d698be96ba93e1e Mon Sep 17 00:00:00 2001
+From: Lu YaNing <luyaning@uniontech.com>
+Date: Wed, 4 Nov 2020 10:17:33 +0800
+Subject: [PATCH 048/171] Fix qstylesheetstyle clip border error
+
+The left border path clip error when border size is odd.
+That because borderClip calc path with border with divide 2.
+It should be 2.0 that make result to accurately real number.
+
+Change-Id: I8c6f358afa4f3c8c9e5b263707ee145f6e5491c0
+Reviewed-by: David Faure <david.faure@kdab.com>
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit ebf753d0ee017edc2b3a3f9b26347466fe4c0589)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/widgets/styles/qstylesheetstyle.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/widgets/styles/qstylesheetstyle.cpp b/src/widgets/styles/qstylesheetstyle.cpp
+index ae5d14ab9c..822e6f895f 100644
+--- a/src/widgets/styles/qstylesheetstyle.cpp
++++ b/src/widgets/styles/qstylesheetstyle.cpp
+@@ -1324,11 +1324,11 @@ QPainterPath QRenderRule::borderClip(QRect r)
+ 
+     path.lineTo(rect.x() + blr.width(), curY);
+     curX = rect.left() + borders[LeftEdge]/2.0;
+-    path.arcTo(curX, rect.bottom() - 2*blr.height() + borders[BottomEdge]/2,
++    path.arcTo(curX, rect.bottom() - 2*blr.height() + borders[BottomEdge]/2.0,
+                blr.width()*2 - borders[LeftEdge], blr.height()*2 - borders[BottomEdge], 270, -90);
+ 
+     path.lineTo(curX, rect.top() + tlr.height());
+-    path.arcTo(curX, rect.top() + borders[TopEdge]/2,
++    path.arcTo(curX, rect.top() + borders[TopEdge]/2.0,
+                tlr.width()*2 - borders[LeftEdge], tlr.height()*2 - borders[TopEdge], 180, -90);
+ 
+     path.closeSubpath();
+-- 
+2.31.1
+

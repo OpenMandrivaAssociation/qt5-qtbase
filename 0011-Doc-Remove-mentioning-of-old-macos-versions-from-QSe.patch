@@ -1,0 +1,37 @@
+From 76947bf93ccd9b4c79e6b2f9a28b9f10be8315bb Mon Sep 17 00:00:00 2001
+From: Kai Koehne <kai.koehne@qt.io>
+Date: Tue, 27 Oct 2020 12:47:22 +0100
+Subject: [PATCH 011/171] Doc: Remove mentioning of old macos versions from
+ QSettings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The specific mentioning of macOS 10.2, 10.3 goes back to Qt
+4 times. Anyhow, both versions aren't supported anymore, and
+the logic in qsettings_mac.cpp is the same for all versions.
+
+Change-Id: Ibac503cb7c8563dec8560cc41c471c1db0f20566
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit 9b35f22b58bfdf0e88dfc5baa4387968a81c169a)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/corelib/io/qsettings.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/io/qsettings.cpp b/src/corelib/io/qsettings.cpp
+index e0c437e16b..8f2361c8fc 100644
+--- a/src/corelib/io/qsettings.cpp
++++ b/src/corelib/io/qsettings.cpp
+@@ -2245,7 +2245,7 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
+     \endlist
+     \note If XDG_CONFIG_DIRS is unset, the default value of \c{/etc/xdg} is used.
+ 
+-    On \macos versions 10.2 and 10.3, these files are used by
++    On \macos and iOS, if the file format is NativeFormat, these files are used by
+     default:
+ 
+     \list 1
+-- 
+2.31.1
+

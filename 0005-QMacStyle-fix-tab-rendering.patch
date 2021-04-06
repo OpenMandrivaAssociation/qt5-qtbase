@@ -1,0 +1,72 @@
+From 1bb225211c91f3c90fc2f84e269c398a8fdba2c7 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Thu, 22 Oct 2020 15:18:29 +0200
+Subject: [PATCH 005/171] QMacStyle - fix tab rendering
+
+In BigSur NSPopupButton, it would appear, is slightly different. But different
+enough so that a fragment of a disclose 'arrow' button became visible within
+the clipping region, making it appear as some blue strange thing in between
+inactive (non-selected) tabs.
+
+Task-number: QTBUG-86513
+Change-Id: Ib03af48069056b5ecbb8b4afebd851005583293a
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit 40fb97e97f550b8afd13ecc3a038d9d0c2d82bbb)
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+---
+ src/plugins/styles/mac/qmacstyle_mac.mm | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/src/plugins/styles/mac/qmacstyle_mac.mm b/src/plugins/styles/mac/qmacstyle_mac.mm
+index d1febd81d4..6b74205fda 100644
+--- a/src/plugins/styles/mac/qmacstyle_mac.mm
++++ b/src/plugins/styles/mac/qmacstyle_mac.mm
+@@ -3870,6 +3870,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
+             const auto cs = d->effectiveAquaSizeConstrain(opt, w);
+             // Extra hacks to get the proper pressed appreance when not selected or selected and inactive
+             const bool needsInactiveHack = (!isActive && isSelected);
++            const bool isBigSurOrAbove = QOperatingSystemVersion::current() >= QOperatingSystemVersion::MacOSBigSur;
+             const auto ct = !needsInactiveHack && (isSelected || tp == QStyleOptionTab::OnlyOneTab) ?
+                     QMacStylePrivate::Button_PushButton :
+                     QMacStylePrivate::Button_PopupButton;
+@@ -3878,6 +3879,12 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
+             auto *pb = static_cast<NSButton *>(d->cocoaControl(cw));
+ 
+             auto vOffset = isPopupButton ? 1 : 2;
++            if (isBigSurOrAbove) {
++                // Make it 1, otherwise, offset is very visible compared
++                // to selected tab (which is not a popup button).
++                vOffset = 1;
++            }
++
+             if (tabDirection == QMacStylePrivate::East)
+                 vOffset -= 1;
+             const auto outerAdjust = isPopupButton ? 1 : 4;
+@@ -3951,7 +3958,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
+                 NSPopUpArrowPosition oldPosition = NSPopUpArrowAtCenter;
+                 NSPopUpButtonCell *pbCell = nil;
+                 auto rAdjusted = r;
+-                if (isPopupButton && tp == QStyleOptionTab::OnlyOneTab) {
++                if (isPopupButton && (tp == QStyleOptionTab::OnlyOneTab || isBigSurOrAbove)) {
++                    // Note: starting from macOS BigSur NSPopupButton has this
++                    // arrow 'button' in a different place and it became
++                    // quite visible 'in between' inactive tabs.
+                     pbCell = static_cast<NSPopUpButtonCell *>(pb.cell);
+                     oldPosition = pbCell.arrowPosition;
+                     pbCell.arrowPosition = NSPopUpNoArrow;
+@@ -3959,6 +3969,12 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
+                         // NSPopUpButton in this state is smaller.
+                         rAdjusted.origin.x -= 3;
+                         rAdjusted.size.width += 6;
++                        if (isBigSurOrAbove) {
++                            rAdjusted.origin.y -= 1;
++                            rAdjusted.size.height += 1;
++                            if (tp == QStyleOptionTab::End)
++                                rAdjusted.origin.x -= 2;
++                        }
+                     }
+                 }
+ 
+-- 
+2.31.1
+

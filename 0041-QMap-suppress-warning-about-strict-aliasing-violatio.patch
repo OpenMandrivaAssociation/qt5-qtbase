@@ -1,0 +1,54 @@
+From 6e60921290892ac0fcf625c5025845eb0334880e Mon Sep 17 00:00:00 2001
+From: Thiago Macieira <thiago.macieira@intel.com>
+Date: Wed, 4 Nov 2020 20:01:55 -0800
+Subject: [PATCH 041/171] QMap: suppress warning about strict aliasing
+ violation in end()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In:
+    Node *end() { return reinterpret_cast<Node *>(&header); }
+
+GCC 10.2 correctly warns that, if you dereferenced this type-punned
+pointer (which is of type QMapNodeBase), you'd be violating strict-
+aliasing, as there is no object of type QMapNode<Key, T> there. But no
+one is supposed to dereference this pointer, it's only used as a
+sentinel. So simply suppress the warning.
+
+ qmap.h: In instantiation of ‘QMapData<Key, T>::Node* QMapData<Key, T>::end() [with Key = QString; T = QString; QMapData<Key, T>::Node = QMapNode<QString, QString>]’:
+ qmap.h:921:31:   required from ‘int QMap<K, V>::remove(const Key&) [with Key = QString; T = QString]’
+ qmap.h:215:52: error: dereferencing type-punned pointer might break strict-aliasing rules [-Werror=strict-aliasing]
+
+-Wstrict-aliasing (level 3) is part of -Wall. I believe this warning
+happens with level 2 ("Aggressive, quick, not too precise"), which makes
+GCC less accurate, but it's an easy fix.
+
+Doesn't apply to Qt 6 since there QMap was rewritten on top of std::map.
+
+Fixes: QTBUG-88185
+Change-Id: I7b9b97ae9b32412abdc6fffd164480bcb515acf5
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+---
+ src/corelib/tools/qmap.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/corelib/tools/qmap.h b/src/corelib/tools/qmap.h
+index 0c69d13295..d72f5e574b 100644
+--- a/src/corelib/tools/qmap.h
++++ b/src/corelib/tools/qmap.h
+@@ -208,8 +208,11 @@ struct QMapData : public QMapDataBase
+ 
+     // using reinterpret_cast because QMapDataBase::header is not
+     // actually a QMapNode.
++QT_WARNING_PUSH
++QT_WARNING_DISABLE_GCC("-Wstrict-aliasing")
+     const Node *end() const { return reinterpret_cast<const Node *>(&header); }
+     Node *end() { return reinterpret_cast<Node *>(&header); }
++QT_WARNING_POP
+     const Node *begin() const { if (root()) return static_cast<const Node*>(mostLeftNode); return end(); }
+     Node *begin() { if (root()) return static_cast<Node*>(mostLeftNode); return end(); }
+ 
+-- 
+2.31.1
+

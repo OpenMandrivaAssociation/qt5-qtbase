@@ -1,0 +1,29 @@
+From d5d58ef83a52bf649967dd6f391f5c1427e02806 Mon Sep 17 00:00:00 2001
+From: Kai Koehne <kai.koehne@qt.io>
+Date: Tue, 24 Nov 2020 16:58:35 +0100
+Subject: [PATCH 106/171] Doc: Consistently use book style capitalization for
+ QString
+
+Change-Id: I2ab64fe58ad737b23f0829ed91591efaa0c22c6f
+Reviewed-by: Paul Wicking <paul.wicking@qt.io>
+(cherry picked from commit efa05e04176067a2e5b4d133943d854c9c08bbe7)
+---
+ src/corelib/text/qstring.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/text/qstring.cpp b/src/corelib/text/qstring.cpp
+index f119fb920f..5715804444 100644
+--- a/src/corelib/text/qstring.cpp
++++ b/src/corelib/text/qstring.cpp
+@@ -1769,7 +1769,7 @@ const QString::Null QString::null = { };
+     and the \c{'+'} will automatically be performed as the
+     \c{QStringBuilder} \c{'%'} everywhere.
+ 
+-    \section1 Maximum size and out-of-memory conditions
++    \section1 Maximum Size and Out-of-memory Conditions
+ 
+     The current version of QString is limited to just under 2 GB (2^31 bytes)
+     in size. The exact value is architecture-dependent, since it depends on the
+-- 
+2.31.1
+

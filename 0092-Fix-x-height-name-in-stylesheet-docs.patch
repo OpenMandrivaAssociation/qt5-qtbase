@@ -1,0 +1,34 @@
+From 7d0d7da9b709f7cbf1f1f608723b73e9fcd558e4 Mon Sep 17 00:00:00 2001
+From: Florian Bruhin <me@the-compiler.org>
+Date: Thu, 12 Nov 2020 11:10:12 +0100
+Subject: [PATCH 092/171] Fix x-height name in stylesheet docs
+
+The *height* of an x being called "ex width" makes no sense.
+
+Also, it seems like this measurement is typically called "x-height"
+rather than "ex height", see e.g. https://en.wikipedia.org/wiki/X-height
+
+Change-Id: Id8e2c1aa9be1a4a60e667a076486777d34f1e76d
+Reviewed-by: Paul Wicking <paul.wicking@qt.io>
+(cherry picked from commit befa3729db0d1010694bd1bb4cbadd36ff5c49fb)
+Reviewed-by: Fabian Kosmale <fabian.kosmale@qt.io>
+---
+ src/widgets/doc/src/widgets-and-layouts/stylesheet.qdoc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/doc/src/widgets-and-layouts/stylesheet.qdoc b/src/widgets/doc/src/widgets-and-layouts/stylesheet.qdoc
+index be0a23f79c..3319b032cc 100644
+--- a/src/widgets/doc/src/widgets-and-layouts/stylesheet.qdoc
++++ b/src/widgets/doc/src/widgets-and-layouts/stylesheet.qdoc
+@@ -3018,7 +3018,7 @@
+            \li \c px: pixels
+            \li \c pt: the size of one point (i.e., 1/72 of an inch)
+            \li \c em: the em width of the font (i.e., the width of 'M')
+-           \li \c ex: the ex width of the font (i.e., the height of 'x')
++           \li \c ex: the x-height of the font (i.e., the height of 'x')
+            \endlist
+ 
+            However, Qt is limited to font sizes in \c pt and \c px and any other
+-- 
+2.31.1
+

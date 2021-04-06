@@ -1,0 +1,419 @@
+From 720304f70315dcf051c2eba6f48ddf1329419547 Mon Sep 17 00:00:00 2001
+From: Sona Kurazyan <sona.kurazyan@qt.io>
+Date: Wed, 18 Nov 2020 15:00:32 +0100
+Subject: [PATCH 088/171] Be more consistent when converting JSON values from
+ variant
+
+When converting from numeric QVariant types to QJsonValue, we always
+convert to double. However, when converting from QVariantMap or
+QVariantList, we convert to qint64, which may result to negative number
+in the corner cases. Fixed to always cast to double, which matches with
+the pre-5.15.0 behavior. Note, that in Qt 6 QJsonValue got native
+support for integers, and we consistently fallback to double only if the
+value is outside the range of qint64, so this fix applies only to 5.15.
+
+[ChangeLog][Important Behavior Changes] Restored pre-5.15.0 behavior
+when converting from numeric QVariant values to QJson* types. Such
+values now always convert to a double QJsonValue.
+
+Fixes: QTBUG-88168
+Change-Id: I584a35aa6ffade22a1c83fcda5598ed912f53919
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+---
+ src/corelib/serialization/qcborarray.h        |   1 +
+ src/corelib/serialization/qcbormap.h          |   1 +
+ src/corelib/serialization/qcborvalue_p.h      |   7 +
+ src/corelib/serialization/qjsoncbor.cpp       | 211 ++++++++++--------
+ src/corelib/serialization/qjsonvalue.cpp      |   7 +-
+ .../corelib/serialization/json/tst_qtjson.cpp |  12 +
+ 6 files changed, 139 insertions(+), 100 deletions(-)
+
+diff --git a/src/corelib/serialization/qcborarray.h b/src/corelib/serialization/qcborarray.h
+index ac4897a39a..0724694f2b 100644
+--- a/src/corelib/serialization/qcborarray.h
++++ b/src/corelib/serialization/qcborarray.h
+@@ -276,6 +276,7 @@ private:
+     friend QCborValue;
+     friend QCborValueRef;
+     friend class QJsonPrivate::Variant;
++    friend class QCborContainerPrivate;
+     explicit QCborArray(QCborContainerPrivate &dd) noexcept;
+     QExplicitlySharedDataPointer<QCborContainerPrivate> d;
+ };
+diff --git a/src/corelib/serialization/qcbormap.h b/src/corelib/serialization/qcbormap.h
+index d27ca45e5f..6f89b836dd 100644
+--- a/src/corelib/serialization/qcbormap.h
++++ b/src/corelib/serialization/qcbormap.h
+@@ -330,6 +330,7 @@ private:
+     friend class QCborValue;
+     friend class QCborValueRef;
+     friend class QJsonPrivate::Variant;
++    friend class QCborContainerPrivate;
+     void detach(qsizetype reserve = 0);
+ 
+     explicit QCborMap(QCborContainerPrivate &dd) noexcept;
+diff --git a/src/corelib/serialization/qcborvalue_p.h b/src/corelib/serialization/qcborvalue_p.h
+index 041a20e746..66d5799290 100644
+--- a/src/corelib/serialization/qcborvalue_p.h
++++ b/src/corelib/serialization/qcborvalue_p.h
+@@ -128,6 +128,7 @@ class QCborContainerPrivate : public QSharedData
+ 
+ public:
+     enum ContainerDisposition { CopyContainer, MoveContainer };
++    enum class ConversionMode { FromRaw, FromVariantToJson };
+ 
+     QByteArray::size_type usedData = 0;
+     QByteArray data;
+@@ -139,6 +140,12 @@ public:
+     static QCborContainerPrivate *detach(QCborContainerPrivate *d, qsizetype reserved);
+     static QCborContainerPrivate *grow(QCborContainerPrivate *d, qsizetype index);
+ 
++    static QCborMap fromVariantMap(const QVariantMap &map,
++                                   ConversionMode mode = ConversionMode::FromRaw);
++
++    static QCborArray fromVariantList(const QVariantList &list,
++                                      ConversionMode mode = ConversionMode::FromRaw);
++
+     qptrdiff addByteData(const char *block, qsizetype len)
+     {
+         // This function does not do overflow checking, since the len parameter
+diff --git a/src/corelib/serialization/qjsoncbor.cpp b/src/corelib/serialization/qjsoncbor.cpp
+index 2ae02cd239..285ae6a8ec 100644
+--- a/src/corelib/serialization/qjsoncbor.cpp
++++ b/src/corelib/serialization/qjsoncbor.cpp
+@@ -54,8 +54,7 @@
+ QT_BEGIN_NAMESPACE
+ 
+ using namespace QtCbor;
+-
+-enum class ConversionMode { FromRaw, FromVariantToJson };
++using ConversionMode = QCborContainerPrivate::ConversionMode;
+ 
+ static QJsonValue fpToJson(double v)
+ {
+@@ -450,7 +449,8 @@ QJsonArray QCborArray::toJsonArray() const
+ 
+ QJsonArray QJsonPrivate::Variant::toJsonArray(const QVariantList &list)
+ {
+-    const auto cborArray = QCborArray::fromVariantList(list);
++    const auto cborArray =
++            QCborContainerPrivate::fromVariantList(list, ConversionMode::FromVariantToJson);
+     return convertToJsonArray(cborArray.d.data(), ConversionMode::FromVariantToJson);
+ }
+ 
+@@ -498,7 +498,8 @@ QJsonObject QCborMap::toJsonObject() const
+ 
+ QJsonObject QJsonPrivate::Variant::toJsonObject(const QVariantMap &map)
+ {
+-    const auto cborMap = QCborMap::fromVariantMap(map);
++    const auto cborMap =
++            QCborContainerPrivate::fromVariantMap(map, ConversionMode::FromVariantToJson);
+     return convertToJsonObject(cborMap.d.data(), ConversionMode::FromVariantToJson);
+ }
+ 
+@@ -661,77 +662,8 @@ QCborValue QCborValue::fromJsonValue(const QJsonValue &v)
+     return QCborValue();
+ }
+ 
+-static void appendVariant(QCborContainerPrivate *d, const QVariant &variant)
+-{
+-    // Handle strings and byte arrays directly, to avoid creating a temporary
+-    // dummy container to hold their data.
+-    int type = variant.userType();
+-    if (type == QMetaType::QString) {
+-        d->append(variant.toString());
+-    } else if (type == QMetaType::QByteArray) {
+-        QByteArray ba = variant.toByteArray();
+-        d->appendByteData(ba.constData(), ba.size(), QCborValue::ByteArray);
+-    } else {
+-        // For everything else, use the function below.
+-        d->append(QCborValue::fromVariant(variant));
+-    }
+-}
+-
+-/*!
+-    Converts the QVariant \a variant into QCborValue and returns it.
+-
+-    QVariants may contain a large list of different meta types, many of which
+-    have no corresponding representation in CBOR. That includes all
+-    user-defined meta types. When preparing transmission using CBOR, it is
+-    suggested to encode carefully each value to prevent loss of representation.
+-
+-    The following table lists the conversion this function will apply:
+-
+-    \table
+-      \header \li Qt (C++) type             \li CBOR type
+-      \row  \li invalid (QVariant())        \li Undefined
+-      \row  \li \c bool                     \li Bool
+-      \row  \li \c std::nullptr_t           \li Null
+-      \row  \li \c short, \c ushort, \c int, \c uint, \l qint64  \li Integer
+-      \row  \li \l quint64                  \li Integer, but they are cast to \c qint64 first so
+-                                                values higher than 2\sup{63}-1 (\c INT64_MAX) will
+-                                                be wrapped to negative
+-      \row  \li \c float, \c double         \li Double
+-      \row  \li \l QByteArray               \li ByteArray
+-      \row  \li \l QDateTime                \li DateTime
+-      \row  \li \l QCborSimpleType          \li Simple type
+-      \row  \li \l QJsonArray               \li Array, converted using QCborArray::formJsonArray()
+-      \row  \li \l QJsonDocument            \li Array or Map
+-      \row  \li \l QJsonObject              \li Map, converted using QCborMap::fromJsonObject()
+-      \row  \li \l QJsonValue               \li converted using fromJsonValue()
+-      \row  \li \l QRegularExpression       \li RegularExpression
+-      \row  \li \l QString                  \li String
+-      \row  \li \l QStringList              \li Array
+-      \row  \li \l QVariantHash             \li Map
+-      \row  \li \l QVariantList             \li Array
+-      \row  \li \l QVariantMap              \li Map
+-      \row  \li \l QUrl                     \li Url
+-      \row  \li \l QUuid                    \li Uuid
+-    \endtable
+-
+-    If QVariant::isNull() returns true, a null QCborValue is returned or
+-    inserted into the list or object, regardless of the type carried by
+-    QVariant. Note the behavior change in Qt 6.0 affecting QVariant::isNull()
+-    also affects this function.
+-
+-    For other types not listed above, a conversion to string will be attempted,
+-    usually but not always by calling QVariant::toString(). If the conversion
+-    fails the value is replaced by an Undefined CBOR value. Note that
+-    QVariant::toString() is also lossy for the majority of types.
+-
+-    Please note that the conversions via QVariant::toString() are subject to
+-    change at any time. Both QVariant and QCborValue may be extended in the
+-    future to support more types, which will result in a change in how this
+-    function performs conversions.
+-
+-    \sa toVariant(), fromJsonValue(), QCborArray::toVariantList(), QCborMap::toVariantMap(), QJsonValue::fromVariant()
+- */
+-QCborValue QCborValue::fromVariant(const QVariant &variant)
++static QCborValue fromVariantImpl(const QVariant &variant,
++                                  ConversionMode mode = ConversionMode::FromRaw)
+ {
+     switch (variant.userType()) {
+     case QMetaType::UnknownType:
+@@ -744,9 +676,12 @@ QCborValue QCborValue::fromVariant(const QVariant &variant)
+     case QMetaType::UShort:
+     case QMetaType::Int:
+     case QMetaType::LongLong:
+-    case QMetaType::ULongLong:
+     case QMetaType::UInt:
+         return variant.toLongLong();
++    case QMetaType::ULongLong:
++        if (mode != ConversionMode::FromVariantToJson )
++            return variant.toLongLong();
++        Q_FALLTHROUGH();
+     case QMetaType::Float:
+     case QMetaType::Double:
+         return variant.toDouble();
+@@ -765,9 +700,9 @@ QCborValue QCborValue::fromVariant(const QVariant &variant)
+     case QMetaType::QUuid:
+         return QCborValue(variant.toUuid());
+     case QMetaType::QVariantList:
+-        return QCborArray::fromVariantList(variant.toList());
++        return QCborContainerPrivate::fromVariantList(variant.toList(), mode);
+     case QMetaType::QVariantMap:
+-        return QCborMap::fromVariantMap(variant.toMap());
++        return QCborContainerPrivate::fromVariantMap(variant.toMap(), mode);
+     case QMetaType::QVariantHash:
+         return QCborMap::fromVariantHash(variant.toHash());
+ #ifndef QT_BOOTSTRAPPED
+@@ -776,7 +711,7 @@ QCborValue QCborValue::fromVariant(const QVariant &variant)
+         return QCborValue(variant.toRegularExpression());
+ #endif
+     case QMetaType::QJsonValue:
+-        return fromJsonValue(variant.toJsonValue());
++        return QCborValue::fromJsonValue(variant.toJsonValue());
+     case QMetaType::QJsonObject:
+         return QCborMap::fromJsonObject(variant.toJsonObject());
+     case QMetaType::QJsonArray:
+@@ -809,6 +744,106 @@ QCborValue QCborValue::fromVariant(const QVariant &variant)
+     return string;
+ }
+ 
++static void appendVariant(QCborContainerPrivate *d, const QVariant &variant,
++                          ConversionMode mode = ConversionMode::FromRaw)
++{
++    // Handle strings and byte arrays directly, to avoid creating a temporary
++    // dummy container to hold their data.
++    int type = variant.userType();
++    if (type == QMetaType::QString) {
++        d->append(variant.toString());
++    } else if (type == QMetaType::QByteArray) {
++        QByteArray ba = variant.toByteArray();
++        d->appendByteData(ba.constData(), ba.size(), QCborValue::ByteArray);
++    } else {
++        // For everything else, use the function below.
++        d->append(fromVariantImpl(variant, mode));
++    }
++}
++
++QCborMap QCborContainerPrivate::fromVariantMap(const QVariantMap &map, ConversionMode mode)
++{
++    QCborMap m;
++    m.detach(map.size());
++    QCborContainerPrivate *d = m.d.data();
++
++    auto it = map.begin();
++    auto end = map.end();
++    for ( ; it != end; ++it) {
++        d->append(it.key());
++        appendVariant(d, it.value(), mode);
++    }
++    return m;
++}
++
++QCborArray QCborContainerPrivate::fromVariantList(const QVariantList &list, ConversionMode mode)
++{
++    QCborArray a;
++    a.detach(list.size());
++    for (const QVariant &v : list)
++        appendVariant(a.d.data(), v, mode);
++    return a;
++}
++
++/*!
++    Converts the QVariant \a variant into QCborValue and returns it.
++
++    QVariants may contain a large list of different meta types, many of which
++    have no corresponding representation in CBOR. That includes all
++    user-defined meta types. When preparing transmission using CBOR, it is
++    suggested to encode carefully each value to prevent loss of representation.
++
++    The following table lists the conversion this function will apply:
++
++    \table
++      \header \li Qt (C++) type             \li CBOR type
++      \row  \li invalid (QVariant())        \li Undefined
++      \row  \li \c bool                     \li Bool
++      \row  \li \c std::nullptr_t           \li Null
++      \row  \li \c short, \c ushort, \c int, \c uint, \l qint64  \li Integer
++      \row  \li \l quint64                  \li Integer, but they are cast to \c qint64 first so
++                                                values higher than 2\sup{63}-1 (\c INT64_MAX) will
++                                                be wrapped to negative
++      \row  \li \c float, \c double         \li Double
++      \row  \li \l QByteArray               \li ByteArray
++      \row  \li \l QDateTime                \li DateTime
++      \row  \li \l QCborSimpleType          \li Simple type
++      \row  \li \l QJsonArray               \li Array, converted using QCborArray::formJsonArray()
++      \row  \li \l QJsonDocument            \li Array or Map
++      \row  \li \l QJsonObject              \li Map, converted using QCborMap::fromJsonObject()
++      \row  \li \l QJsonValue               \li converted using fromJsonValue()
++      \row  \li \l QRegularExpression       \li RegularExpression
++      \row  \li \l QString                  \li String
++      \row  \li \l QStringList              \li Array
++      \row  \li \l QVariantHash             \li Map
++      \row  \li \l QVariantList             \li Array
++      \row  \li \l QVariantMap              \li Map
++      \row  \li \l QUrl                     \li Url
++      \row  \li \l QUuid                    \li Uuid
++    \endtable
++
++    If QVariant::isNull() returns true, a null QCborValue is returned or
++    inserted into the list or object, regardless of the type carried by
++    QVariant. Note the behavior change in Qt 6.0 affecting QVariant::isNull()
++    also affects this function.
++
++    For other types not listed above, a conversion to string will be attempted,
++    usually but not always by calling QVariant::toString(). If the conversion
++    fails the value is replaced by an Undefined CBOR value. Note that
++    QVariant::toString() is also lossy for the majority of types.
++
++    Please note that the conversions via QVariant::toString() are subject to
++    change at any time. Both QVariant and QCborValue may be extended in the
++    future to support more types, which will result in a change in how this
++    function performs conversions.
++
++    \sa toVariant(), fromJsonValue(), QCborArray::toVariantList(), QCborMap::toVariantMap(), QJsonValue::fromVariant()
++ */
++QCborValue QCborValue::fromVariant(const QVariant &variant)
++{
++    return fromVariantImpl(variant);
++}
++
+ /*!
+     Recursively converts each \l QCborValue in this array using
+     QCborValue::toVariant() and returns the QVariantList composed of the
+@@ -854,11 +889,7 @@ QCborArray QCborArray::fromStringList(const QStringList &list)
+  */
+ QCborArray QCborArray::fromVariantList(const QVariantList &list)
+ {
+-    QCborArray a;
+-    a.detach(list.size());
+-    for (const QVariant &v : list)
+-        appendVariant(a.d.data(), v);
+-    return a;
++    return QCborContainerPrivate::fromVariantList(list);
+ }
+ 
+ /*!
+@@ -939,17 +970,7 @@ QVariantHash QCborMap::toVariantHash() const
+  */
+ QCborMap QCborMap::fromVariantMap(const QVariantMap &map)
+ {
+-    QCborMap m;
+-    m.detach(map.size());
+-    QCborContainerPrivate *d = m.d.data();
+-
+-    auto it = map.begin();
+-    auto end = map.end();
+-    for ( ; it != end; ++it) {
+-        d->append(it.key());
+-        appendVariant(d, it.value());
+-    }
+-    return m;
++    return QCborContainerPrivate::fromVariantMap(map);
+ }
+ 
+ /*!
+diff --git a/src/corelib/serialization/qjsonvalue.cpp b/src/corelib/serialization/qjsonvalue.cpp
+index 27a2f0e227..29c29184c1 100644
+--- a/src/corelib/serialization/qjsonvalue.cpp
++++ b/src/corelib/serialization/qjsonvalue.cpp
+@@ -449,11 +449,8 @@ void QJsonValue::swap(QJsonValue &other) noexcept
+     also affects this function.
+ 
+     A floating point value that is either an infinity or NaN will be converted
+-    to a null JSON value. Since Qt 6.0, QJsonValue can store the full precision
+-    of any 64-bit signed integer without loss, but in previous versions values
+-    outside the range of ±2^53 may lose precision. Unsigned 64-bit values
+-    greater than or equal to 2^63 will either lose precision or alias to
+-    negative values, so QMetaType::ULongLong should be avoided.
++    to a null JSON value. The values outside the range of ±2^53 may lose precision,
++    because they are converted to a double QJsonValue.
+ 
+     For other types not listed above, a conversion to string will be attempted,
+     usually but not always by calling QVariant::toString(). If the conversion
+diff --git a/tests/auto/corelib/serialization/json/tst_qtjson.cpp b/tests/auto/corelib/serialization/json/tst_qtjson.cpp
+index ecbdb0ab22..a03eca7234 100644
+--- a/tests/auto/corelib/serialization/json/tst_qtjson.cpp
++++ b/tests/auto/corelib/serialization/json/tst_qtjson.cpp
+@@ -33,6 +33,7 @@
+ #include "qjsonvalue.h"
+ #include "qjsondocument.h"
+ #include "qregularexpression.h"
++#include "private/qnumeric_p.h"
+ #include <limits>
+ 
+ #define INVALID_UNICODE "\xCE\xBA\xE1"
+@@ -3584,6 +3585,17 @@ void tst_QtJson::fromToVariantConversions_data()
+                               << QVariant::fromValue(nullptr);
+     QTest::newRow("NaN")      << QVariant(qQNaN()) << QJsonValue(QJsonValue::Null)
+                               << QVariant::fromValue(nullptr);
++
++    const qulonglong ulongValue = (1ul << 63) + 1;
++    const double uLongToDouble = ulongValue;
++    qint64 n;
++    if (convertDoubleTo(uLongToDouble, &n)) {
++        QTest::newRow("ulonglong") << QVariant(ulongValue) << QJsonValue(uLongToDouble)
++                                   << QVariant(n);
++    } else {
++        QTest::newRow("ulonglong") << QVariant(ulongValue) << QJsonValue(uLongToDouble)
++                                   << QVariant(uLongToDouble);
++    }
+ }
+ 
+ void tst_QtJson::fromToVariantConversions()
+-- 
+2.31.1
+

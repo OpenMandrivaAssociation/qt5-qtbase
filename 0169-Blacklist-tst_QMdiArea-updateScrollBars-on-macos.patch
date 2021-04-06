@@ -1,0 +1,28 @@
+From ffa0ecdc5d507754ddd962e2edbc859c198b2700 Mon Sep 17 00:00:00 2001
+From: Ivan Solovev <ivan.solovev@qt.io>
+Date: Wed, 16 Dec 2020 18:47:43 +0100
+Subject: [PATCH 169/171] Blacklist tst_QMdiArea::updateScrollBars on macos
+
+Task-number: QTBUG-41343
+Change-Id: I782ded140932ab3af52ee5ca9b743fd2a3cdb473
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Reviewed-by: Allan Sandfeld Jensen <allan.jensen@qt.io>
+(cherry picked from commit f8de5e54022b8b7471131b7ad55c83b69b2684c0)
+---
+ tests/auto/widgets/widgets/qmdiarea/BLACKLIST | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tests/auto/widgets/widgets/qmdiarea/BLACKLIST b/tests/auto/widgets/widgets/qmdiarea/BLACKLIST
+index 6010772be7..1108acd027 100644
+--- a/tests/auto/widgets/widgets/qmdiarea/BLACKLIST
++++ b/tests/auto/widgets/widgets/qmdiarea/BLACKLIST
+@@ -11,3 +11,6 @@ opensuse-42.3
+ [resizeTimer]
+ macos
+ 
++[updateScrollBars]
++macos
++
+-- 
+2.31.1
+

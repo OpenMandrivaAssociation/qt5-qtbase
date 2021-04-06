@@ -1,0 +1,34 @@
+From bf22d9092a1edf8e3879b40f5018baeedd8bb596 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?M=C3=A5rten=20Nordheim?= <marten.nordheim@qt.io>
+Date: Mon, 7 Dec 2020 18:23:34 +0100
+Subject: [PATCH 158/171] Http2: set the reply's error code and string on error
+
+If the error occurs during the call to
+QHttpNetworkConnectionPrivate::queueRequest coming from the http thread
+delegate then we will not yet have connected to the signal! But the http
+thread delegate checks if the error code is not NoError, and handles
+those situations. To let that work we must update the replies.
+
+Change-Id: I47188e9439920694aaad1765ab28add1e86ccdff
+Reviewed-by: Timur Pocheptsov <timur.pocheptsov@qt.io>
+(cherry picked from commit b4d7908d5a623bd0024d290eee6e2226a627542d)
+---
+ src/network/access/qhttpnetworkconnectionchannel.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/network/access/qhttpnetworkconnectionchannel.cpp b/src/network/access/qhttpnetworkconnectionchannel.cpp
+index fe50d1500a..f1db274402 100644
+--- a/src/network/access/qhttpnetworkconnectionchannel.cpp
++++ b/src/network/access/qhttpnetworkconnectionchannel.cpp
+@@ -1133,6 +1133,8 @@ void QHttpNetworkConnectionChannel::_q_error(QAbstractSocket::SocketError socket
+         for (int a = 0; a < spdyPairs.count(); ++a) {
+             // emit error for all replies
+             QHttpNetworkReply *currentReply = spdyPairs.at(a).second;
++            currentReply->d_func()->errorString = errorString;
++            currentReply->d_func()->httpErrorCode = errorCode;
+             Q_ASSERT(currentReply);
+             emit currentReply->finishedWithError(errorCode, errorString);
+         }
+-- 
+2.31.1
+

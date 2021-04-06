@@ -1,0 +1,120 @@
+From ab36b713de3f2ad619365e863ec3f5be5f487051 Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Fri, 25 Sep 2020 10:17:09 +0200
+Subject: [PATCH 140/171] Improve documented function argument names
+
+Make them less \a fun.
+
+Change-Id: Ief9a572dcbeb029b18b352c89551963bade90198
+Reviewed-by: Paul Wicking <paul.wicking@qt.io>
+(cherry picked from commit 47923f7d4766a3b8943d292798b5b7e8792e598c)
+Reviewed-by: Friedemann Kleint <Friedemann.Kleint@qt.io>
+---
+ src/gui/painting/qcolorspace.cpp | 20 ++++++++++----------
+ src/gui/painting/qcolorspace.h   |  4 ++--
+ src/gui/painting/qcolorspace_p.h |  4 ++--
+ 3 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/src/gui/painting/qcolorspace.cpp b/src/gui/painting/qcolorspace.cpp
+index 996fa2a990..bce66ca3c5 100644
+--- a/src/gui/painting/qcolorspace.cpp
++++ b/src/gui/painting/qcolorspace.cpp
+@@ -198,9 +198,9 @@ QColorSpacePrivate::QColorSpacePrivate(QColorSpace::NamedColorSpace namedColorSp
+     initialize();
+ }
+ 
+-QColorSpacePrivate::QColorSpacePrivate(QColorSpace::Primaries primaries, QColorSpace::TransferFunction fun, float gamma)
++QColorSpacePrivate::QColorSpacePrivate(QColorSpace::Primaries primaries, QColorSpace::TransferFunction transferFunction, float gamma)
+         : primaries(primaries)
+-        , transferFunction(fun)
++        , transferFunction(transferFunction)
+         , gamma(gamma)
+ {
+     identifyColorSpace();
+@@ -208,10 +208,10 @@ QColorSpacePrivate::QColorSpacePrivate(QColorSpace::Primaries primaries, QColorS
+ }
+ 
+ QColorSpacePrivate::QColorSpacePrivate(const QColorSpacePrimaries &primaries,
+-                                       QColorSpace::TransferFunction fun,
++                                       QColorSpace::TransferFunction transferFunction,
+                                        float gamma)
+         : primaries(QColorSpace::Primaries::Custom)
+-        , transferFunction(fun)
++        , transferFunction(transferFunction)
+         , gamma(gamma)
+ {
+     Q_ASSERT(primaries.areValid());
+@@ -456,11 +456,11 @@ QColorSpace::QColorSpace(NamedColorSpace namedColorSpace)
+ }
+ 
+ /*!
+-    Creates a custom color space with the primaries \a primaries, using the transfer function \a fun and
++    Creates a custom color space with the primaries \a primaries, using the transfer function \a transferFunction and
+     optionally \a gamma.
+  */
+-QColorSpace::QColorSpace(QColorSpace::Primaries primaries, QColorSpace::TransferFunction fun, float gamma)
+-        : d_ptr(new QColorSpacePrivate(primaries, fun, gamma))
++QColorSpace::QColorSpace(QColorSpace::Primaries primaries, QColorSpace::TransferFunction transferFunction, float gamma)
++        : d_ptr(new QColorSpacePrivate(primaries, transferFunction, gamma))
+ {
+     d_ptr->ref.ref();
+ }
+@@ -477,11 +477,11 @@ QColorSpace::QColorSpace(QColorSpace::Primaries primaries, float gamma)
+ 
+ /*!
+     Creates a custom colorspace with a primaries based on the chromaticities of the primary colors \a whitePoint,
+-    \a redPoint, \a greenPoint and \a bluePoint, and using the transfer function \a fun and optionally \a gamma.
++    \a redPoint, \a greenPoint and \a bluePoint, and using the transfer function \a transferFunction and optionally \a gamma.
+  */
+ QColorSpace::QColorSpace(const QPointF &whitePoint, const QPointF &redPoint,
+                          const QPointF &greenPoint, const QPointF &bluePoint,
+-                         QColorSpace::TransferFunction fun, float gamma)
++                         QColorSpace::TransferFunction transferFunction, float gamma)
+ {
+     QColorSpacePrimaries primaries(whitePoint, redPoint, greenPoint, bluePoint);
+     if (!primaries.areValid()) {
+@@ -489,7 +489,7 @@ QColorSpace::QColorSpace(const QPointF &whitePoint, const QPointF &redPoint,
+         d_ptr = nullptr;
+         return;
+     }
+-    d_ptr = new QColorSpacePrivate(primaries, fun, gamma);
++    d_ptr = new QColorSpacePrivate(primaries, transferFunction, gamma);
+     d_ptr->ref.ref();
+ }
+ 
+diff --git a/src/gui/painting/qcolorspace.h b/src/gui/painting/qcolorspace.h
+index 08c9944301..852ade9ab7 100644
+--- a/src/gui/painting/qcolorspace.h
++++ b/src/gui/painting/qcolorspace.h
+@@ -82,11 +82,11 @@ public:
+ 
+     QColorSpace();
+     QColorSpace(NamedColorSpace namedColorSpace);
+-    QColorSpace(Primaries primaries, TransferFunction fun, float gamma = 0.0f);
++    QColorSpace(Primaries primaries, TransferFunction transferFunction, float gamma = 0.0f);
+     QColorSpace(Primaries primaries, float gamma);
+     QColorSpace(const QPointF &whitePoint, const QPointF &redPoint,
+                 const QPointF &greenPoint, const QPointF &bluePoint,
+-                TransferFunction fun, float gamma = 0.0f);
++                TransferFunction transferFunction, float gamma = 0.0f);
+     ~QColorSpace();
+ 
+     QColorSpace(const QColorSpace &colorSpace);
+diff --git a/src/gui/painting/qcolorspace_p.h b/src/gui/painting/qcolorspace_p.h
+index e7add19ed3..094fdb0d37 100644
+--- a/src/gui/painting/qcolorspace_p.h
++++ b/src/gui/painting/qcolorspace_p.h
+@@ -91,8 +91,8 @@ class QColorSpacePrivate : public QSharedData
+ public:
+     QColorSpacePrivate();
+     QColorSpacePrivate(QColorSpace::NamedColorSpace namedColorSpace);
+-    QColorSpacePrivate(QColorSpace::Primaries primaries, QColorSpace::TransferFunction fun, float gamma);
+-    QColorSpacePrivate(const QColorSpacePrimaries &primaries, QColorSpace::TransferFunction fun, float gamma);
++    QColorSpacePrivate(QColorSpace::Primaries primaries, QColorSpace::TransferFunction transferFunction, float gamma);
++    QColorSpacePrivate(const QColorSpacePrimaries &primaries, QColorSpace::TransferFunction transferFunction, float gamma);
+     QColorSpacePrivate(const QColorSpacePrivate &other) = default;
+ 
+     // named different from get to avoid accidental detachs
+-- 
+2.31.1
+

@@ -1,0 +1,51 @@
+From 833214ee03f2d692a2eb33bc0461ee54e3baf0a9 Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Tue, 24 Nov 2020 09:32:55 +0100
+Subject: [PATCH 105/171] Limit pen width to maximal 32767
+
+Fixes oss-fuzz 25195
+
+Change-Id: I8c68cf71f6702d8b1b1a2ddda3284c14f02d7972
+Reviewed-by: Eirik Aavitsland <eirik.aavitsland@qt.io>
+(cherry picked from commit c7a335817e909951bfd142018f855645b4a46168)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/gui/painting/qpen.cpp | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/src/gui/painting/qpen.cpp b/src/gui/painting/qpen.cpp
+index 01e581d2ed..254abf88c0 100644
+--- a/src/gui/painting/qpen.cpp
++++ b/src/gui/painting/qpen.cpp
+@@ -653,12 +653,15 @@ qreal QPen::widthF() const
+ */
+ void QPen::setWidth(int width)
+ {
+-    if (width < 0)
+-        qWarning("QPen::setWidth: Setting a pen width with a negative value is not defined");
++    if (width < 0 || width >= (1 << 15)) {
++        qWarning("QPen::setWidth: Setting a pen width that is out of range");
++        return;
++    }
+     if ((qreal)width == d->width)
+         return;
+     detach();
+     d->width = width;
++    d->defaultWidth = false;
+ }
+ 
+ /*!
+@@ -677,8 +680,8 @@ void QPen::setWidth(int width)
+ 
+ void QPen::setWidthF(qreal width)
+ {
+-    if (width < 0.f) {
+-        qWarning("QPen::setWidthF: Setting a pen width with a negative value is not defined");
++    if (width < 0.f || width >= (1 << 15)) {
++        qWarning("QPen::setWidthF: Setting a pen width that is out of range");
+         return;
+     }
+     if (qAbs(d->width - width) < 0.00000001f)
+-- 
+2.31.1
+

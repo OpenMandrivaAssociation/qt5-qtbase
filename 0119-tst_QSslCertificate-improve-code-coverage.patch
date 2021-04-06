@@ -1,0 +1,305 @@
+From 3394bcf2ea00e9e6cee39363df3d685f613783c4 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Thu, 19 Nov 2020 12:35:14 +0100
+Subject: [PATCH 119/171] tst_QSslCertificate - improve code coverage
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Some code-paths were never executed by auto-test, thus giving us LCOV's
+diagnostic. Extend existing tests and add new ones.
+
+Change-Id: I648747547f0525a482216b1e1972fcc698c73f65
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit efd20cafe5df9ac8788870a4e767d250114206a6)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ .../more-certificates/aspiriniks.ca.crt       | 22 ++++++
+ .../more-certificates/cert-cn.pem             | 32 +++++++++
+ .../more-certificates/cert-noname.pem         | 32 +++++++++
+ .../more-certificates/cert-on.pem             | 31 +++++++++
+ .../more-certificates/cert-oun.pem            | 31 +++++++++
+ .../qsslcertificate/tst_qsslcertificate.cpp   | 69 ++++++++++++++++++-
+ 6 files changed, 216 insertions(+), 1 deletion(-)
+ create mode 100644 tests/auto/network/ssl/qsslcertificate/more-certificates/aspiriniks.ca.crt
+ create mode 100644 tests/auto/network/ssl/qsslcertificate/more-certificates/cert-cn.pem
+ create mode 100644 tests/auto/network/ssl/qsslcertificate/more-certificates/cert-noname.pem
+ create mode 100644 tests/auto/network/ssl/qsslcertificate/more-certificates/cert-on.pem
+ create mode 100644 tests/auto/network/ssl/qsslcertificate/more-certificates/cert-oun.pem
+
+diff --git a/tests/auto/network/ssl/qsslcertificate/more-certificates/aspiriniks.ca.crt b/tests/auto/network/ssl/qsslcertificate/more-certificates/aspiriniks.ca.crt
+new file mode 100644
+index 0000000000..36436b6248
+--- /dev/null
++++ b/tests/auto/network/ssl/qsslcertificate/more-certificates/aspiriniks.ca.crt
+@@ -0,0 +1,22 @@
++-----BEGIN CERTIFICATE-----
++MIIDnDCCAoQCCQDV3otC4hs2KTANBgkqhkiG9w0BAQUFADCBjzELMAkGA1UEBhMC
++Tk8xDTALBgNVBAgTBE9zbG8xDTALBgNVBAcTBE9zbG8xDzANBgNVBAoTBlRUIEFT
++QTEOMAwGA1UECxMFUVQgU1cxHDAaBgNVBAMTE2FzcGlyaW5pa3MudHJvbGwubm8x
++IzAhBgkqhkiG9w0BCQEWFGFiYWJpY0B0cm9sbHRlY2guY29tMB4XDTA4MTEwMTA4
++NTcyOFoXDTA5MTEwMTA4NTcyOFowgY8xCzAJBgNVBAYTAk5PMQ0wCwYDVQQIEwRP
++c2xvMQ0wCwYDVQQHEwRPc2xvMQ8wDQYDVQQKEwZUVCBBU0ExDjAMBgNVBAsTBVFU
++IFNXMRwwGgYDVQQDExNhc3BpcmluaWtzLnRyb2xsLm5vMSMwIQYJKoZIhvcNAQkB
++FhRhYmFiaWNAdHJvbGx0ZWNoLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC
++AQoCggEBAMV2bMD1DN3DMgbxU3DXw2i7EWGDXcWjTDtdHvqgIb+9nHqo3MJSrzJy
++qgEPoOsXqswMla9wDPZAsWv5gVAmVSqpy2lfEgfY7LaSHiGD75seF7zIy+CxREHW
++DofHXpJGGJpBCZEKQt2HfHu3+yAYNPucN78tWNZAcPbUg5tfxMZeepRimAZNIxBI
++93SDrl/f9Ka7hvPSzUQsnp8hfdpHlFPFznKfD6yPrjxgz2mT9efavJ4DhtyIa4m+
++paiX515CidDz4A8CFxKZbYvuqq1ilibF/si2so9VhALC77ZcAJP1IMuT8T+WUCxq
++skJqiSCncl0Hgr+ba8MDGF9UQYowgjMCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEA
++KcJuNUHvjB8ok3cnTmQEeF0LPPkgj28Tqb5TFB8xpVfRI+wvTYsHsmGdOKCgYJ3a
++7VflIsr63ojG8/rXK8H/cx2o2f2Hr3liJdi1UnoLDDRjBqGGz7JNuMreYokPvIbm
++eP01mVyK4PO2iYRwHUIAw5eeB1vMWKX2z95MupD+HRLtmGyaLALg8aQxj5N84Ewl
++eU2PQfhv8A1wj7aL17kfEUxDerQ1kUzlThJMV1J8Dl0l4C9N8evQkelROJU00i46
++oJikA8BW6EpgbnGyNyyj5Loy4wLPKew9nTS8MCJ5xPMQc0urbY/VzuOeUK7WQof7
++xOFSsRAVyQv+yqgmcZMCtg==
++-----END CERTIFICATE-----
+diff --git a/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-cn.pem b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-cn.pem
+new file mode 100644
+index 0000000000..fc77399f8c
+--- /dev/null
++++ b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-cn.pem
+@@ -0,0 +1,32 @@
++-----BEGIN CERTIFICATE-----
++MIIFfTCCA2WgAwIBAgIUEciqqaXfpL5/Ytf0D64oDHQQ2fIwDQYJKoZIhvcNAQEL
++BQAwTTELMAkGA1UEBhMCTk8xDTALBgNVBAgMBE9zbG8xDTALBgNVBAcMBE9zbG8x
++DDAKBgNVBAsMA1ImRDESMBAGA1UEAwwJWU9VUiBuYW1lMCAXDTIwMTExOTEzMzEw
++NVoYDzIxMjAxMDI2MTMzMTA1WjBNMQswCQYDVQQGEwJOTzENMAsGA1UECAwET3Ns
++bzENMAsGA1UEBwwET3NsbzEMMAoGA1UECwwDUiZEMRIwEAYDVQQDDAlZT1VSIG5h
++bWUwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDCZmoIs4mApLPRw+gI
++DxOkTyT/Zyma2LILF26vxOrqE5ygwcJYVWg8HTSlCuJ8Gc22UofuNYvtKLcv8xpz
++/mzhOAvsmL9Q7vPlMshUxz0ITPCD/0R4Z95U9vw4/ytzUvf2sz1tgqc08QAS+TyJ
++wzljHyN8a+M7yZK71OF+Qto9bFgdA0nWC2AcoHcRhL1UJUSVAl8Ifi7n/lnPIMqr
++bvmFfn4wkE+EDO3QnkBNMI5fsvPrfC8TV1D/zGQUZGp/AjqzVZtAonjzE1qVu5IX
++ye3Kl9VTsbM0Ms7HnNk7c0ysXnneoIyLl+Gd4EaogFPKjysOidzA2aZIx/aEtPAU
++RzL5yxZaVuXEqsqkAcyt2EAhh225ybQPNhi9hy9cFKDpjmngv1UppfAk0FMgmNbr
++/GCO4I1J8Bt4/54WhSQuvK8WIo1OcALifOuTalzhmX/ndyoT79SwTZShNasQYEl7
++i9EjKCx0tOWG3yO1I6cyeycQcTCJCmFa3/SdnYuooZ6enlvwHP1cTeNdu2d40hxu
++mtlhd7n21FWFHnoMUyBw6ZsWnicY/Nne2a7wCivF7uEjmzFkjNDDoK7xaFz9G2bn
++IkdI3R7kNPA4Z+iJKguu6xD63ZOjlB7hRQHhtYxvKhsNNQv90a+eh5EPE8aacGwr
++1P04f40Ap/41lAuL/7dS41jGkwIDAQABo1MwUTAdBgNVHQ4EFgQUU0ZlIZM8B5kb
++butAVOJkN0VSTB0wHwYDVR0jBBgwFoAUU0ZlIZM8B5kbbutAVOJkN0VSTB0wDwYD
++VR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAgEAE7SoFANxr/JsSE2NhxBE
++yXyLo2Tqv1izBMWXk1HSQJr6Vhoi1g0r3yexIbLbWNelgh7V+oicjHmlqmwi0t+c
++7wyhNTc7HUHWQRGO8y//4GSSgGbjNTt5FY7wo+X3QwbH5mGUwRPqfGm/H+f1vRCZ
++Gc2e6YSrDtVwuCT4IwoJQEC/6bFDPlkXBDvlKp7pC67arr/LwXdTv8MGkZjYIKgy
++PlbAGiWmpSgmUrU9Q/DnQRlvi2DYOE5fTENrDhXGG0La8h3lTqqm7X0fwY73ZoaG
++VO0WXoYZmY8t+UuD39gYHR6kOzZN48D4G41HEBP01c6MQU6ocgkxFwI5IyBR3nwf
++UEMpTuWTPUokDI2UzrCjigedXb8WhAOnm6IyOgBOtQrfF5xwZd0Jt5tZCszw7stE
++3bz8FVAECPZ3LB2lWidwuHpcyFRvYMMoWIzzwl+BsM95rI0IyBpM3nNLwMk4Gy4Y
++uuZTSkNDO1tuUjppf6J7iIq272xlBt6xxTGvlWZEPYQyYeNWd9yZ0NXQZBwBSyo8
++Twf4TyeHDvBNnOQIlzPAnONJWDUWWFT0pJfn0cVFypA0FZ6ZPgIlLfgjNgKDyHH9
++NCtBF9luhfMY5ncX9bB+foRdyceAnM3LJCLjNEmzKC7gZ9H9yyaOVgtHyZmwecE5
++H/WJbjX6rYLrU2reHuVGf30=
++-----END CERTIFICATE-----
+diff --git a/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-noname.pem b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-noname.pem
+new file mode 100644
+index 0000000000..8c1baa97c2
+--- /dev/null
++++ b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-noname.pem
+@@ -0,0 +1,32 @@
++-----BEGIN CERTIFICATE-----
++MIIFfTCCA2WgAwIBAgIUDI7wlRkJ11GOMiPwMqLUHtQvzaQwDQYJKoZIhvcNAQEL
++BQAwTTELMAkGA1UEBhMCTk8xDTALBgNVBAgMBE9zbG8xDTALBgNVBAcMBE9zbG8x
++IDAeBgkqhkiG9w0BCQEWEW1pbmltaUBkcmV2aWwuY29tMCAXDTIwMTExOTEzMzQ0
++MloYDzIxMjAxMDI2MTMzNDQyWjBNMQswCQYDVQQGEwJOTzENMAsGA1UECAwET3Ns
++bzENMAsGA1UEBwwET3NsbzEgMB4GCSqGSIb3DQEJARYRbWluaW1pQGRyZXZpbC5j
++b20wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDR4hy/ySyPy6y/TTWI
++zHBbN8Lw6IiCtemmKdwzf32RKubV7iErJwCQ0QxPvqJSzVBfHYzzjlRzQ5bTWeVg
++7pcUY1W51J9bgpC95gDviOnjkDEBIocapcGGLqMVZuoghZrKDXdzA9r2TQ/bfWIR
++6mB2ZgYMUN+5xa7ytvCrz/oYEIGGGojfyK8DPsz5qnV7csnZT+5tDOjkx8dQsDrf
++Ob69WKpb6+vPAdh2zWMg+25DamXzLqmEcmAgfAJu6MhtWf787zdsXXsxOHcBOjSJ
++plRG4Di0+aV84fnJWvv1+LNmstSGpO3jnrl6bpQVyCBn6/RHcO8bt0oDZ4nJhc6n
++5x1VmmWpo11YOJgR6smrUn+OdwZVASCdeaD46X7dmgjg1BTRdIDLDFlF2V/cZRu0
++afeRyHGN0PmusMrARYaCxiXBLLSLrDhxkbT8U4yb36uxWP672aHgpStzbhIPs4HU
++/2MzZ9kHHbQVoYJEgAUhi3LyeSHFjkhSk2ZIRpQtjYLFXyngfJ//UqqCYtjY75cZ
++X3P+CG35QP1uF6ORWAxTedESX5qSQyc7YUq5H14NvcwY/hqLmjm1EvCKuPrKRD9C
++/V0GzBcB7seW0gB0h5+1xMzPhEeubqo965w3NRezUjCmSMkRZGcKGdV9zBq2XD9F
++964yS6wxNkAxi5CpcAzD+EIu7QIDAQABo1MwUTAdBgNVHQ4EFgQUB4K2uwCB1DGy
++eC5hLGQvh8rvdwEwHwYDVR0jBBgwFoAUB4K2uwCB1DGyeC5hLGQvh8rvdwEwDwYD
++VR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAgEAluDSEjAtVYepxcBt1Azi
++7V6Ux0t7AFRfHxBViBzEhCJ8po+TejgDQpWsc6i5/upaqZb5ADoytiPnwAS9X620
++/Q3Q87wXHyHtUuW89p9DCynZpGYQAhSXbLd3YHn2fn2/WeyqX9YjiZvO2AJhdEz2
++o0jM1RQZDT5I9e/bxHKxOd1gv/zBSrDh1CMCmoPcCHMWyr5lN8He8IpKnIXj6DIq
++mJxgNfM1WFraFp1Qc5V27iH69iNJuvR2bHY+772BzFkBis3jA8A55uUaP9EhU8EH
++/dnBf6RwUrtTaa7ym5rFrJNiCT/AOmCFkTHMC2KNYAJ2WsQlFo2LUfuWUKN9aN9a
++jrnXMgSlY2sWJxPpzR/Z1yNPLqxexr2axMX9LS2WoJMPPChSGERAPlaiBlj8ZE42
++JmYjxf5CxN7EgbZP8HjwueXFP2j+2eZEN08lDZJqWu8Q3OzvRSzYyE674tfL0TJX
++q9SYDK/Js04wjsYxR+py7Rz9elu5jHin+2qiVw7Z+6GlAxdrviirEPYoc87y26Va
++hpfMwrYB+7M8CrLLtwIRkZSHiHhcgw6wAGaYYCxsYjtDcjc4OLCUbYqRbI86vZ9M
++qXfM189o5TMkgamKO+TdUQSZT+7iUvhffI7Daq3+F/UKCLDSIPXvmasAP7cMKhQy
++tZkqJ5oHw1YBsGSZoL10TZs=
++-----END CERTIFICATE-----
+diff --git a/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-on.pem b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-on.pem
+new file mode 100644
+index 0000000000..c75e335ed8
+--- /dev/null
++++ b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-on.pem
+@@ -0,0 +1,31 @@
++-----BEGIN CERTIFICATE-----
++MIIFVTCCAz2gAwIBAgIUcX6P/xc82lIq8PrtHoW3JO02VL0wDQYJKoZIhvcNAQEL
++BQAwOTELMAkGA1UEBhMCTk8xDTALBgNVBAgMBE9zbG8xDTALBgNVBAcMBE9zbG8x
++DDAKBgNVBAoMA1ImRDAgFw0yMDExMTkxMjI4NDRaGA8yMTIwMTAyNjEyMjg0NFow
++OTELMAkGA1UEBhMCTk8xDTALBgNVBAgMBE9zbG8xDTALBgNVBAcMBE9zbG8xDDAK
++BgNVBAoMA1ImRDCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAOHvuJbt
++o70wSSarD6Dslu3XqONT2x6zDXODltVmX0XEgb1S4tKG9p/Ax+h2EFnoNRs0mTSM
++hZfdbwwI7XzIAhIQMWvef/3P/BQNy8DRSGSGya4DY0E2qFJHJR6ijGuQfHrhsBSV
++eIXOx7mf05pX1ra0lhqRuLQPxPioDqeNxuSdfYfP4DM6ZicFfkfk7cU+xrXTieWI
++qGx7ZBN8VMUVZq/uw4MfBiZcP+Xqp3YOVlfqhEcxTFvl8dwBb2Yblgl1ujb4YR4F
++pC/M2kPVEBTT1LLwhVWy9rRMS0Jk656q/31p7qQCp4xrv5RLfc0YR3cdwhePKQlo
++XXmtrUupbvq9z8hmFo7rqtGZ4xN1cDuaHi9ufe/l9NmGtI4qTqbFtWBMfh3+psB3
++wNMwtLXi/a2x9Ucg8atljC5kk0O5MxtLJwL0MIQpIzpbAy9ZMb4qSOeB5ZrsvILl
+++6oQcSBLqzwZ8x6f/3igWTh3H/xJRTbE5W5a47L2LCLk8HYP8hfpG24Rn3cuS2oO
++eFFePjylebTAYU4CQ2bpWxkEEs/QMv50sB526GZm47RrFLllj1sTBGWOUYf6+Kqw
++LhpO4aO9PmClKYrcrD+5N2IMUbBLQTRw2lyzQ//yKTHrAD6FMrPVrPOT2Hg6Kl+X
++/Z+a+o9nIOqi2vj2f542QqGsYlxOQNhyx0+NAgMBAAGjUzBRMB0GA1UdDgQWBBSP
++gJvZEkM5CdPIyXU/HxWD8+VRrTAfBgNVHSMEGDAWgBSPgJvZEkM5CdPIyXU/HxWD
++8+VRrTAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4ICAQDh24bPfdni
++Ao3r/KRHSeOVAdIjLpJ4pCdkWb/fQTjX/R/UCzAXGb9fZC9P83R/ySMNa+c/t1xQ
++FYFuo72DxQokWA8gc25gmibt+zCVP8ociOA//XTh2HEaq3rXmBjG6uTzxe1l1JTg
++5HFGSc345fgZrTHRs8MoPxZh842WZ4Z14vwfjoRDN75/N11Pe9muTTQbeFcESYay
++L46gRq6RDK1ZxwMY+HzBn9cVjcPgOCdedhEL5kHkSY65qnQJZkqguY+sAWcVKBH2
+++dXori9kNdv/fzr1w4swiqAtIcNauRoiQ1Gh7m3881AxQXT2pYKpl3zu268sx33i
++XIBcXoRdwBvy80Ave0Z+nihZU6R+CXJtb9xl4kfJof8cgagAkuNLRpY9OW6n8rBo
++yX9mwg7z8tKV+2AaUJl+kiRfhujLmoohouP34/LdTHXTdIh1O0Jwx36QY4ara9ER
++QsQjUmnmWJREvwzzUVsqcOOduHPEJyz5wIDFpw2KLR+8N2i6/jBs9/dWps476Ohj
++b9+y/tXKcWt+ja9MGvw0Bn8pqU8r4Kj3aYM8KzezRSEL7KKPSNFKkOZYzRYwGkXn
++O+ZIyasjjO/C4aSlpZCgWQ1B400ZlrXKmEiFJpkGBnQP/offQJKeSxlfnWwOQ4Og
++0TsWxr+VMy7uRq8ltTKbE0UvHPQqf9AmkQ==
++-----END CERTIFICATE-----
+diff --git a/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-oun.pem b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-oun.pem
+new file mode 100644
+index 0000000000..e244bf2889
+--- /dev/null
++++ b/tests/auto/network/ssl/qsslcertificate/more-certificates/cert-oun.pem
+@@ -0,0 +1,31 @@
++-----BEGIN CERTIFICATE-----
++MIIFZTCCA02gAwIBAgIUDufSooDGcwmx5dTWzw76lAH4m+EwDQYJKoZIhvcNAQEL
++BQAwQTELMAkGA1UEBhMCTk8xDTALBgNVBAgMBE9zbG8xDTALBgNVBAcMBE9zbG8x
++FDASBgNVBAsMC0ZvdW5kYXRpb25zMCAXDTIwMTExOTEzMjczM1oYDzIxMjAxMDI2
++MTMyNzMzWjBBMQswCQYDVQQGEwJOTzENMAsGA1UECAwET3NsbzENMAsGA1UEBwwE
++T3NsbzEUMBIGA1UECwwLRm91bmRhdGlvbnMwggIiMA0GCSqGSIb3DQEBAQUAA4IC
++DwAwggIKAoICAQDEtFnz4VNkh/4eX8jh/QWaJXR8lMliZ/CBqheresvlQPIVpO/i
++iDsPeY6eZazko/B0NOoM+oJ0PBGepC8AJOdHf6peo4iNXiA7odczUBUoC1ALal03
++V1KbRfATPYiDaPAUWg1nyEnb5DymLeX0lEwRitPxobYzIw00h/YpHnABj8MwyyNM
++vgk+wYrPCwVUyZwrhS+FClm12Eoff9sWJ+sqqlJZT0CQfKGbYd6h/itHcGVuCBPK
++pHgGrd2xuqK+CYrYLlyIFOWpk2ICRNGDHmNwj55+Sbj83Ryo40IkECBza9ge1axA
++qwYaVORWVSkXet6bN+d2alasJOCPkRvA88wTU+/CSQEtDiiHJMw0LOpyEZMq/0y8
++RcGHqMpTEIbkhzXh9BxyVFsOL0TNdMSfjZwlT405pYJlODxSSgtYD1Fsu1T0ZMO2
++37EcvImUni0ZrrC8S+QRac4nKM5mWjT5kB5XfKOLWzW2uZTTqpya0HJijfwcX6wA
++j3mb4w33NXb6zzbZQVVBsPdl1K2J8Q/lXjDvDA3SvusT9mt/0eCu/HYdyBmkMsA3
++ILIJbU1+xKN5GHZdFDtjzGb3UjV5dLqzgBzn6z4vStBbM4rilhW17gPEmpseB1h4
++iM5IUUyKwMavJSChxipkS2c8K6c42AkGBf6mMpGlGNXWyYUvH8mOLeU4LwIDAQAB
++o1MwUTAdBgNVHQ4EFgQUz/t+47C+Cdk/uidYWQt9hdNHZU4wHwYDVR0jBBgwFoAU
++z/t+47C+Cdk/uidYWQt9hdNHZU4wDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0B
++AQsFAAOCAgEATF8PkW3GNFXiYy3K8mF0yoZdp0nX771h2Et7FbgNLh25Uv+76amT
++ujHzobjQRtx8Ewzl+oJnWPmOqMm3bn6BWBR0tWH136ACFBAV4W9Zr3eAwCbQQgU0
++0okRGDVG/tIVjSym9/5/TF37jkQRGCwHaQdjIRFbKiDhy7P7D4qobNs5G0mUqmxj
++DY7lmq93/RhMOQE2JYdx2VrU8IxGZ8v3s3Dzl/ln0iw2wb2inj+YviQRs+vss7mU
++lXGS+MTo17OQBLPDBuZWV9x28I79hIaYgEYAcIid0IqV0Mp0ISYOhjOp1X9A/UJi
++lSMTMCm2kmrrrHmtJ/G9ztkm4Yc/TUl9qAIlXaY9KN5k+GuSLrxIdA9VII3GvuRg
++u2ghKl0xgC+uHfLwlfAxJwWbLyJS/ji3Y5yADc700D++pjZI1rWaC7jbOjH0wocA
++DW2tQY6Eh4MA1xQyj2IF24j+wfBNdWg/Ndc9BvCuG00v1qAje7lAZOuA8P2977SS
++0zqdgSbkAM83c4O6+kWaiRFb8pPBciSxR0YwIchxjjJWSlcqop6cJxtOKhvG+RQX
++oLIkpHJznI8aXK5rEniDb6YJm7o+a0i5cQkJQht1lDPI9WW5d7sliozrm1s+pmcr
++AM2KHvDxb9Pur6jIOqm9mvYpI3llJu2ICcp/HKiRI0iVV2a/bd1YQzY=
++-----END CERTIFICATE-----
+diff --git a/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp b/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp
+index e89b7f5a44..115d111974 100644
+--- a/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp
++++ b/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp
+@@ -79,6 +79,9 @@ private slots:
+     void subjectAlternativeNames_data();
+     void utf8SubjectNames();
+     void subjectAlternativeNames();
++    void subjectInfoToString();
++    void subjectIssuerDisplayName_data();
++    void subjectIssuerDisplayName();
+     void publicKey_data();
+     void publicKey();
+     void toPemOrDer_data();
+@@ -433,6 +436,63 @@ void tst_QSslCertificate::subjectAlternativeNames()
+     }
+ }
+ 
++void tst_QSslCertificate::subjectInfoToString()
++{
++    QFile certFile(testDataDir + "more-certificates/aspiriniks.ca.crt");
++    const bool ok = certFile.open(QIODevice::ReadOnly);
++    QVERIFY(ok);
++    const auto chain = QSslCertificate::fromDevice(&certFile, QSsl::Pem);
++    QCOMPARE(chain.size(), 1);
++    const auto cert = chain.at(0);
++    QVERIFY(!cert.isNull());
++
++    const auto testInfo = [&cert](QSslCertificate::SubjectInfo info, const QString &expected) {
++        const auto infoAsList = cert.subjectInfo(info);
++        if (infoAsList.size())
++            return expected == infoAsList.at(0);
++        return expected == QString();
++    };
++
++    QVERIFY(testInfo(QSslCertificate::Organization, QStringLiteral("TT ASA")));
++    QVERIFY(testInfo(QSslCertificate::CommonName, QStringLiteral("aspiriniks.troll.no")));
++    QVERIFY(testInfo(QSslCertificate::LocalityName, QStringLiteral("Oslo")));
++    QVERIFY(testInfo(QSslCertificate::OrganizationalUnitName, QStringLiteral("QT SW")));
++    QVERIFY(testInfo(QSslCertificate::CountryName, QStringLiteral("NO")));
++    QVERIFY(testInfo(QSslCertificate::StateOrProvinceName, QStringLiteral("Oslo")));
++    QVERIFY(testInfo(QSslCertificate::DistinguishedNameQualifier, QString()));
++    QVERIFY(testInfo(QSslCertificate::SerialNumber, QString()));
++#ifndef QT_NO_OPENSSL
++    // TODO: check why generic code does not handle this!
++    QVERIFY(testInfo(QSslCertificate::EmailAddress, QStringLiteral("ababic@trolltech.com")));
++#endif
++}
++
++void tst_QSslCertificate::subjectIssuerDisplayName_data()
++{
++    QTest::addColumn<QString>("certName");
++    QTest::addColumn<QString>("expectedName");
++
++    QTest::addRow("CommonName") << QStringLiteral("more-certificates/cert-cn.pem") << QStringLiteral("YOUR name");
++    QTest::addRow("OrganizationName") << QStringLiteral("more-certificates/cert-on.pem") << QStringLiteral("R&D");
++    QTest::addRow("OrganizationUnitName") << QStringLiteral("more-certificates/cert-oun.pem") << QStringLiteral("Foundations");
++#ifndef QT_NO_OPENSSL
++    QTest::addRow("NoSubjectName") << QStringLiteral("more-certificates/cert-noname.pem") << QString();
++#endif
++}
++
++void tst_QSslCertificate::subjectIssuerDisplayName()
++{
++    QFETCH(const QString, certName);
++    QFETCH(const QString, expectedName);
++
++    const auto chain = QSslCertificate::fromPath(testDataDir + certName);
++    QCOMPARE(chain.size(), 1);
++    const auto cert = chain.at(0);
++    QVERIFY(!cert.isNull());
++    QCOMPARE(cert.subjectDisplayName(), expectedName);
++    QCOMPARE(cert.issuerDisplayName(), expectedName);
++}
++
+ void tst_QSslCertificate::utf8SubjectNames()
+ {
+     QSslCertificate cert = QSslCertificate::fromPath(testDataDir + "certificates/cert-ss-san-utf8.pem", QSsl::Pem,
+@@ -541,8 +601,15 @@ void tst_QSslCertificate::toPemOrDer()
+ void tst_QSslCertificate::fromDevice()
+ {
+     QTest::ignoreMessage(QtWarningMsg, "QSslCertificate::fromDevice: cannot read from a null device");
+-    QList<QSslCertificate> certs = QSslCertificate::fromDevice(0); // don't crash
++    QList<QSslCertificate> certs = QSslCertificate::fromDevice(nullptr); // don't crash
+     QVERIFY(certs.isEmpty());
++
++    QFile certFile(testDataDir + "certificates/cert.der");
++    const bool ok = certFile.open(QIODevice::ReadOnly);
++    QVERIFY(ok);
++    const auto chain = QSslCertificate::fromDevice(&certFile, QSsl::Der);
++    QCOMPARE(chain.size(), 1);
++    QVERIFY(!chain.at(0).isNull());
+ }
+ 
+ void tst_QSslCertificate::fromPath_data()
+-- 
+2.31.1
+

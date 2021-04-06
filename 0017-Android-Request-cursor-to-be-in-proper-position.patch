@@ -1,0 +1,55 @@
+From 464114489ee75a998855d8760fff615acf61d541 Mon Sep 17 00:00:00 2001
+From: Tapio Oksa <tapio.oksa@siili.com>
+Date: Mon, 19 Oct 2020 13:28:05 +0300
+Subject: [PATCH 017/171] [Android] Request cursor to be in proper position
+
+Cursor were set to incorrect position (-1) causing first character overwrite in password field,
+fixed by setting position to '0' for the first character
+
+Fixes: QTBUG-85090
+Change-Id: Ia2333803d5fe8f274f1ad1a643e4ff5aa8556b81
+Reviewed-by: Rami Potinkara <rami.potinkara@qt.io>
+Reviewed-by: Assam Boudjelthia <assam.boudjelthia@qt.io>
+(cherry picked from commit 2ff546e03087f7f962d8a20a60ceb98cd62d34a6)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ .../platforms/android/qandroidinputcontext.cpp  | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/src/plugins/platforms/android/qandroidinputcontext.cpp b/src/plugins/platforms/android/qandroidinputcontext.cpp
+index e78c317863..2cfb59514d 100644
+--- a/src/plugins/platforms/android/qandroidinputcontext.cpp
++++ b/src/plugins/platforms/android/qandroidinputcontext.cpp
+@@ -1409,16 +1409,25 @@ jboolean QAndroidInputContext::setComposingText(const QString &text, jint newCur
+     const int absoluteCursorPos = getAbsoluteCursorPosition(query);
+     int absoluteAnchorPos = getBlockPosition(query) + query->value(Qt::ImAnchorPosition).toInt();
+ 
++    auto setCursorPosition = [=]() {
++            const int cursorPos = query->value(Qt::ImCursorPosition).toInt();
++            QInputMethodEvent event({}, { { QInputMethodEvent::Selection, cursorPos, 0 } });
++            QGuiApplication::sendEvent(m_focusObject, &event);
++        };
++
+     // If we have composing region and selection (and therefore focusObjectIsComposing() == false),
+     // we must clear selection so that we won't delete it when we will be replacing composing text
+     if (!m_composingText.isEmpty() && absoluteCursorPos != absoluteAnchorPos) {
+-        const int cursorPos = query->value(Qt::ImCursorPosition).toInt();
+-        QInputMethodEvent event({}, { { QInputMethodEvent::Selection, cursorPos, 0 } });
+-        QGuiApplication::sendEvent(m_focusObject, &event);
+-
++        setCursorPosition();
+         absoluteAnchorPos = absoluteCursorPos;
+     }
+ 
++    // The value of Qt::ImCursorPosition is not updated at the start
++    // when the first character is added, so we must update it (QTBUG-85090)
++    if (absoluteCursorPos == 0 && text.length() == 1 && getTextAfterCursor(1,1).length() >= 0) {
++        setCursorPosition();
++    }
++
+     // If we had no composing region, pretend that we had a zero-length composing region at current
+     // cursor position to simplify code. Also account for that we must delete selected text if there
+     // (still) is any.
+-- 
+2.31.1
+

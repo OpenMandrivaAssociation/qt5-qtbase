@@ -1,0 +1,72 @@
+From 8dcddad27dac96fd533671a12b003394190d2815 Mon Sep 17 00:00:00 2001
+From: Fabio Falsini <falsinsoft@gmail.com>
+Date: Fri, 20 Nov 2020 22:53:54 +0100
+Subject: [PATCH 102/171] Change android target SDK version to 29
+
+Play Store now accept only app with target
+SDK version set to 29 or above
+
+Change-Id: If38f20c88fd6b0e6f29939cdf3d2eb793c0e1489
+Reviewed-by: Assam Boudjelthia <assam.boudjelthia@qt.io>
+---
+ mkspecs/android-clang/qmake.conf    | 2 +-
+ qmake/doc/src/qmake-manual.qdoc     | 2 +-
+ src/corelib/Qt5AndroidSupport.cmake | 2 +-
+ src/tools/androiddeployqt/main.cpp  | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/mkspecs/android-clang/qmake.conf b/mkspecs/android-clang/qmake.conf
+index 5cc5a20f71..d9a51835d8 100644
+--- a/mkspecs/android-clang/qmake.conf
++++ b/mkspecs/android-clang/qmake.conf
+@@ -44,7 +44,7 @@ isEmpty(ALL_ANDROID_ABIS): ALL_ANDROID_ABIS = arm64-v8a armeabi-v7a x86_64 x86
+ CONFIG += $$ANDROID_PLATFORM
+ 
+ ANDROID_MIN_SDK_VERSION = $$replace(ANDROID_PLATFORM, "android-", "")
+-ANDROID_TARGET_SDK_VERSION = 28
++ANDROID_TARGET_SDK_VERSION = 29
+ 
+ NDK_LLVM_PATH    = $$NDK_ROOT/toolchains/llvm/prebuilt/$$NDK_HOST
+ QMAKE_CC         = $$NDK_LLVM_PATH/bin/clang
+diff --git a/qmake/doc/src/qmake-manual.qdoc b/qmake/doc/src/qmake-manual.qdoc
+index 8dfcded3cc..a96b84e63b 100644
+--- a/qmake/doc/src/qmake-manual.qdoc
++++ b/qmake/doc/src/qmake-manual.qdoc
+@@ -1118,7 +1118,7 @@
+     \note This variable applies only to Android targets.
+ 
+     Specifies the target Android API level for the project. By default, this
+-    variable is set to API level 28.
++    variable is set to API level 29.
+ 
+     \target ANDROID_VERSION_CODE
+     \section1 ANDROID_VERSION_CODE
+diff --git a/src/corelib/Qt5AndroidSupport.cmake b/src/corelib/Qt5AndroidSupport.cmake
+index 5a616faa4c..5512635f97 100644
+--- a/src/corelib/Qt5AndroidSupport.cmake
++++ b/src/corelib/Qt5AndroidSupport.cmake
+@@ -19,7 +19,7 @@ if (NOT ${PROJECT_NAME}-MultiAbiBuild)
+     endif()
+   endforeach()
+   option(ANDROID_MIN_SDK_VERSION "Android minimum SDK version" "21")
+-  option(ANDROID_TARGET_SDK_VERSION "Android target SDK version" "28")
++  option(ANDROID_TARGET_SDK_VERSION "Android target SDK version" "29")
+ 
+   # Make sure to delete the "android-build" directory, which contains all the
+   # build artefacts, and also the androiddeployqt/gradle artefacts
+diff --git a/src/tools/androiddeployqt/main.cpp b/src/tools/androiddeployqt/main.cpp
+index 0504432eea..22facce703 100644
+--- a/src/tools/androiddeployqt/main.cpp
++++ b/src/tools/androiddeployqt/main.cpp
+@@ -174,7 +174,7 @@ struct Options
+     QString versionName;
+     QString versionCode;
+     QByteArray minSdkVersion{"21"};
+-    QByteArray targetSdkVersion{"28"};
++    QByteArray targetSdkVersion{"29"};
+ 
+     // lib c++ path
+     QString stdCppPath;
+-- 
+2.31.1
+

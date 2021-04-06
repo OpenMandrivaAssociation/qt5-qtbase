@@ -1,0 +1,478 @@
+From 020a6f0daec2e36866888b23c8b3a65bfb366146 Mon Sep 17 00:00:00 2001
+From: Piotr Mikolajczyk <piotr.mikolajczyk@qt.io>
+Date: Fri, 20 Nov 2020 15:07:59 +0100
+Subject: [PATCH 157/171] Android: Qml accessibility fixes
+
+- Accessibility focus can follow the position of the widget
+  (for example when swiping on a scrollview)
+
+- controls are clickable directly after appearing on the screen after
+  scroll (previously you had to click somewhere else on the screen,
+  and after that you could focus the newly appeared control)
+
+- checkbox and switch react correctly on click action
+
+- fixed combobox behavior with accessibility enabled
+
+Task-number: QTBUG-79611
+Change-Id: If36914ab0165f33593e68fd7ecf168693f8538a7
+Reviewed-by: Assam Boudjelthia <assam.boudjelthia@qt.io>
+(cherry picked from commit fd20bc2277f98b86bddbd3f8a0ca92457a8c7c70)
+---
+ .../qt5/android/QtActivityDelegate.java       | 24 +++++++-
+ .../org/qtproject/qt5/android/QtNative.java   | 36 +++++++++++
+ .../QtAccessibilityDelegate.java              | 23 ++++++--
+ .../qt5/android/bindings/QtActivity.java      | 15 +++++
+ .../android/androidjniaccessibility.cpp       | 59 +++++++++++++++----
+ .../android/androidjniaccessibility.h         |  3 +
+ .../platforms/android/androidjnimain.cpp      | 15 +++++
+ .../platforms/android/androidjnimain.h        |  4 ++
+ .../android/qandroidplatformaccessibility.cpp | 19 +++++-
+ src/widgets/accessible/complexwidgets.cpp     | 15 +++++
+ src/widgets/accessible/itemviews.cpp          | 17 +++++-
+ 11 files changed, 210 insertions(+), 20 deletions(-)
+
+diff --git a/src/android/jar/src/org/qtproject/qt5/android/QtActivityDelegate.java b/src/android/jar/src/org/qtproject/qt5/android/QtActivityDelegate.java
+index 742505c39a..b06ccc5ec6 100644
+--- a/src/android/jar/src/org/qtproject/qt5/android/QtActivityDelegate.java
++++ b/src/android/jar/src/org/qtproject/qt5/android/QtActivityDelegate.java
+@@ -231,6 +231,8 @@ public class QtActivityDelegate
+     public static final int ApplicationInactive = 0x2;
+     public static final int ApplicationActive = 0x4;
+ 
++    private QtAccessibilityDelegate m_accessibilityDelegate = null;
++
+ 
+     public boolean setKeyboardVisibility(boolean visibility, long timeStamp)
+     {
+@@ -859,10 +861,30 @@ public class QtActivityDelegate
+         m_splashScreen.startAnimation(fadeOut);
+     }
+ 
++    public void notifyAccessibilityLocationChange()
++    {
++        if (m_accessibilityDelegate == null)
++            return;
++        m_accessibilityDelegate.notifyLocationChange();
++    }
++
++    public void notifyObjectHide(int viewId)
++    {
++        if (m_accessibilityDelegate == null)
++            return;
++        m_accessibilityDelegate.notifyObjectHide(viewId);
++    }
++
++    public void notifyObjectFocus(int viewId)
++    {
++        if (m_accessibilityDelegate == null)
++            return;
++        m_accessibilityDelegate.notifyObjectFocus(viewId);
++    }
+ 
+     public void initializeAccessibility()
+     {
+-        new QtAccessibilityDelegate(m_activity, m_layout, this);
++        m_accessibilityDelegate = new QtAccessibilityDelegate(m_activity, m_layout, this);
+     }
+ 
+     public void onWindowFocusChanged(boolean hasFocus) {
+diff --git a/src/android/jar/src/org/qtproject/qt5/android/QtNative.java b/src/android/jar/src/org/qtproject/qt5/android/QtNative.java
+index 341ac7b75e..39f1220722 100644
+--- a/src/android/jar/src/org/qtproject/qt5/android/QtNative.java
++++ b/src/android/jar/src/org/qtproject/qt5/android/QtNative.java
+@@ -929,6 +929,42 @@ public class QtNative
+         });
+     }
+ 
++    private static void notifyAccessibilityLocationChange()
++    {
++        runAction(new Runnable() {
++            @Override
++            public void run() {
++                if (m_activityDelegate != null) {
++                    m_activityDelegate.notifyAccessibilityLocationChange();
++                }
++            }
++        });
++    }
++
++    private static void notifyObjectHide(final int viewId)
++    {
++        runAction(new Runnable() {
++            @Override
++            public void run() {
++                if (m_activityDelegate != null) {
++                    m_activityDelegate.notifyObjectHide(viewId);
++                }
++            }
++        });
++    }
++
++    private static void notifyObjectFocus(final int viewId)
++    {
++        runAction(new Runnable() {
++            @Override
++            public void run() {
++                if (m_activityDelegate != null) {
++                    m_activityDelegate.notifyObjectFocus(viewId);
++                }
++            }
++        });
++    }
++
+     private static void registerClipboardManager()
+     {
+         if (m_service == null || m_activity != null) { // Avoid freezing if only service
+diff --git a/src/android/jar/src/org/qtproject/qt5/android/accessibility/QtAccessibilityDelegate.java b/src/android/jar/src/org/qtproject/qt5/android/accessibility/QtAccessibilityDelegate.java
+index 79caaf318e..a607eccc85 100644
+--- a/src/android/jar/src/org/qtproject/qt5/android/accessibility/QtAccessibilityDelegate.java
++++ b/src/android/jar/src/org/qtproject/qt5/android/accessibility/QtAccessibilityDelegate.java
+@@ -191,6 +191,23 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
+         return true;
+     }
+ 
++    public void notifyLocationChange()
++    {
++        invalidateVirtualViewId(m_focusedVirtualViewId);
++    }
++
++    public void notifyObjectHide(int viewId)
++    {
++        invalidateVirtualViewId(viewId);
++    }
++
++    public void notifyObjectFocus(int viewId)
++    {
++        m_view.invalidate();
++        sendEventForVirtualViewId(viewId,
++                AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED);
++    }
++
+     public boolean sendEventForVirtualViewId(int virtualViewId, int eventType)
+     {
+         if ((virtualViewId == INVALID_ID) || !m_manager.isEnabled()) {
+@@ -211,7 +228,8 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
+ 
+     public void invalidateVirtualViewId(int virtualViewId)
+     {
+-        sendEventForVirtualViewId(virtualViewId, AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
++        if (virtualViewId != INVALID_ID)
++            sendEventForVirtualViewId(virtualViewId, AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+     }
+ 
+     private void setHoveredVirtualViewId(int virtualViewId)
+@@ -336,9 +354,6 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
+             node.addAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
+         }
+ 
+-        int[] ids = QtNativeAccessibility.childIdListForAccessibleObject(virtualViewId);
+-        for (int i = 0; i < ids.length; ++i)
+-            node.addChild(m_view, ids[i]);
+         return node;
+     }
+ 
+diff --git a/src/android/java/src/org/qtproject/qt5/android/bindings/QtActivity.java b/src/android/java/src/org/qtproject/qt5/android/bindings/QtActivity.java
+index 9d8c46fc26..b257a16567 100644
+--- a/src/android/java/src/org/qtproject/qt5/android/bindings/QtActivity.java
++++ b/src/android/java/src/org/qtproject/qt5/android/bindings/QtActivity.java
+@@ -1121,4 +1121,19 @@ public class QtActivity extends Activity
+     {
+         QtNative.activityDelegate().setFullScreen(enterFullScreen);
+     }
++
++    public void notifyAccessibilityLocationChange()
++    {
++        QtNative.activityDelegate().notifyAccessibilityLocationChange();
++    }
++
++    public void notifyObjectHide(int viewId)
++    {
++        QtNative.activityDelegate().notifyObjectHide(viewId);
++    }
++
++    public void notifyObjectFocus(int viewId)
++    {
++        QtNative.activityDelegate().notifyObjectFocus(viewId);
++    }
+ }
+diff --git a/src/plugins/platforms/android/androidjniaccessibility.cpp b/src/plugins/platforms/android/androidjniaccessibility.cpp
+index 16eb93bf64..989d0d18f4 100644
+--- a/src/plugins/platforms/android/androidjniaccessibility.cpp
++++ b/src/plugins/platforms/android/androidjniaccessibility.cpp
+@@ -65,6 +65,7 @@ namespace QtAndroidAccessibility
+     static jmethodID m_setCheckedMethodID = 0;
+     static jmethodID m_setClickableMethodID = 0;
+     static jmethodID m_setContentDescriptionMethodID = 0;
++    static jmethodID m_setEditableMethodID = 0;
+     static jmethodID m_setEnabledMethodID = 0;
+     static jmethodID m_setFocusableMethodID = 0;
+     static jmethodID m_setFocusedMethodID = 0;
+@@ -109,6 +110,21 @@ namespace QtAndroidAccessibility
+         return iface;
+     }
+ 
++    void notifyLocationChange()
++    {
++        QtAndroid::notifyAccessibilityLocationChange();
++    }
++
++    void notifyObjectHide(uint accessibilityObjectId)
++    {
++        QtAndroid::notifyObjectHide(accessibilityObjectId);
++    }
++
++    void notifyObjectFocus(uint accessibilityObjectId)
++    {
++        QtAndroid::notifyObjectFocus(accessibilityObjectId);
++    }
++
+     static jintArray childIdListForAccessibleObject(JNIEnv *env, jobject /*thiz*/, jint objectId)
+     {
+         QAccessibleInterface *iface = interfaceFromId(objectId);
+@@ -150,6 +166,11 @@ namespace QtAndroidAccessibility
+         if (iface && iface->isValid()) {
+             rect = QHighDpi::toNativePixels(iface->rect(), iface->window());
+         }
++        // If the widget is not fully in-bound in its parent then we have to clip the rectangle to draw
++        if (iface && iface->parent() && iface->parent()->isValid()) {
++            const auto parentRect = QHighDpi::toNativePixels(iface->parent()->rect(), iface->parent()->window());
++            rect = rect.intersected(parentRect);
++        }
+ 
+         jclass rectClass = env->FindClass("android/graphics/Rect");
+         jmethodID ctor = env->GetMethodID(rectClass, "<init>", "(IIII)V");
+@@ -175,17 +196,33 @@ namespace QtAndroidAccessibility
+         return -1;
+     }
+ 
++    static void invokeActionOnInterfaceInMainThread(QAccessibleActionInterface* actionInterface,
++                                                    const QString& action)
++    {
++        QMetaObject::invokeMethod(qApp, [actionInterface, action]() {
++            actionInterface->doAction(action);
++        });
++    }
++
+     static jboolean clickAction(JNIEnv */*env*/, jobject /*thiz*/, jint objectId)
+     {
+ //        qDebug() << "A11Y: CLICK: " << objectId;
+         QAccessibleInterface *iface = interfaceFromId(objectId);
+-        if (iface && iface->isValid() && iface->actionInterface()) {
+-            if (iface->actionInterface()->actionNames().contains(QAccessibleActionInterface::pressAction()))
+-                iface->actionInterface()->doAction(QAccessibleActionInterface::pressAction());
+-            else
+-                iface->actionInterface()->doAction(QAccessibleActionInterface::toggleAction());
++        if (!iface || !iface->isValid() || !iface->actionInterface())
++            return false;
++
++        const auto& actionNames = iface->actionInterface()->actionNames();
++
++        if (actionNames.contains(QAccessibleActionInterface::pressAction())) {
++            invokeActionOnInterfaceInMainThread(iface->actionInterface(),
++                                                QAccessibleActionInterface::pressAction());
++        } else if (actionNames.contains(QAccessibleActionInterface::toggleAction())) {
++            invokeActionOnInterfaceInMainThread(iface->actionInterface(),
++                                                QAccessibleActionInterface::toggleAction());
++        } else {
++            return false;
+         }
+-        return false;
++        return true;
+     }
+ 
+     static jboolean scrollForward(JNIEnv */*env*/, jobject /*thiz*/, jint objectId)
+@@ -267,9 +304,10 @@ if (!clazz) { \
+             }
+         }
+ 
+-        env->CallVoidMethod(node, m_setEnabledMethodID, !state.disabled);
+         env->CallVoidMethod(node, m_setCheckableMethodID, (bool)state.checkable);
+         env->CallVoidMethod(node, m_setCheckedMethodID, (bool)state.checked);
++        env->CallVoidMethod(node, m_setEditableMethodID, state.editable);
++        env->CallVoidMethod(node, m_setEnabledMethodID, !state.disabled);
+         env->CallVoidMethod(node, m_setFocusableMethodID, (bool)state.focusable);
+         env->CallVoidMethod(node, m_setFocusedMethodID, (bool)state.focused);
+         env->CallVoidMethod(node, m_setVisibleToUserMethodID, !state.invisible);
+@@ -278,15 +316,15 @@ if (!clazz) { \
+ 
+         // Add ACTION_CLICK
+         if (hasClickableAction)
+-            env->CallVoidMethod(node, m_addActionMethodID, (int)16);    // ACTION_CLICK defined in AccessibilityNodeInfo
++            env->CallVoidMethod(node, m_addActionMethodID, (int)0x00000010);    // ACTION_CLICK defined in AccessibilityNodeInfo
+ 
+         // Add ACTION_SCROLL_FORWARD
+         if (hasIncreaseAction)
+-            env->CallVoidMethod(node, m_addActionMethodID, (int)4096);    // ACTION_SCROLL_FORWARD defined in AccessibilityNodeInfo
++            env->CallVoidMethod(node, m_addActionMethodID, (int)0x00001000);    // ACTION_SCROLL_FORWARD defined in AccessibilityNodeInfo
+ 
+         // Add ACTION_SCROLL_BACKWARD
+         if (hasDecreaseAction)
+-            env->CallVoidMethod(node, m_addActionMethodID, (int)8192);    // ACTION_SCROLL_BACKWARD defined in AccessibilityNodeInfo
++            env->CallVoidMethod(node, m_addActionMethodID, (int)0x00002000);    // ACTION_SCROLL_BACKWARD defined in AccessibilityNodeInfo
+ 
+ 
+         //CALL_METHOD(node, "setText", "(Ljava/lang/CharSequence;)V", jdesc)
+@@ -332,6 +370,7 @@ if (!clazz) { \
+         GET_AND_CHECK_STATIC_METHOD(m_setCheckedMethodID, nodeInfoClass, "setChecked", "(Z)V");
+         GET_AND_CHECK_STATIC_METHOD(m_setClickableMethodID, nodeInfoClass, "setClickable", "(Z)V");
+         GET_AND_CHECK_STATIC_METHOD(m_setContentDescriptionMethodID, nodeInfoClass, "setContentDescription", "(Ljava/lang/CharSequence;)V");
++        GET_AND_CHECK_STATIC_METHOD(m_setEditableMethodID, nodeInfoClass, "setEditable", "(Z)V");
+         GET_AND_CHECK_STATIC_METHOD(m_setEnabledMethodID, nodeInfoClass, "setEnabled", "(Z)V");
+         GET_AND_CHECK_STATIC_METHOD(m_setFocusableMethodID, nodeInfoClass, "setFocusable", "(Z)V");
+         GET_AND_CHECK_STATIC_METHOD(m_setFocusedMethodID, nodeInfoClass, "setFocused", "(Z)V");
+diff --git a/src/plugins/platforms/android/androidjniaccessibility.h b/src/plugins/platforms/android/androidjniaccessibility.h
+index 508ed4462b..de9d32a099 100644
+--- a/src/plugins/platforms/android/androidjniaccessibility.h
++++ b/src/plugins/platforms/android/androidjniaccessibility.h
+@@ -49,6 +49,9 @@ namespace QtAndroidAccessibility
+     void initialize();
+     bool isActive();
+     bool registerNatives(JNIEnv *env);
++    void notifyLocationChange();
++    void notifyObjectHide(uint accessibilityObjectId);
++    void notifyObjectFocus(uint accessibilityObjectId);
+ }
+ 
+ QT_END_NAMESPACE
+diff --git a/src/plugins/platforms/android/androidjnimain.cpp b/src/plugins/platforms/android/androidjnimain.cpp
+index 1c7800358f..ba0c5a3f31 100644
+--- a/src/plugins/platforms/android/androidjnimain.cpp
++++ b/src/plugins/platforms/android/androidjnimain.cpp
+@@ -218,6 +218,21 @@ namespace QtAndroid
+         m_statusBarShowing = false;
+     }
+ 
++    void notifyAccessibilityLocationChange()
++    {
++        QJNIObjectPrivate::callStaticMethod<void>(m_applicationClass, "notifyAccessibilityLocationChange");
++    }
++
++    void notifyObjectHide(uint accessibilityObjectId)
++    {
++        QJNIObjectPrivate::callStaticMethod<void>(m_applicationClass, "notifyObjectHide","(I)V", accessibilityObjectId);
++    }
++
++    void notifyObjectFocus(uint accessibilityObjectId)
++    {
++        QJNIObjectPrivate::callStaticMethod<void>(m_applicationClass, "notifyObjectFocus","(I)V", accessibilityObjectId);
++    }
++
+     jobject createBitmap(QImage img, JNIEnv *env)
+     {
+         if (!m_bitmapClass)
+diff --git a/src/plugins/platforms/android/androidjnimain.h b/src/plugins/platforms/android/androidjnimain.h
+index 17ae30a1be..72b864de19 100644
+--- a/src/plugins/platforms/android/androidjnimain.h
++++ b/src/plugins/platforms/android/androidjnimain.h
+@@ -95,6 +95,10 @@ namespace QtAndroid
+     jobject createBitmap(int width, int height, QImage::Format format, JNIEnv *env);
+     jobject createBitmapDrawable(jobject bitmap, JNIEnv *env = 0);
+ 
++    void notifyAccessibilityLocationChange();
++    void notifyObjectHide(uint accessibilityObjectId);
++    void notifyObjectFocus(uint accessibilityObjectId);
++
+     const char *classErrorMsgFmt();
+     const char *methodErrorMsgFmt();
+     const char *qtTagText();
+diff --git a/src/plugins/platforms/android/qandroidplatformaccessibility.cpp b/src/plugins/platforms/android/qandroidplatformaccessibility.cpp
+index fdff9c3eba..30114b17a2 100644
+--- a/src/plugins/platforms/android/qandroidplatformaccessibility.cpp
++++ b/src/plugins/platforms/android/qandroidplatformaccessibility.cpp
+@@ -42,7 +42,6 @@
+ #include "androidjniaccessibility.h"
+ 
+ QT_BEGIN_NAMESPACE
+-
+ QAndroidPlatformAccessibility::QAndroidPlatformAccessibility()
+ {
+     QtAndroidAccessibility::initialize();
+@@ -51,9 +50,23 @@ QAndroidPlatformAccessibility::QAndroidPlatformAccessibility()
+ QAndroidPlatformAccessibility::~QAndroidPlatformAccessibility()
+ {}
+ 
+-void QAndroidPlatformAccessibility::notifyAccessibilityUpdate(QAccessibleEvent */*event*/)
++void QAndroidPlatformAccessibility::notifyAccessibilityUpdate(QAccessibleEvent *event)
+ {
+-    // FIXME send events
++    if (event == nullptr || !event->accessibleInterface())
++        return;
++
++    // We do not need implementation of all events, as current statues are polled
++    // by QtAccessibilityDelegate.java on every accessibility interaction.
++    // Currently we only send notification about the element's position change,
++    // so that the element can be moved on the screen if it's focused.
++
++    if (event->type() == QAccessible::LocationChanged) {
++        QtAndroidAccessibility::notifyLocationChange();
++    } else if (event->type() == QAccessible::ObjectHide) {
++        QtAndroidAccessibility::notifyObjectHide(event->uniqueId());
++    } else if (event->type() == QAccessible::Focus) {
++        QtAndroidAccessibility::notifyObjectFocus(event->uniqueId());
++    }
+ }
+ 
+ QT_END_NAMESPACE
+diff --git a/src/widgets/accessible/complexwidgets.cpp b/src/widgets/accessible/complexwidgets.cpp
+index ce2ceac938..185b319402 100644
+--- a/src/widgets/accessible/complexwidgets.cpp
++++ b/src/widgets/accessible/complexwidgets.cpp
+@@ -398,9 +398,24 @@ void QAccessibleComboBox::doAction(const QString &actionName)
+ {
+     if (actionName == showMenuAction() || actionName == pressAction()) {
+         if (comboBox()->view()->isVisible()) {
++#if defined(Q_OS_ANDROID)
++            const auto list = child(0)->tableInterface();
++            if (list && list->selectedRowCount() > 0) {
++                comboBox()->setCurrentIndex(list->selectedRows().at(0));
++            }
++            comboBox()->setFocus();
++#endif
+             comboBox()->hidePopup();
+         } else {
+             comboBox()->showPopup();
++#if defined(Q_OS_ANDROID)
++            const auto list = child(0)->tableInterface();
++            if (list && list->selectedRowCount() > 0) {
++                auto selectedCells = list->selectedCells();
++                QAccessibleEvent ev(selectedCells.at(0),QAccessible::Focus);
++                QAccessible::updateAccessibility(&ev);
++            }
++#endif
+         }
+     }
+ }
+diff --git a/src/widgets/accessible/itemviews.cpp b/src/widgets/accessible/itemviews.cpp
+index 677e56806a..a7b536ae54 100644
+--- a/src/widgets/accessible/itemviews.cpp
++++ b/src/widgets/accessible/itemviews.cpp
+@@ -934,10 +934,23 @@ QStringList QAccessibleTableCell::actionNames() const
+ void QAccessibleTableCell::doAction(const QString& actionName)
+ {
+     if (actionName == toggleAction()) {
+-        if (isSelected())
++#if defined(Q_OS_ANDROID)
++        QAccessibleInterface *parentInterface = parent();
++        while (parentInterface){
++            if (parentInterface->role() == QAccessible::ComboBox) {
++                selectCell();
++                parentInterface->actionInterface()->doAction(pressAction());
++                return;
++            } else {
++                parentInterface = parentInterface->parent();
++            }
++        }
++#endif
++        if (isSelected()) {
+             unselectCell();
+-        else
++        } else {
+             selectCell();
++        }
+     }
+ }
+ 
+-- 
+2.31.1
+

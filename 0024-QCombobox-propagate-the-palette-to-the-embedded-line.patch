@@ -1,0 +1,78 @@
+From 6e470764a98434a120eba4fcc6035137cf9c92cf Mon Sep 17 00:00:00 2001
+From: Wang Chuan <ouchuanm@outlook.com>
+Date: Sun, 25 Oct 2020 21:38:19 +0800
+Subject: [PATCH 024/171] QCombobox: propagate the palette to the embedded line
+ edit
+
+Let the new created embedded QLineEdit use the palette from QCombobox,
+when calling [setEditable(true)]
+
+Fixes: QTBUG-81533
+Change-Id: Ia406dd8122a348e185f0e94d027646b95eeaa76e
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit 231be2e0a192f16141c12888e126bb2284b29b9f)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/widgets/widgets/qcombobox.cpp             |  1 +
+ .../widgets/qcombobox/tst_qcombobox.cpp       | 27 +++++++++++++++++++
+ 2 files changed, 28 insertions(+)
+
+diff --git a/src/widgets/widgets/qcombobox.cpp b/src/widgets/widgets/qcombobox.cpp
+index 474a538fb2..68bd647741 100644
+--- a/src/widgets/widgets/qcombobox.cpp
++++ b/src/widgets/widgets/qcombobox.cpp
+@@ -1943,6 +1943,7 @@ void QComboBox::setEditable(bool editable)
+             view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+         }
+         QLineEdit *le = new QLineEdit(this);
++        le->setPalette(palette());
+         setLineEdit(le);
+     } else {
+         if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+diff --git a/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp b/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp
+index 86a7b112d2..d8bb34933a 100644
+--- a/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp
++++ b/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp
+@@ -166,6 +166,7 @@ private slots:
+     void inputMethodUpdate();
+     void task_QTBUG_52027_mapCompleterIndex();
+     void checkMenuItemPosWhenStyleSheetIsSet();
++    void checkEmbeddedLineEditWhenStyleSheetIsSet();
+ 
+ private:
+     PlatformInputContext m_platformInputContext;
+@@ -3559,5 +3560,31 @@ void tst_QComboBox::checkMenuItemPosWhenStyleSheetIsSet()
+     qApp->setStyleSheet(oldCss);
+ }
+ 
++void tst_QComboBox::checkEmbeddedLineEditWhenStyleSheetIsSet()
++{
++    QString newCss = "QWidget { background-color: red; color: white; }";
++    QString oldCss = qApp->styleSheet();
++    qApp->setStyleSheet(newCss);
++
++    QWidget topLevel;
++    auto layout = new QVBoxLayout(&topLevel);
++    topLevel.setLayout(layout);
++    auto comboBox = new QComboBox;
++    layout->addWidget(comboBox);
++    topLevel.show();
++    comboBox->setEditable(true);
++    QApplication::setActiveWindow(&topLevel);
++    QVERIFY(QTest::qWaitForWindowActive(&topLevel));
++
++    QImage grab = comboBox->grab().toImage();
++    auto color = grab.pixelColor(grab.rect().center());
++
++    QVERIFY(color.red() > 240);
++    QVERIFY(color.green() < 20);
++    QVERIFY(color.blue() < 20);
++
++    qApp->setStyleSheet(oldCss);
++}
++
+ QTEST_MAIN(tst_QComboBox)
+ #include "tst_qcombobox.moc"
+-- 
+2.31.1
+

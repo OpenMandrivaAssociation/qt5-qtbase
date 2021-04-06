@@ -1,0 +1,31 @@
+From bc2d9383eeb4ea2b38113fa081f8273730245dc5 Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Fri, 6 Nov 2020 13:18:31 +0100
+Subject: [PATCH 047/171] Protect QImage colorspace transform on shutdown
+
+Adding a check here similar to fixups in other threaded qimage routines.
+
+Change-Id: If7bf7aa0ef78cda15171c9038f41b281fb267dae
+Reviewed-by: Eirik Aavitsland <eirik.aavitsland@qt.io>
+(cherry picked from commit 86702fa29c4ace2f94be651db1fd7b158598be80)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/gui/image/qimage.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/image/qimage.cpp b/src/gui/image/qimage.cpp
+index 5d6f37a569..c5068bd8e6 100644
+--- a/src/gui/image/qimage.cpp
++++ b/src/gui/image/qimage.cpp
+@@ -5061,7 +5061,7 @@ void QImage::applyColorTransform(const QColorTransform &transform)
+     int segments = sizeInBytes() / (1<<16);
+     segments = std::min(segments, height());
+     QThreadPool *threadPool = QThreadPool::globalInstance();
+-    if (segments > 1 && !threadPool->contains(QThread::currentThread())) {
++    if (segments > 1 && threadPool && !threadPool->contains(QThread::currentThread())) {
+         QSemaphore semaphore;
+         int y = 0;
+         for (int i = 0; i < segments; ++i) {
+-- 
+2.31.1
+

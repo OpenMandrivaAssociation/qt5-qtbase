@@ -1,0 +1,47 @@
+From 59dfbfb8ab875885e607f93639970922b494d8a7 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Thu, 12 Nov 2020 13:20:51 +0100
+Subject: [PATCH 128/171] tst_qsslkey - handle QT_NO_SSL properly
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The recent change handling missing elliptic curves introduced a problem
+for '-no-ssl' configuration/build. The first version had some protection,
+but it was openssl-specific and required a private feature, thus was
+removed. Now the real ifdef must be with QT_NO_SSL
+
+Fixes: QTBUG-88238
+Change-Id: I6fba26d6ab63850e1468e76f8b234703255a026c
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 9662ff67cefe5882a07752dee97735ad36f40a15)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ tests/auto/network/ssl/qsslkey/tst_qsslkey.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tests/auto/network/ssl/qsslkey/tst_qsslkey.cpp b/tests/auto/network/ssl/qsslkey/tst_qsslkey.cpp
+index 8ff6d35ba2..d91d93d9ab 100644
+--- a/tests/auto/network/ssl/qsslkey/tst_qsslkey.cpp
++++ b/tests/auto/network/ssl/qsslkey/tst_qsslkey.cpp
+@@ -117,6 +117,7 @@ private:
+ 
+ tst_QSslKey::tst_QSslKey()
+ {
++#ifndef QT_NO_SSL
+     const QString expectedCurves[] = {
+         // See how we generate them in keys/genkey.sh.
+         QStringLiteral("secp224r1"),
+@@ -139,6 +140,9 @@ tst_QSslKey::tst_QSslKey()
+             unsupportedCurves.push_back(requestedEc);
+         }
+     }
++#else
++    unsupportedCurves = {}; // not unsued anymore.
++#endif
+ }
+ 
+ bool tst_QSslKey::fileContainsUnsupportedEllipticCurve(const QString &fileName) const
+-- 
+2.31.1
+

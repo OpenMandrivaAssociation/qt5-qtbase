@@ -1,0 +1,38 @@
+From 10ba2b36b95455a44488484c5751bd7e30a2be95 Mon Sep 17 00:00:00 2001
+From: Mitch Curtis <mitch.curtis@qt.io>
+Date: Mon, 28 Sep 2020 13:00:23 +0200
+Subject: [PATCH 072/171] Link to qAlpha in qRgb() and qRgba() docs
+
+Change-Id: I5a3b8573123e82f4c8c92fa7a2e1af06e2e84eb2
+Reviewed-by: Venugopal Shivashankar <Venugopal.Shivashankar@qt.io>
+(cherry picked from commit 418389c3ed925b2da3538d808ceeb53727978a8c)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/gui/painting/qcolor.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/gui/painting/qcolor.cpp b/src/gui/painting/qcolor.cpp
+index 7612f183bc..2352d6e18a 100644
+--- a/src/gui/painting/qcolor.cpp
++++ b/src/gui/painting/qcolor.cpp
+@@ -3203,7 +3203,7 @@ const uint qt_inv_premul_factor[256] = {
+ 
+     Returns the ARGB quadruplet (255, \a{r}, \a{g}, \a{b}).
+ 
+-    \sa qRgba(), qRed(), qGreen(), qBlue()
++    \sa qRgba(), qRed(), qGreen(), qBlue(), qAlpha()
+ */
+ 
+ /*!
+@@ -3212,7 +3212,7 @@ const uint qt_inv_premul_factor[256] = {
+ 
+     Returns the ARGB quadruplet (\a{a}, \a{r}, \a{g}, \a{b}).
+ 
+-    \sa qRgb(), qRed(), qGreen(), qBlue()
++    \sa qRgb(), qRed(), qGreen(), qBlue(), qAlpha()
+ */
+ 
+ /*!
+-- 
+2.31.1
+

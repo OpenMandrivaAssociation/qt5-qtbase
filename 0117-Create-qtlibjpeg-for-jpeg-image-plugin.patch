@@ -1,0 +1,226 @@
+From 3714c2d7b603328fb0d214b286cfcd008226df94 Mon Sep 17 00:00:00 2001
+From: Michal Klocek <michal.klocek@qt.io>
+Date: Fri, 25 Sep 2020 11:10:52 +0200
+Subject: [PATCH 117/171] Create qtlibjpeg for jpeg image plugin
+
+Create separate qtlibjpeg to have it installed.
+It is needed by static qtpdf builds to avoid embedding
+chromium jpeg which would lead to symbols duplication
+and most likely broken application.
+
+Task-number: QTBUG-87154
+Change-Id: I77eb251873f6ac9d3e248f5c6fbd41649770d201
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Joerg Bornemann <joerg.bornemann@qt.io>
+---
+ src/3rdparty/libjpeg.pri                 | 65 -------------------
+ src/3rdparty/libjpeg/libjpeg.pro         | 79 ++++++++++++++++++++++++
+ src/3rdparty/libjpeg/{ => src}/jconfig.h |  0
+ src/plugins/imageformats/jpeg/jpeg.pro   |  2 +-
+ src/src.pro                              |  7 +++
+ 5 files changed, 87 insertions(+), 66 deletions(-)
+ delete mode 100644 src/3rdparty/libjpeg.pri
+ create mode 100644 src/3rdparty/libjpeg/libjpeg.pro
+ rename src/3rdparty/libjpeg/{ => src}/jconfig.h (100%)
+
+diff --git a/src/3rdparty/libjpeg.pri b/src/3rdparty/libjpeg.pri
+deleted file mode 100644
+index 92ce25690c..0000000000
+--- a/src/3rdparty/libjpeg.pri
++++ /dev/null
+@@ -1,65 +0,0 @@
+-winrt: DEFINES += NO_GETENV
+-
+-# Disable warnings in 3rdparty code due to unused arguments
+-gcc: QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-main
+-
+-# Do not warn about sprintf, getenv, sscanf ... use
+-msvc: DEFINES += _CRT_SECURE_NO_WARNINGS
+-
+-INCLUDEPATH += \
+-    $$PWD/libjpeg \
+-    $$PWD/libjpeg/src
+-
+-SOURCES += \
+-    $$PWD/libjpeg/src/jaricom.c \
+-    $$PWD/libjpeg/src/jcapimin.c \
+-    $$PWD/libjpeg/src/jcapistd.c \
+-    $$PWD/libjpeg/src/jcarith.c \
+-    $$PWD/libjpeg/src/jccoefct.c \
+-    $$PWD/libjpeg/src/jccolor.c \
+-    $$PWD/libjpeg/src/jcdctmgr.c \
+-    $$PWD/libjpeg/src/jchuff.c \
+-    $$PWD/libjpeg/src/jcinit.c \
+-    $$PWD/libjpeg/src/jcmainct.c \
+-    $$PWD/libjpeg/src/jcmarker.c \
+-    $$PWD/libjpeg/src/jcmaster.c \
+-    $$PWD/libjpeg/src/jcomapi.c \
+-    $$PWD/libjpeg/src/jcparam.c \
+-    $$PWD/libjpeg/src/jcprepct.c \
+-    $$PWD/libjpeg/src/jcsample.c \
+-    $$PWD/libjpeg/src/jctrans.c \
+-    $$PWD/libjpeg/src/jdapimin.c \
+-    $$PWD/libjpeg/src/jdapistd.c \
+-    $$PWD/libjpeg/src/jdarith.c \
+-    $$PWD/libjpeg/src/jdatadst.c \
+-    $$PWD/libjpeg/src/jdatasrc.c \
+-    $$PWD/libjpeg/src/jdcoefct.c \
+-    $$PWD/libjpeg/src/jdcolor.c \
+-    $$PWD/libjpeg/src/jddctmgr.c \
+-    $$PWD/libjpeg/src/jdhuff.c \
+-    $$PWD/libjpeg/src/jdinput.c \
+-    $$PWD/libjpeg/src/jdmainct.c \
+-    $$PWD/libjpeg/src/jdmarker.c \
+-    $$PWD/libjpeg/src/jdmaster.c \
+-    $$PWD/libjpeg/src/jdmerge.c \
+-    $$PWD/libjpeg/src/jdpostct.c \
+-    $$PWD/libjpeg/src/jdsample.c \
+-    $$PWD/libjpeg/src/jdtrans.c \
+-    $$PWD/libjpeg/src/jerror.c \
+-    $$PWD/libjpeg/src/jfdctflt.c \
+-    $$PWD/libjpeg/src/jfdctfst.c \
+-    $$PWD/libjpeg/src/jfdctint.c \
+-    $$PWD/libjpeg/src/jidctflt.c \
+-    $$PWD/libjpeg/src/jidctfst.c \
+-    $$PWD/libjpeg/src/jidctint.c \
+-    $$PWD/libjpeg/src/jquant1.c \
+-    $$PWD/libjpeg/src/jquant2.c \
+-    $$PWD/libjpeg/src/jutils.c \
+-    $$PWD/libjpeg/src/jmemmgr.c \
+-    $$PWD/libjpeg/src/jsimd_none.c \
+-    $$PWD/libjpeg/src/jcphuff.c \
+-    $$PWD/libjpeg/src/jidctred.c \
+-    $$PWD/libjpeg/src/jdphuff.c \
+-    $$PWD/libjpeg/src/jmemnobs.c
+-
+-TR_EXCLUDE += $$PWD/*
+diff --git a/src/3rdparty/libjpeg/libjpeg.pro b/src/3rdparty/libjpeg/libjpeg.pro
+new file mode 100644
+index 0000000000..51a2511556
+--- /dev/null
++++ b/src/3rdparty/libjpeg/libjpeg.pro
+@@ -0,0 +1,79 @@
++TARGET = qtlibjpeg
++
++CONFIG += \
++    static \
++    hide_symbols \
++    exceptions_off rtti_off warn_off \
++    installed
++
++MODULE_INCLUDEPATH = $$PWD/src
++MODULE_EXT_HEADERS = $$PWD/src/jpeglib.h \
++                     $$PWD/src/jerror.h \
++		     $$PWD/src/jconfig.h \
++		     $$PWD/src/jmorecfg.h
++
++INCLUDEPATH += $$PWD $$PWD/src
++
++load(qt_helper_lib)
++
++winrt: DEFINES += NO_GETENV
++
++# Disable warnings in 3rdparty code due to unused arguments
++gcc: QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-main
++
++# Do not warn about sprintf, getenv, sscanf ... use
++msvc: DEFINES += _CRT_SECURE_NO_WARNINGS
++
++SOURCES += \
++    $$PWD/src/jaricom.c \
++    $$PWD/src/jcapimin.c \
++    $$PWD/src/jcapistd.c \
++    $$PWD/src/jcarith.c \
++    $$PWD/src/jccoefct.c \
++    $$PWD/src/jccolor.c \
++    $$PWD/src/jcdctmgr.c \
++    $$PWD/src/jchuff.c \
++    $$PWD/src/jcinit.c \
++    $$PWD/src/jcmainct.c \
++    $$PWD/src/jcmarker.c \
++    $$PWD/src/jcmaster.c \
++    $$PWD/src/jcomapi.c \
++    $$PWD/src/jcparam.c \
++    $$PWD/src/jcprepct.c \
++    $$PWD/src/jcsample.c \
++    $$PWD/src/jctrans.c \
++    $$PWD/src/jdapimin.c \
++    $$PWD/src/jdapistd.c \
++    $$PWD/src/jdarith.c \
++    $$PWD/src/jdatadst.c \
++    $$PWD/src/jdatasrc.c \
++    $$PWD/src/jdcoefct.c \
++    $$PWD/src/jdcolor.c \
++    $$PWD/src/jddctmgr.c \
++    $$PWD/src/jdhuff.c \
++    $$PWD/src/jdinput.c \
++    $$PWD/src/jdmainct.c \
++    $$PWD/src/jdmarker.c \
++    $$PWD/src/jdmaster.c \
++    $$PWD/src/jdmerge.c \
++    $$PWD/src/jdpostct.c \
++    $$PWD/src/jdsample.c \
++    $$PWD/src/jdtrans.c \
++    $$PWD/src/jerror.c \
++    $$PWD/src/jfdctflt.c \
++    $$PWD/src/jfdctfst.c \
++    $$PWD/src/jfdctint.c \
++    $$PWD/src/jidctflt.c \
++    $$PWD/src/jidctfst.c \
++    $$PWD/src/jidctint.c \
++    $$PWD/src/jquant1.c \
++    $$PWD/src/jquant2.c \
++    $$PWD/src/jutils.c \
++    $$PWD/src/jmemmgr.c \
++    $$PWD/src/jsimd_none.c \
++    $$PWD/src/jcphuff.c \
++    $$PWD/src/jidctred.c \
++    $$PWD/src/jdphuff.c \
++    $$PWD/src/jmemnobs.c
++
++TR_EXCLUDE += $$PWD/*
+diff --git a/src/3rdparty/libjpeg/jconfig.h b/src/3rdparty/libjpeg/src/jconfig.h
+similarity index 100%
+rename from src/3rdparty/libjpeg/jconfig.h
+rename to src/3rdparty/libjpeg/src/jconfig.h
+diff --git a/src/plugins/imageformats/jpeg/jpeg.pro b/src/plugins/imageformats/jpeg/jpeg.pro
+index 89476e62f5..fa14dd9cc1 100644
+--- a/src/plugins/imageformats/jpeg/jpeg.pro
++++ b/src/plugins/imageformats/jpeg/jpeg.pro
+@@ -8,7 +8,7 @@ HEADERS += main.h qjpeghandler_p.h
+ qtConfig(system-jpeg) {
+     QMAKE_USE += libjpeg
+ } else {
+-    include($$PWD/../../../3rdparty/libjpeg.pri)
++    QMAKE_USE_PRIVATE += libjpeg
+ }
+ 
+ OTHER_FILES += jpeg.json
+diff --git a/src/src.pro b/src/src.pro
+index f3f8d57af7..8990109743 100644
+--- a/src/src.pro
++++ b/src/src.pro
+@@ -100,6 +100,9 @@ src_testlib.depends = src_corelib   # testlib links only to corelib, but see bel
+ src_3rdparty_pcre2.subdir = $$PWD/3rdparty/pcre2
+ src_3rdparty_pcre2.target = sub-3rdparty-pcre2
+ 
++src_3rdparty_libjpeg.subdir = $$PWD/3rdparty/libjpeg
++src_3rdparty_libjpeg.target = sub-3rdparty-libjpeg
++
+ src_3rdparty_harfbuzzng.subdir = $$PWD/3rdparty/harfbuzz-ng
+ src_3rdparty_harfbuzzng.target = sub-3rdparty-harfbuzzng
+ src_3rdparty_harfbuzzng.depends = src_corelib   # for the Qt atomics
+@@ -204,6 +207,10 @@ qtConfig(gui) {
+         SUBDIRS += src_angle
+         src_gui.depends += src_angle
+     }
++    qtConfig(jpeg):!qtConfig(system-jpeg) {
++        SUBDIRS += src_3rdparty_libjpeg
++        src_plugins.depends = src_3rdparty_libjpeg
++    }
+     qtConfig(png):!qtConfig(system-png) {
+         SUBDIRS += src_3rdparty_libpng
+         src_3rdparty_freetype.depends += src_3rdparty_libpng
+-- 
+2.31.1
+

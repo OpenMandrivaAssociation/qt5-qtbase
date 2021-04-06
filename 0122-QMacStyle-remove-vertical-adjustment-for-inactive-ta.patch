@@ -1,0 +1,36 @@
+From 7eb7c0ef860afee6f9cf742e2f6db13183773286 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Wed, 18 Nov 2020 18:34:37 +0100
+Subject: [PATCH 122/171] QMacStyle - remove vertical adjustment for inactive
+ tab
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+While it worked as expected with beta, with final release this thing
+looks wrong again, especially in the dark mode.
+
+Change-Id: I6857344de897e0f39d9d8e66431635dbe2f4d077
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit abee4cdd5925a8513f51784754fca8fa35031732)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/plugins/styles/mac/qmacstyle_mac.mm | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/plugins/styles/mac/qmacstyle_mac.mm b/src/plugins/styles/mac/qmacstyle_mac.mm
+index 51dbec4513..67c045e8bd 100644
+--- a/src/plugins/styles/mac/qmacstyle_mac.mm
++++ b/src/plugins/styles/mac/qmacstyle_mac.mm
+@@ -3988,8 +3988,6 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
+                         rAdjusted.origin.x -= 3;
+                         rAdjusted.size.width += 6;
+                         if (isBigSurOrAbove) {
+-                            rAdjusted.origin.y -= 1;
+-                            rAdjusted.size.height += 1;
+                             if (tp == QStyleOptionTab::End)
+                                 rAdjusted.origin.x -= 2;
+                         }
+-- 
+2.31.1
+

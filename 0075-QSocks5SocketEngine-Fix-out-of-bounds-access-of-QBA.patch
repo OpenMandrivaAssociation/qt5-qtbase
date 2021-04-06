@@ -1,0 +1,34 @@
+From 83189474ad1cb07174e60fe2f27780067378dfa8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?M=C3=A5rten=20Nordheim?= <marten.nordheim@qt.io>
+Date: Thu, 19 Nov 2020 11:21:09 +0100
+Subject: [PATCH 075/171] QSocks5SocketEngine: Fix out-of-bounds access of QBA
+
+This should've been caught a long time ago, but long story short: it wasn't.
+This has been deprecated since 5.14 and is now asserting.
+
+Change-Id: Iddee22b1a68e5d1a03006831f795db8ec1c472be
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+(cherry picked from commit 456699da93323ca3ad56ca8f16aa3197dec380e6)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/network/socket/qsocks5socketengine.cpp | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/src/network/socket/qsocks5socketengine.cpp b/src/network/socket/qsocks5socketengine.cpp
+index 4f866e4da0..3a046fd116 100644
+--- a/src/network/socket/qsocks5socketengine.cpp
++++ b/src/network/socket/qsocks5socketengine.cpp
+@@ -1641,9 +1641,7 @@ qint64 QSocks5SocketEngine::writeDatagram(const char *data, qint64 len, const QI
+ 
+     QByteArray outBuf;
+     outBuf.reserve(270 + len);
+-    outBuf[0] = 0x00;
+-    outBuf[1] = 0x00;
+-    outBuf[2] = 0x00;
++    outBuf.append(3, '\0');
+     if (!qt_socks5_set_host_address_and_port(header.destinationAddress, header.destinationPort, &outBuf)) {
+     }
+     outBuf += QByteArray(data, len);
+-- 
+2.31.1
+

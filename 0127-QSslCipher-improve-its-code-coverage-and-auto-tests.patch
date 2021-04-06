@@ -1,0 +1,130 @@
+From ccc763aef1d4c69b8da8f7cd0b64d3f2f6a10e86 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Thu, 19 Nov 2020 17:01:37 +0100
+Subject: [PATCH 127/171] QSslCipher - improve its code coverage and auto-tests
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+tst_qsslcipher was quite useless - now we test that default constructed
+QSslCipher reports expected values. Test the non-default from the
+different auto-test,  where we are sure we have really useful
+ciphersuites (with different parameters obtained from a TLS backend,
+where it's possible).
+
+Change-Id: Iff14a0580fed889cf9e0873bee01d968773626db
+Reviewed-by: Timur Pocheptsov <timur.pocheptsov@qt.io>
+(cherry picked from commit 1a2e2921d268f09b6cb5ca91c85614192b8e2e0e)
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+---
+ .../network/ssl/qsslcipher/tst_qsslcipher.cpp | 12 +++--
+ .../network/ssl/qsslsocket/tst_qsslsocket.cpp | 44 +++++++------------
+ 2 files changed, 25 insertions(+), 31 deletions(-)
+
+diff --git a/tests/auto/network/ssl/qsslcipher/tst_qsslcipher.cpp b/tests/auto/network/ssl/qsslcipher/tst_qsslcipher.cpp
+index 9ffba1ec94..8114d1a064 100644
+--- a/tests/auto/network/ssl/qsslcipher/tst_qsslcipher.cpp
++++ b/tests/auto/network/ssl/qsslcipher/tst_qsslcipher.cpp
+@@ -30,9 +30,6 @@
+ #include <QtTest/QtTest>
+ #include <qsslcipher.h>
+ 
+-#include <QtNetwork/qhostaddress.h>
+-#include <QtNetwork/qnetworkproxy.h>
+-
+ class tst_QSslCipher : public QObject
+ {
+     Q_OBJECT
+@@ -50,6 +47,15 @@ private slots:
+ void tst_QSslCipher::constructing()
+ {
+     QSslCipher cipher;
++
++    QVERIFY(cipher.isNull());
++    QCOMPARE(cipher.name(), QString());
++    QCOMPARE(cipher.supportedBits(), 0);
++    QCOMPARE(cipher.usedBits(), 0);
++    QCOMPARE(cipher.keyExchangeMethod(), QString());
++    QCOMPARE(cipher.authenticationMethod(), QString());
++    QCOMPARE(cipher.protocolString(), QString());
++    QCOMPARE(cipher.protocol(), QSsl::UnknownProtocol);
+ }
+ 
+ #endif // QT_NO_SSL
+diff --git a/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp b/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp
+index ef02a5ff2d..26e8e9e04a 100644
+--- a/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp
++++ b/tests/auto/network/ssl/qsslsocket/tst_qsslsocket.cpp
+@@ -164,9 +164,6 @@ private slots:
+     // API tests
+     void sslErrors_data();
+     void sslErrors();
+-    void addCaCertificate();
+-    void addCaCertificates();
+-    void addCaCertificates2();
+     void ciphers();
+     void connectToHostEncrypted();
+     void connectToHostEncryptedWithVerificationPeerName();
+@@ -770,28 +767,17 @@ void tst_QSslSocket::sslErrors()
+     QCOMPARE(sslErrors, peerErrors);
+ }
+ 
+-void tst_QSslSocket::addCaCertificate()
+-{
+-    if (!QSslSocket::supportsSsl())
+-        return;
+-}
+-
+-void tst_QSslSocket::addCaCertificates()
+-{
+-    if (!QSslSocket::supportsSsl())
+-        return;
+-}
+-
+-void tst_QSslSocket::addCaCertificates2()
++void tst_QSslSocket::ciphers()
+ {
+     if (!QSslSocket::supportsSsl())
+         return;
+-}
+ 
+-void tst_QSslSocket::ciphers()
+-{
+-    if (!QSslSocket::supportsSsl())
++    QFETCH_GLOBAL(const bool, setProxy);
++    if (setProxy) {
++        // KISS(mart), we don't connect, no need to test the same thing
++        // many times!
+         return;
++    }
+ 
+     QSslSocket socket;
+     QCOMPARE(socket.sslConfiguration().ciphers(), QSslConfiguration::defaultConfiguration().ciphers());
+@@ -805,14 +791,16 @@ void tst_QSslSocket::ciphers()
+     socket.setSslConfiguration(sslConfig);
+     QCOMPARE(socket.sslConfiguration().ciphers(), QSslConfiguration::defaultConfiguration().ciphers());
+ 
+-    sslConfig.setCiphers(QSslConfiguration::defaultConfiguration().ciphers());
+-    socket.setSslConfiguration(sslConfig);
+-    QCOMPARE(socket.sslConfiguration().ciphers(), QSslConfiguration::defaultConfiguration().ciphers());
+-
+-    // Task 164356
+-    sslConfig.setCiphers({QSslCipher("ALL"), QSslCipher("!ADH"), QSslCipher("!LOW"),
+-                          QSslCipher("!EXP"), QSslCipher("!MD5"), QSslCipher("@STRENGTH")});
+-    socket.setSslConfiguration(sslConfig);
++#ifndef QT_NO_OPENSSL
++    const auto ciphers = QSslConfiguration::defaultConfiguration().ciphers();
++    for (const auto &cipher : ciphers) {
++        if (cipher.name().size() && cipher.protocol() != QSsl::UnknownProtocol) {
++            const QSslCipher aCopy(cipher.name(), cipher.protocol());
++            QCOMPARE(aCopy, cipher);
++            break;
++        }
++    }
++#endif // QT_NO_OPENSSL
+ }
+ 
+ void tst_QSslSocket::connectToHostEncrypted()
+-- 
+2.31.1
+

@@ -1,0 +1,89 @@
+From 2efc1cd6aa2f9a4797ba22fcde8acf1fa7e777d1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andr=C3=A9=20Klitzing?= <aklitzing@gmail.com>
+Date: Mon, 26 Oct 2020 09:59:17 +0100
+Subject: [PATCH 021/171] Use (void) instead of Q_UNUSED
+
+This change allows the user to use -Wextra-semi-stmt without a warning.
+A macro should never include a ; by it's own. Macro Q_UNUSED already
+adds semicolon.
+
+Fixes: QTBUG-82978
+Change-Id: I6d8d009cf89f0c8bbb6a9fee986e81302ebd7459
+Reviewed-by: hjk <hjk@qt.io>
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 71223cc92ba1039f0dfde1bb30d3cccdab30c4dd)
+---
+ src/tools/moc/generator.cpp | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/tools/moc/generator.cpp b/src/tools/moc/generator.cpp
+index 7264b5bf66..e8b1d2fb6a 100644
+--- a/src/tools/moc/generator.cpp
++++ b/src/tools/moc/generator.cpp
+@@ -1207,7 +1207,7 @@ void Generator::generateStaticMetacall()
+         } else {
+             fprintf(out, "        auto *_t = reinterpret_cast<%s *>(_o);\n", cdef->classname.constData());
+         }
+-        fprintf(out, "        Q_UNUSED(_t)\n");
++        fprintf(out, "        (void)_t;\n");
+         fprintf(out, "        switch (_id) {\n");
+         for (int methodindex = 0; methodindex < methodList.size(); ++methodindex) {
+             const FunctionDef &f = methodList.at(methodindex);
+@@ -1313,7 +1313,7 @@ void Generator::generateStaticMetacall()
+             fprintf(out, "            }\n        }\n");
+         }
+         if (!anythingUsed)
+-            fprintf(out, "        Q_UNUSED(result);\n");
++            fprintf(out, "        (void)result;\n");
+         fprintf(out, "    }");
+         needElse = true;
+     }
+@@ -1372,7 +1372,7 @@ void Generator::generateStaticMetacall()
+             } else {
+                 fprintf(out, "        auto *_t = reinterpret_cast<%s *>(_o);\n", cdef->classname.constData());
+             }
+-            fprintf(out, "        Q_UNUSED(_t)\n");
++            fprintf(out, "        (void)_t;\n");
+             if (needTempVarForGet)
+                 fprintf(out, "        void *_v = _a[0];\n");
+             fprintf(out, "        switch (_id) {\n");
+@@ -1418,7 +1418,7 @@ void Generator::generateStaticMetacall()
+             } else {
+                 fprintf(out, "        auto *_t = reinterpret_cast<%s *>(_o);\n", cdef->classname.constData());
+             }
+-            fprintf(out, "        Q_UNUSED(_t)\n");
++            fprintf(out, "        (void)_t;\n");
+             fprintf(out, "        void *_v = _a[0];\n");
+             fprintf(out, "        switch (_id) {\n");
+             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+@@ -1474,7 +1474,7 @@ void Generator::generateStaticMetacall()
+             } else {
+                 fprintf(out, "        %s *_t = reinterpret_cast<%s *>(_o);\n", cdef->classname.constData(), cdef->classname.constData());
+             }
+-            fprintf(out, "        Q_UNUSED(_t)\n");
++            fprintf(out, "        (void)_t;\n");
+             fprintf(out, "        switch (_id) {\n");
+             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                 const PropertyDef &p = cdef->propertyList.at(propindex);
+@@ -1499,14 +1499,14 @@ void Generator::generateStaticMetacall()
+         fprintf(out, "\n");
+ 
+     if (methodList.isEmpty()) {
+-        fprintf(out, "    Q_UNUSED(_o);\n");
++        fprintf(out, "    (void)_o;\n");
+         if (cdef->constructorList.isEmpty() && automaticPropertyMetaTypes.isEmpty() && methodsWithAutomaticTypesHelper(methodList).isEmpty()) {
+-            fprintf(out, "    Q_UNUSED(_id);\n");
+-            fprintf(out, "    Q_UNUSED(_c);\n");
++            fprintf(out, "    (void)_id;\n");
++            fprintf(out, "    (void)_c;\n");
+         }
+     }
+     if (!isUsed_a)
+-        fprintf(out, "    Q_UNUSED(_a);\n");
++        fprintf(out, "    (void)_a;\n");
+ 
+     fprintf(out, "}\n\n");
+ }
+-- 
+2.31.1
+

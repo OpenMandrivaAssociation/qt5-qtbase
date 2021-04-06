@@ -1,0 +1,49 @@
+From 30151e20b88c7c93090e1d2a408542d945acff5b Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Wed, 28 Oct 2020 16:31:44 +0100
+Subject: [PATCH 066/171] Fix misidentification of some shearing QTransforms as
+ only rotating
+
+The dot product used rows instead of columns.
+
+Fixes: QTBUG-87984
+Change-Id: I922f67ed0fa9a4f88aa4e9fc6d3c09f8dda21688
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit 7aa68ee6f2e08ce0b4f5c698a8c012895f738dd2)
+---
+ src/gui/painting/qtransform.cpp                       | 2 +-
+ tests/auto/gui/painting/qtransform/tst_qtransform.cpp | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/gui/painting/qtransform.cpp b/src/gui/painting/qtransform.cpp
+index 9d8bb0c3e2..0952bd22fb 100644
+--- a/src/gui/painting/qtransform.cpp
++++ b/src/gui/painting/qtransform.cpp
+@@ -2126,7 +2126,7 @@ QTransform::TransformationType QTransform::type() const
+     case TxShear:
+     case TxRotate:
+         if (!qFuzzyIsNull(affine._m12) || !qFuzzyIsNull(affine._m21)) {
+-            const qreal dot = affine._m11 * affine._m12 + affine._m21 * affine._m22;
++            const qreal dot = affine._m11 * affine._m21 + affine._m12 * affine._m22;
+             if (qFuzzyIsNull(dot))
+                 m_type = TxRotate;
+             else
+diff --git a/tests/auto/gui/painting/qtransform/tst_qtransform.cpp b/tests/auto/gui/painting/qtransform/tst_qtransform.cpp
+index f31e2bf41b..48e4f4c9c0 100644
+--- a/tests/auto/gui/painting/qtransform/tst_qtransform.cpp
++++ b/tests/auto/gui/painting/qtransform/tst_qtransform.cpp
+@@ -447,8 +447,9 @@ void tst_QTransform::types()
+     QCOMPARE(m1.inverted().type(), QTransform::TxScale);
+ 
+     m1.rotate(45.0f);
+-    QCOMPARE(m1.type(), QTransform::TxRotate);
+-    QCOMPARE(m1.inverted().type(), QTransform::TxRotate);
++    // Rotation after non-uniform scaling -> shearing. Uniform scale + rotate tested below.
++    QCOMPARE(m1.type(), QTransform::TxShear);
++    QCOMPARE(m1.inverted().type(), QTransform::TxShear);
+ 
+     m1.shear(0.5f, 0.25f);
+     QCOMPARE(m1.type(), QTransform::TxShear);
+-- 
+2.31.1
+

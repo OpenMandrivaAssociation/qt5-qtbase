@@ -1,0 +1,102 @@
+From c39fd63d71970a16422bd184f84669cd6b026577 Mon Sep 17 00:00:00 2001
+From: Edward Welbourne <edward.welbourne@qt.io>
+Date: Wed, 25 Nov 2020 12:18:49 +0100
+Subject: [PATCH 110/171] Return a more useful date-time on parser failure in
+ spring-forward gap
+
+Up to 5.15.0, QDateTime::fromString(), when parsing a string that
+matched the format but represented a date-time in a spring-forward's
+gap, would return an invalid date-time object that represented a "best
+shot" date-time, correcting the error in the string as best it could.
+
+In 5.15, in order to handle time-spec information correctly, we
+adapted the date-time parser to have a fromString() variant that
+parsed a date-time as a whole, rather than as a date and a time; as a
+result, QDTP::fromString() now returns false and QDT::fromString()
+returned a default-constructed instance instead of the invalid
+date-time that QDTP had produced.
+
+Amend 76054516047d8efb8529443830bb4d9ddf01010f to restore the prior
+behavior of returning the invalid date-time object from QDTP instead
+of a default-constructed invalid date-time. Also document what this
+implies for the caller's ability to recover from the situation, if a
+best shot result is better than nothing.
+
+[ChangeLog][QtCore][QDateTime] Restored pre-5.15.0 behavior when
+parsing a date-time from a string (and document what it implies): if
+the string has the right form but represents a date-time that was
+skipped by a time-zone transition (e.g. a DST spring-forward), the
+invalid date-time object returned can, none the less, be used to
+recover a near-by date-time that may be more useful in some cases.
+From 5.15.0 to 5.15.2 and in 6.0.0, a default-constructed QDateTime
+was returned in place of this more informative invalid date-time.
+
+Task-number: QTBUG-88633
+Change-Id: If0b439038d5fe48eefb951c62f3aae2933bb5651
+Reviewed-by: Andrei Golubev <andrei.golubev@qt.io>
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 3a4115d1236bc78dda078657883283cc92df8e8a)
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+---
+ src/corelib/text/qlocale.cpp   |  9 +++++++--
+ src/corelib/time/qdatetime.cpp | 10 ++++++++--
+ 2 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/src/corelib/text/qlocale.cpp b/src/corelib/text/qlocale.cpp
+index dc73a78bb4..67b06f42f4 100644
+--- a/src/corelib/text/qlocale.cpp
++++ b/src/corelib/text/qlocale.cpp
+@@ -2568,7 +2568,12 @@ QDate QLocale::toDate(const QString &string, const QString &format, QCalendar ca
+     \note The month and day names used must be given in the user's local
+     language.
+ 
+-    If the string could not be parsed, returns an invalid QDateTime.
++    If the string could not be parsed, returns an invalid QDateTime.  If the
++    string can be parsed and represents an invalid date-time (e.g. in a gap
++    skipped by a time-zone transition), an invalid QDateTime is returned, whose
++    toMSecsSinceEpoch() represents a near-by date-time that is valid. Passing
++    that to fromMSecsSinceEpoch() will produce a valid date-time that isn't
++    faithfully represented by the string parsed.
+ 
+     \sa dateTimeFormat(), toTime(), toDate(), QDateTime::fromString()
+ */
+@@ -2588,7 +2593,7 @@ QDateTime QLocale::toDateTime(const QString &string, const QString &format, QCal
+ 
+     QDateTimeParser dt(QMetaType::QDateTime, QDateTimeParser::FromString, cal);
+     dt.setDefaultLocale(*this);
+-    if (dt.parseFormat(format) && dt.fromString(string, &datetime))
++    if (dt.parseFormat(format) && (dt.fromString(string, &datetime) || !datetime.isValid()))
+         return datetime;
+ #else
+     Q_UNUSED(string);
+diff --git a/src/corelib/time/qdatetime.cpp b/src/corelib/time/qdatetime.cpp
+index 756264a00e..e824787880 100644
+--- a/src/corelib/time/qdatetime.cpp
++++ b/src/corelib/time/qdatetime.cpp
+@@ -5502,7 +5502,13 @@ QT_WARNING_POP
+ 
+     \snippet code/src_corelib_tools_qdatetime.cpp 12
+ 
+-    If the format is not satisfied, an invalid QDateTime is returned.
++    If the format is not satisfied, an invalid QDateTime is returned.  If the
++    format is satisfied but \a string represents an invalid date-time (e.g. in a
++    gap skipped by a time-zone transition), an invalid QDateTime is returned,
++    whose toMSecsSinceEpoch() represents a near-by date-time that is
++    valid. Passing that to fromMSecsSinceEpoch() will produce a valid date-time
++    that isn't faithfully represented by the string parsed.
++
+     The expressions that don't have leading zeroes (d, M, h, m, s, z) will be
+     greedy. This means that they will use two digits even if this will
+     put them outside the range and/or leave too few digits for other
+@@ -5557,7 +5563,7 @@ QDateTime QDateTime::fromString(const QString &string, const QString &format, QC
+ 
+     QDateTimeParser dt(QMetaType::QDateTime, QDateTimeParser::FromString, cal);
+     // dt.setDefaultLocale(QLocale::c()); ### Qt 6
+-    if (dt.parseFormat(format) && dt.fromString(string, &datetime))
++    if (dt.parseFormat(format) && (dt.fromString(string, &datetime) || !datetime.isValid()))
+         return datetime;
+ #else
+     Q_UNUSED(string);
+-- 
+2.31.1
+

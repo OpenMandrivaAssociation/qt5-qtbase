@@ -1,0 +1,33 @@
+From 6d5514ac7d846d7ed17a5ac62c2809f84532d444 Mon Sep 17 00:00:00 2001
+From: Liang Qi <liang.qi@qt.io>
+Date: Thu, 3 Dec 2020 13:41:05 +0100
+Subject: [PATCH 144/171] tests: add a shortcut to quit app in allcursors
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: I6b377cacfe05fc13c9f70e37247ed4da72f3f72e
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit c48cb3381027779a5d58b02878893d176a83479a)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ tests/manual/qcursor/allcursors/mainwindow.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tests/manual/qcursor/allcursors/mainwindow.cpp b/tests/manual/qcursor/allcursors/mainwindow.cpp
+index f2fa438330..ecd2c4d908 100644
+--- a/tests/manual/qcursor/allcursors/mainwindow.cpp
++++ b/tests/manual/qcursor/allcursors/mainwindow.cpp
+@@ -51,6 +51,9 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
+ {
+     QPoint off(0, 0);
+     switch (event->key()) {
++    case Qt::Key_Q:
++        qApp->quit();
++        break;
+     case Qt::Key_Up:
+         off.setY(-4);
+         break;
+-- 
+2.31.1
+

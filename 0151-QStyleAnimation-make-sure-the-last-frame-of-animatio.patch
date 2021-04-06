@@ -1,0 +1,37 @@
+From b048faf869f16891034062d2b047c9c6c12e6b3e Mon Sep 17 00:00:00 2001
+From: Wang Chuan <ouchuanm@outlook.com>
+Date: Mon, 30 Nov 2020 21:09:42 +0800
+Subject: [PATCH 151/171] QStyleAnimation: make sure the last frame of
+ animation is rendered
+
+Amend to 8738f09b9fc1b35e3dc78211368d87069f3071f7.
+The last frame of animation might be lacked if [_skip < fps].
+
+Fixes: QTBUG-89118
+Change-Id: Ia0345e2aff7579afe2d60c4e7495bfaa1f36198c
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit 04fed9f77e3288f69fe89bcb8a3f1cdbe02ce219)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/widgets/styles/qstyleanimation.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/widgets/styles/qstyleanimation.cpp b/src/widgets/styles/qstyleanimation.cpp
+index b9202eae69..f4a2ebe913 100644
+--- a/src/widgets/styles/qstyleanimation.cpp
++++ b/src/widgets/styles/qstyleanimation.cpp
+@@ -122,9 +122,9 @@ bool QStyleAnimation::isUpdateNeeded() const
+     return currentTime() > _delay;
+ }
+ 
+-void QStyleAnimation::updateCurrentTime(int)
++void QStyleAnimation::updateCurrentTime(int time)
+ {
+-    if (++_skip >= _fps) {
++    if (++_skip >= _fps || time >= duration()) {
+         _skip = 0;
+         if (target() && isUpdateNeeded())
+             updateTarget();
+-- 
+2.31.1
+

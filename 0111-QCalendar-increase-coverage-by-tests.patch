@@ -1,0 +1,221 @@
+From 23f23ffd05e2c69968a5f2c2b3a2b1904e0f0ecb Mon Sep 17 00:00:00 2001
+From: Edward Welbourne <edward.welbourne@qt.io>
+Date: Fri, 13 Nov 2020 16:04:56 +0100
+Subject: [PATCH 111/171] QCalendar: increase coverage by tests
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Added tests for aliases and various calendar properties, ensured
+dateToJulianDay()'s invalid date branch is exercised. Corrected
+assertion when constructing from system and asserted calendarSystem()
+is as expected.
+
+Task-number: QTBUG-88183
+Change-Id: I510afcb5d9d115f68148d1f679f3224d712f92f4
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 4785e39156312c995c39e68c8f80f2efba71c49f)
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+---
+ src/corelib/time/qcalendar.cpp                |   3 +-
+ .../corelib/time/qcalendar/tst_qcalendar.cpp  | 108 ++++++++++++++++--
+ 2 files changed, 103 insertions(+), 8 deletions(-)
+
+diff --git a/src/corelib/time/qcalendar.cpp b/src/corelib/time/qcalendar.cpp
+index 7700ce5b8d..14b162a77b 100644
+--- a/src/corelib/time/qcalendar.cpp
++++ b/src/corelib/time/qcalendar.cpp
+@@ -737,7 +737,8 @@ QCalendar::QCalendar()
+ QCalendar::QCalendar(QCalendar::System system)
+     : d(QCalendarBackend::fromEnum(system))
+ {
+-    Q_ASSERT(d);
++    // If system is valid, we should get a valid d for that system.
++    Q_ASSERT(uint(system) > uint(QCalendar::System::Last) || (d && d->calendarSystem() == system));
+ }
+ 
+ QCalendar::QCalendar(QLatin1String name)
+diff --git a/tests/auto/corelib/time/qcalendar/tst_qcalendar.cpp b/tests/auto/corelib/time/qcalendar/tst_qcalendar.cpp
+index 5da69e76a5..55027530ec 100644
+--- a/tests/auto/corelib/time/qcalendar/tst_qcalendar.cpp
++++ b/tests/auto/corelib/time/qcalendar/tst_qcalendar.cpp
+@@ -47,6 +47,9 @@ private slots:
+     void specific();
+     void daily_data() { basic_data(); }
+     void daily();
++    void properties_data();
++    void properties();
++    void aliases();
+ };
+ 
+ // Support for basic():
+@@ -57,7 +60,10 @@ void tst_QCalendar::checkYear(const QCalendar &cal, int year, bool normal)
+     QVERIFY(moons > 0);
+     QVERIFY(!cal.isDateValid(year, moons + 1, 1));
+     QVERIFY(!cal.isDateValid(year, 0, 1));
++    QVERIFY(!QDate(year, 0, 1, cal).isValid());
+     QVERIFY(moons <= cal.maximumMonthsInYear());
++    QCOMPARE(cal.standaloneMonthName(QLocale::c(), moons + 1, year), QString());
++    QCOMPARE(cal.monthName(QLocale::c(), 0, year), QString());
+ 
+     const int days = cal.daysInYear(year);
+     QVERIFY(days > 0);
+@@ -118,6 +124,7 @@ void tst_QCalendar::basic()
+         QCOMPARE(cal.monthsInYear(0), 0);
+         QCOMPARE(cal.daysInYear(0), 0);
+         QVERIFY(!cal.isDateValid(0, 1, 1));
++        QVERIFY(!QDate(0, 1, 1, cal).isValid());
+     }
+ 
+     if (cal.isProleptic()) {
+@@ -177,6 +184,7 @@ void tst_QCalendar::specific_data()
+ {
+     QTest::addColumn<QCalendar::System>("system");
+     // Date in that system:
++    QTest::addColumn<QString>("monthName");
+     QTest::addColumn<int>("sysyear");
+     QTest::addColumn<int>("sysmonth");
+     QTest::addColumn<int>("sysday");
+@@ -185,26 +193,27 @@ void tst_QCalendar::specific_data()
+     QTest::addColumn<int>("gregmonth");
+     QTest::addColumn<int>("gregday");
+ 
+-#define ADDROW(cal, year, month, day, gy, gm, gd) \
+-    QTest::newRow(#cal) << QCalendar::System::cal << year << month << day << gy << gm << gd
++#define ADDROW(cal, monthName, year, month, day, gy, gm, gd) \
++    QTest::newRow(#cal) << QCalendar::System::cal << QStringLiteral(monthName) \
++                        << year << month << day << gy << gm << gd
+ 
+-    ADDROW(Gregorian, 1970, 1, 1, 1970, 1, 1);
++    ADDROW(Gregorian, "January", 1970, 1, 1, 1970, 1, 1);
+ 
+     // One known specific date, for each calendar
+ #ifndef QT_BOOTSTRAPPED
+     // Julian 1582-10-4 was followed by Gregorian 1582-10-15
+-    ADDROW(Julian, 1582, 10, 4, 1582, 10, 14);
++    ADDROW(Julian, "October", 1582, 10, 4, 1582, 10, 14);
+     // Milankovic matches Gregorian for a few centuries
+-    ADDROW(Milankovic, 1923, 3, 20, 1923, 3, 20);
++    ADDROW(Milankovic, "March", 1923, 3, 20, 1923, 3, 20);
+ #endif
+ 
+ #if QT_CONFIG(jalalicalendar)
+     // Jalali year 1355 started on Gregorian 1976-3-21:
+-    ADDROW(Jalali, 1355, 1, 1, 1976, 3, 21);
++    ADDROW(Jalali, "Farvardin", 1355, 1, 1, 1976, 3, 21);
+ #endif // jalali
+ #if QT_CONFIG(islamiccivilcalendar)
+     // TODO: confirm this is correct
+-    ADDROW(IslamicCivil, 1, 1, 1, 622, 7, 19);
++    ADDROW(IslamicCivil, "Muharram", 1, 1, 1, 622, 7, 19);
+ #endif
+ 
+ #undef ADDROW
+@@ -213,6 +222,7 @@ void tst_QCalendar::specific_data()
+ void tst_QCalendar::specific()
+ {
+     QFETCH(QCalendar::System, system);
++    QFETCH(const QString, monthName);
+     QFETCH(int, sysyear);
+     QFETCH(int, sysmonth);
+     QFETCH(int, sysday);
+@@ -221,6 +231,7 @@ void tst_QCalendar::specific()
+     QFETCH(int, gregday);
+ 
+     const QCalendar cal(system);
++    QCOMPARE(cal.monthName(QLocale::c(), sysmonth), monthName);
+     const QDate date(sysyear, sysmonth, sysday, cal), gregory(gregyear, gregmonth, gregday);
+     QCOMPARE(date, gregory);
+     QCOMPARE(gregory.year(cal), sysyear);
+@@ -255,5 +266,88 @@ void tst_QCalendar::daily()
+     }
+ }
+ 
++void tst_QCalendar::properties_data()
++{
++    QTest::addColumn<QCalendar::System>("system");
++    QTest::addColumn<bool>("gregory");
++    QTest::addColumn<bool>("lunar");
++    QTest::addColumn<bool>("luniSolar");
++    QTest::addColumn<bool>("solar");
++    QTest::addColumn<bool>("proleptic");
++    QTest::addColumn<bool>("yearZero");
++    QTest::addColumn<int>("monthMax");
++    QTest::addColumn<int>("monthMin");
++    QTest::addColumn<int>("yearMax");
++    QTest::addColumn<QString>("name");
++
++    QTest::addRow("Gregorian")
++        << QCalendar::System::Gregorian << true << false << false << true << true << false
++        << 31 << 28 << 12 << QStringLiteral("Gregorian");
++#ifndef QT_BOOTSTRAPPED
++    QTest::addRow("Julian")
++        << QCalendar::System::Julian << false << false << false << true << true << false
++        << 31 << 28 << 12 << QStringLiteral("Julian");
++    QTest::addRow("Milankovic")
++        << QCalendar::System::Milankovic << false << false << false << true << true << false
++        << 31 << 28 << 12 << QStringLiteral("Milankovic");
++#endif
++
++#if QT_CONFIG(jalalicalendar)
++    QTest::addRow("Jalali")
++        << QCalendar::System::Jalali << false << false << false << true << true << false
++        << 31 << 29 << 12 << QStringLiteral("Jalali");
++#endif
++#if QT_CONFIG(islamiccivilcalendar)
++    QTest::addRow("IslamicCivil")
++        << QCalendar::System::IslamicCivil << false << true << false << false << true << false
++        << 30 << 29 << 12 << QStringLiteral("Islamic Civil");
++#endif
++}
++
++void tst_QCalendar::properties()
++{
++    QFETCH(const QCalendar::System, system);
++    QFETCH(const bool, gregory);
++    QFETCH(const bool, lunar);
++    QFETCH(const bool, luniSolar);
++    QFETCH(const bool, solar);
++    QFETCH(const bool, proleptic);
++    QFETCH(const bool, yearZero);
++    QFETCH(const int, monthMax);
++    QFETCH(const int, monthMin);
++    QFETCH(const int, yearMax);
++    QFETCH(const QString, name);
++
++    const QCalendar cal(system);
++    QCOMPARE(cal.isGregorian(), gregory);
++    QCOMPARE(cal.isLunar(), lunar);
++    QCOMPARE(cal.isLuniSolar(), luniSolar);
++    QCOMPARE(cal.isSolar(), solar);
++    QCOMPARE(cal.isProleptic(), proleptic);
++    QCOMPARE(cal.hasYearZero(), yearZero);
++    QCOMPARE(cal.maximumDaysInMonth(), monthMax);
++    QCOMPARE(cal.minimumDaysInMonth(), monthMin);
++    QCOMPARE(cal.maximumMonthsInYear(), yearMax);
++    QCOMPARE(cal.name(), name);
++}
++
++void tst_QCalendar::aliases()
++{
++    QCOMPARE(QCalendar(u"gregory").name(), u"Gregorian");
++#if QT_CONFIG(jalalicalendar)
++    QCOMPARE(QCalendar(u"Persian").name(), u"Jalali");
++#endif
++#if QT_CONFIG(islamiccivilcalendar)
++    // Exercise all constructors from name, while we're at it:
++    QCOMPARE(QCalendar(u"islamic-civil").name(), u"Islamic Civil");
++    QCOMPARE(QCalendar(QLatin1String("islamic")).name(), u"Islamic Civil");
++    QCOMPARE(QCalendar(QStringLiteral("Islamic")).name(), u"Islamic Civil");
++#endif
++
++    // Invalid is handled gracefully:
++    QCOMPARE(QCalendar(u"").name(), QString());
++    QCOMPARE(QCalendar(QCalendar::System::User).name(), QString());
++}
++
+ QTEST_APPLESS_MAIN(tst_QCalendar)
+ #include "tst_qcalendar.moc"
+-- 
+2.31.1
+

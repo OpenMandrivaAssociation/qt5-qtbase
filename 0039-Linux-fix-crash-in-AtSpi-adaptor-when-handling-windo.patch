@@ -1,0 +1,35 @@
+From 7d9f0cd3929474767fdad554f7cee4539689ce8f Mon Sep 17 00:00:00 2001
+From: Lu YaNing <luyaning@uniontech.com>
+Date: Wed, 4 Nov 2020 17:33:45 +0800
+Subject: [PATCH 039/171] Linux: fix crash in AtSpi adaptor when handling
+ window activation
+
+fix The window has been quickly activated or disabled will cause a crash .
+
+Fixes: QTBUG-84643
+Change-Id: I0fd0918a3fc1898ddffd97009a4e92702ecd9ed4
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 1ac7bf1ed45644b68b8cbf24b34aa39a812b7739)
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+---
+ src/platformsupport/linuxaccessibility/atspiadaptor.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+index 88539b7220..9153fd20bb 100644
+--- a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
++++ b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+@@ -803,7 +803,9 @@ void AtSpiAdaptor::windowActivated(QObject* window, bool active)
+         return;
+ 
+     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(window);
+-    Q_ASSERT(iface);
++    // If the window has been quickly activated or disabled, it will cause a crash.
++    if (iface == nullptr)
++        return;
+     Q_ASSERT(!active || iface->isValid());
+ 
+     QString windowTitle;
+-- 
+2.31.1
+

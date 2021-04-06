@@ -1,0 +1,43 @@
+From 634f633a8569712342113c83db1ffbd0e6449a3d Mon Sep 17 00:00:00 2001
+From: Assam Boudjelthia <assam.boudjelthia@qt.io>
+Date: Mon, 2 Nov 2020 14:59:13 +0200
+Subject: [PATCH 027/171] Android: fix documentation about ANDROID_EXTRA_LIBS
+
+ANDROID_ABIS should be used instead of ANDROID_TARGET_ARCH.
+
+Fixes: QTBUG-81866
+Change-Id: I6dc9e0cd2a19bea8864e3ab4174bd609c0aad4dc
+Reviewed-by: Andy Shaw <andy.shaw@qt.io>
+(cherry picked from commit 75d32a195a1dbba42756353ee1705b709bfab002)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ qmake/doc/src/qmake-manual.qdoc | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/qmake/doc/src/qmake-manual.qdoc b/qmake/doc/src/qmake-manual.qdoc
+index 05116b7b1b..517eeed02b 100644
+--- a/qmake/doc/src/qmake-manual.qdoc
++++ b/qmake/doc/src/qmake-manual.qdoc
+@@ -994,6 +994,19 @@
+     to enable OpenSSL in your application. For more information, see
+     \l{Adding OpenSSL Support for Android}.
+ 
++    To include external libraries for multiple ABIs, where each ABIs has its own
++    directory, use the following:
++
++    \badcode
++    for (abi, ANDROID_ABIS): ANDROID_EXTRA_LIBS += $$PWD/$${abi}/library_name.so
++    \endcode
++
++    Otherwise, if the ABI is included in the library name, use the following:
++
++    \badcode
++    for (abi, ANDROID_ABIS): ANDROID_EXTRA_LIBS += $$PWD/library_name_$${abi}.so
++    \endcode
++
+     \target ANDROID_EXTRA_PLUGINS
+     \section1 ANDROID_EXTRA_PLUGINS
+ 
+-- 
+2.31.1
+

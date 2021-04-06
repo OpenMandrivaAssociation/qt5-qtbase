@@ -1,0 +1,94 @@
+From 0a5ced7b0b3b006a49f968a624ba359226461c4d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Fri, 30 Oct 2020 12:05:02 +0100
+Subject: [PATCH 018/171] testlib: Let logger report whether it is logging to
+ stdout
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: I7df61b4fdc8c431a73c4b399e2f620923a7c7217
+Reviewed-by: Simon Hausmann <hausmann@gmail.com>
+(cherry picked from commit 81957e753ea0f875556490857fbff50688db42f1)
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+---
+ src/testlib/qabstracttestlogger.cpp |  5 +++++
+ src/testlib/qabstracttestlogger_p.h |  2 ++
+ src/testlib/qtestlog.cpp            | 11 ++++++-----
+ 3 files changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/src/testlib/qabstracttestlogger.cpp b/src/testlib/qabstracttestlogger.cpp
+index ff05dd88c7..c7a0784da7 100644
+--- a/src/testlib/qabstracttestlogger.cpp
++++ b/src/testlib/qabstracttestlogger.cpp
+@@ -90,6 +90,11 @@ QAbstractTestLogger::~QAbstractTestLogger()
+     stream = nullptr;
+ }
+ 
++bool QAbstractTestLogger::isLoggingToStdout() const
++{
++    return stream == stdout;
++}
++
+ void QAbstractTestLogger::filterUnprintable(char *str) const
+ {
+     unsigned char *idx = reinterpret_cast<unsigned char *>(str);
+diff --git a/src/testlib/qabstracttestlogger_p.h b/src/testlib/qabstracttestlogger_p.h
+index e5a1404c16..079f5f87d5 100644
+--- a/src/testlib/qabstracttestlogger_p.h
++++ b/src/testlib/qabstracttestlogger_p.h
+@@ -106,6 +106,8 @@ public:
+     virtual void addMessage(MessageTypes type, const QString &message,
+                             const char *file = nullptr, int line = 0) = 0;
+ 
++    bool isLoggingToStdout() const;
++
+     void outputString(const char *msg);
+ 
+ protected:
+diff --git a/src/testlib/qtestlog.cpp b/src/testlib/qtestlog.cpp
+index be50176a08..58ba26d989 100644
+--- a/src/testlib/qtestlog.cpp
++++ b/src/testlib/qtestlog.cpp
+@@ -169,7 +169,6 @@ namespace QTest {
+     static IgnoreResultList *ignoreResultList = nullptr;
+ 
+     static QVector<QAbstractTestLogger*> loggers;
+-    static bool loggerUsingStdout = false;
+ 
+     static int verbosity = 0;
+     static int maxWarnings = 2002;
+@@ -431,7 +430,6 @@ void QTestLog::stopLogging()
+         delete logger;
+     }
+     QTest::loggers.clear();
+-    QTest::loggerUsingStdout = false;
+     saveCoverageTool(QTestResult::currentAppName(), failCount() != 0, QTestLog::installedTestCoverage());
+ }
+ 
+@@ -439,8 +437,6 @@ void QTestLog::addLogger(LogMode mode, const char *filename)
+ {
+     if (filename && strcmp(filename, "-") == 0)
+         filename = nullptr;
+-    if (!filename)
+-        QTest::loggerUsingStdout = true;
+ 
+     QAbstractTestLogger *logger = nullptr;
+     switch (mode) {
+@@ -488,7 +484,12 @@ int QTestLog::loggerCount()
+ 
+ bool QTestLog::loggerUsingStdout()
+ {
+-    return QTest::loggerUsingStdout;
++    FOREACH_TEST_LOGGER {
++        if (logger->isLoggingToStdout())
++            return true;
++    }
++
++    return false;
+ }
+ 
+ void QTestLog::warn(const char *msg, const char *file, int line)
+-- 
+2.31.1
+

@@ -1,0 +1,71 @@
+From 0a6aa1d4f031f986dde10399eacc82fc60731eca Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Mon, 2 Nov 2020 14:17:04 +0100
+Subject: [PATCH 025/171] QMarginsF: document that isNull/operator==/operator!=
+ are fuzzy
+
+Change-Id: Id1865f6d608e5cdbb6d24351aea5f6801a519684
+Reviewed-by: Allan Sandfeld Jensen <allan.jensen@qt.io>
+(cherry picked from commit 4703e07a7c4ce9e89cadb0ef1c1ef69f8ed9fb21)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/corelib/tools/qmargins.cpp | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/src/corelib/tools/qmargins.cpp b/src/corelib/tools/qmargins.cpp
+index 74be7bb2ba..ac00aaee96 100644
+--- a/src/corelib/tools/qmargins.cpp
++++ b/src/corelib/tools/qmargins.cpp
+@@ -460,7 +460,7 @@ QDebug operator<<(QDebug dbg, const QMargins &m)
+     QMarginsF defines a set of four margins; left, top, right and bottom,
+     that describe the size of the borders surrounding a rectangle.
+ 
+-    The isNull() function returns \c true only if all margins are set to zero.
++    The isNull() function returns \c true only if all margins are very close to zero.
+ 
+     QMarginsF objects can be streamed as well as compared.
+ */
+@@ -495,8 +495,10 @@ QDebug operator<<(QDebug dbg, const QMargins &m)
+ /*!
+     \fn bool QMarginsF::isNull() const
+ 
+-    Returns \c true if all margins are 0; otherwise returns
++    Returns \c true if all margins are very close to 0; otherwise returns
+     false.
++
++    \sa qFuzzyIsNull
+ */
+ 
+ 
+@@ -557,14 +559,26 @@ QDebug operator<<(QDebug dbg, const QMargins &m)
+     \fn bool operator==(const QMarginsF &lhs, const QMarginsF &rhs)
+     \relates QMarginsF
+ 
+-    Returns \c true if \a lhs and \a rhs are equal; otherwise returns \c false.
++    Returns \c true if \a lhs and \a rhs are approximately equal; otherwise
++    returns false.
++
++    \warning This function does not check for strict equality; instead,
++    it uses a fuzzy comparison to compare the margins.
++
++    \sa qFuzzyCompare
+ */
+ 
+ /*!
+     \fn bool operator!=(const QMarginsF &lhs, const QMarginsF &rhs)
+     \relates QMarginsF
+ 
+-    Returns \c true if \a lhs and \a rhs are different; otherwise returns \c false.
++    Returns \c true if \a lhs and \a rhs are sufficiently different; otherwise
++    returns \c false.
++
++    \warning This function does not check for strict inequality; instead,
++    it uses a fuzzy comparison to compare the margins.
++
++    \sa qFuzzyCompare
+ */
+ 
+ /*!
+-- 
+2.31.1
+

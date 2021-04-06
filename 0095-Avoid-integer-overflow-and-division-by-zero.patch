@@ -1,0 +1,49 @@
+From bb8522682d9ad5b13874f4cb469ec3daf358c48c Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Mon, 23 Nov 2020 11:54:48 +0100
+Subject: [PATCH 095/171] Avoid integer overflow and division by zero
+
+Restrain patterns to sensible lengths and values.
+
+[ChangeLog][QCosmeticStroker] Pen patterns are restrained to a
+maximum length and values of 1024, fixing oss-fuzz issue 25310.
+
+Change-Id: If062f8336ff5ad113258391b0d70b8ac6f42c4b3
+Reviewed-by: Robert Loehning <robert.loehning@qt.io>
+Reviewed-by: Eirik Aavitsland <eirik.aavitsland@qt.io>
+(cherry picked from commit 1ff25785ff93d0bd3d597e3a65a261bdbfa13c3b)
+---
+ src/gui/painting/qcosmeticstroker.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/gui/painting/qcosmeticstroker.cpp b/src/gui/painting/qcosmeticstroker.cpp
+index 54b0da4f57..e9d3062492 100644
+--- a/src/gui/painting/qcosmeticstroker.cpp
++++ b/src/gui/painting/qcosmeticstroker.cpp
+@@ -250,7 +250,7 @@ void QCosmeticStroker::setup()
+         strokeSelection |= AntiAliased;
+ 
+     const QVector<qreal> &penPattern = state->lastPen.dashPattern();
+-    if (penPattern.isEmpty()) {
++    if (penPattern.isEmpty() || penPattern.size() > 1024) {
+         Q_ASSERT(!pattern && !reversePattern);
+         pattern = nullptr;
+         reversePattern = nullptr;
+@@ -263,12 +263,12 @@ void QCosmeticStroker::setup()
+ 
+         patternLength = 0;
+         for (int i = 0; i < patternSize; ++i) {
+-            patternLength += (int) qMax(1. , penPattern.at(i)*64.);
++            patternLength += (int)qBound(1., penPattern.at(i) * 64, 65536.);
+             pattern[i] = patternLength;
+         }
+         patternLength = 0;
+         for (int i = 0; i < patternSize; ++i) {
+-            patternLength += (int) qMax(1., penPattern.at(patternSize - 1 - i)*64.);
++            patternLength += (int)qBound(1., penPattern.at(patternSize - 1 - i) * 64, 65536.);
+             reversePattern[i] = patternLength;
+         }
+         strokeSelection |= Dashed;
+-- 
+2.31.1
+

@@ -1,0 +1,118 @@
+From 42b5da1443fb2871916f0879ea62348953206e1b Mon Sep 17 00:00:00 2001
+From: Michal Klocek <michal.klocek@qt.io>
+Date: Fri, 18 Sep 2020 10:52:32 +0200
+Subject: [PATCH 116/171] Install 3rd party headers and meta for static builds
+
+When doing static builds any project which uses same
+libraries as qtbase 3rd party libraries will most likely
+end up in broken binaries, since symbols will be
+included twice. Moreover, libraries can have different
+versions. Install 3rd party headers and meta data for:
+
+ * qtlibpng
+ * qtfreetype
+ * qtharbuzz
+
+Task-number: QTBUG-87154
+Change-Id: I243dff9a12a95af20dee414f55bb762b8d579c81
+Reviewed-by: Joerg Bornemann <joerg.bornemann@qt.io>
+(cherry picked from commit 802e5a45baf3ac7da2cb3be06d10bdd69696fcae)
+---
+ mkspecs/features/qt_helper_lib.prf       | 30 +++++++++++++++++++++++-
+ src/3rdparty/freetype/freetype.pro       |  1 +
+ src/3rdparty/harfbuzz-ng/harfbuzz-ng.pro |  5 +++-
+ src/3rdparty/libpng/libpng.pro           |  1 +
+ 4 files changed, 35 insertions(+), 2 deletions(-)
+
+diff --git a/mkspecs/features/qt_helper_lib.prf b/mkspecs/features/qt_helper_lib.prf
+index bc20251bd9..964e256ee0 100644
+--- a/mkspecs/features/qt_helper_lib.prf
++++ b/mkspecs/features/qt_helper_lib.prf
+@@ -89,4 +89,32 @@ TARGET = $$THE_TARGET
+ 
+ # In static builds of Qt, convenience libraries must be installed,
+ # as in this case they are not linked to the final library/plugin.
+-installed|if(!not_installed:qtConfig(static)): load(qt_installs)
++installed|if(!not_installed:qtConfig(static)) {
++    !isEmpty(MODULE_EXT_HEADERS) {
++        headers.files = $${MODULE_EXT_HEADERS}
++        headers.path = $$[QT_INSTALL_HEADERS]/$$TARGET
++        INSTALLS += headers
++    } else {
++        !isEmpty(MODULE_EXT_HEADERS_DIR) {
++            headers.files = $$MODULE_EXT_HEADERS_DIR/*
++            headers.path = $$[QT_INSTALL_HEADERS]/$$TARGET
++            INSTALLS += headers
++        }
++    }
++
++    CONFIG += qt_install_module
++    rpl_header_base = $$MODULE_INCLUDEPATH
++    rpl_lib_base = $${MODULE_LIBS}
++    qqt_dir = \$\$\$\$[QT_INSTALL_HEADERS]
++    pri_header_replace.match = $$rpl_header_base
++    pri_header_replace.replace = $$qqt_dir/$$TARGET
++    pri_header_replace.CONFIG = path
++    pri_header_replace.filename = qt_ext_$${MODULE}.pri
++    qqt_dir = \$\$\$\$[QT_INSTALL_LIBS]
++    pri_lib_replace.match = $$rpl_lib_base
++    pri_lib_replace.replace = $$qqt_dir/$$prefix$${THE_TARGET}.$$suffix
++    pri_lib_replace.CONFIG = path
++    pri_lib_replace.filename = qt_ext_$${MODULE}.pri
++    QMAKE_INSTALL_REPLACE += pri_header_replace pri_lib_replace
++    load(qt_installs)
++}
+diff --git a/src/3rdparty/freetype/freetype.pro b/src/3rdparty/freetype/freetype.pro
+index 4034815158..0b53c86591 100644
+--- a/src/3rdparty/freetype/freetype.pro
++++ b/src/3rdparty/freetype/freetype.pro
+@@ -7,6 +7,7 @@ CONFIG += \
+     installed
+ 
+ MODULE_INCLUDEPATH += $$PWD/include
++MODULE_EXT_HEADERS_DIR = $$PWD/include
+ 
+ load(qt_helper_lib)
+ 
+diff --git a/src/3rdparty/harfbuzz-ng/harfbuzz-ng.pro b/src/3rdparty/harfbuzz-ng/harfbuzz-ng.pro
+index ad40b98753..332955e2be 100644
+--- a/src/3rdparty/harfbuzz-ng/harfbuzz-ng.pro
++++ b/src/3rdparty/harfbuzz-ng/harfbuzz-ng.pro
+@@ -7,7 +7,6 @@ CONFIG += \
+ 
+ MODULE_INCLUDEPATH += $$PWD/include
+ 
+-load(qt_helper_lib)
+ 
+ # built-in shapers list configuration:
+ SHAPERS += opentype       # HB's main shaper; enabling it should be enough most of the time
+@@ -164,6 +163,8 @@ contains(SHAPERS, opentype) {
+         $$PWD/src/hb-ot-var.h
+ }
+ 
++MODULE_EXT_HEADERS = $$HEADERS
++
+ contains(SHAPERS, coretext) {
+     DEFINES += HAVE_CORETEXT
+ 
+@@ -190,3 +191,5 @@ contains(SHAPERS, fallback)|isEmpty(SHAPERS) {
+     SOURCES += \
+         $$PWD/src/hb-fallback-shape.cc
+ }
++
++load(qt_helper_lib)
+diff --git a/src/3rdparty/libpng/libpng.pro b/src/3rdparty/libpng/libpng.pro
+index a2f56669b4..b71dfefd20 100644
+--- a/src/3rdparty/libpng/libpng.pro
++++ b/src/3rdparty/libpng/libpng.pro
+@@ -7,6 +7,7 @@ CONFIG += \
+     installed
+ 
+ MODULE_INCLUDEPATH = $$PWD
++MODULE_EXT_HEADERS = png.h pngconf.h
+ 
+ load(qt_helper_lib)
+ 
+-- 
+2.31.1
+

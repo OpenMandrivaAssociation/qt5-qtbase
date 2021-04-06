@@ -1,0 +1,34 @@
+From cc8f890622e02bf938e819c1df16a2479755d371 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Wed, 28 Oct 2020 22:26:01 +0100
+Subject: [PATCH 014/171] Selftest - copy XAUTHORITY environment variable
+
+Otherwise XOpenDisplay in a newly spawned process may fail with
+a 'No protocol specified' message (as it recently happened in
+CentOS 8.1 vm).
+
+Fixes: QTBUG-87621
+Change-Id: Ib6c08c7f154fb2a126d32a4aa52b535e5daa1589
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+(cherry picked from commit 524b19fc23f72b488476d9d195aa013793bce452)
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+---
+ tests/auto/testlib/selftests/tst_selftests.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/auto/testlib/selftests/tst_selftests.cpp b/tests/auto/testlib/selftests/tst_selftests.cpp
+index 95b759edc2..829a79c0e6 100644
+--- a/tests/auto/testlib/selftests/tst_selftests.cpp
++++ b/tests/auto/testlib/selftests/tst_selftests.cpp
+@@ -616,7 +616,7 @@ static QProcessEnvironment processEnvironment()
+                 || key == QLatin1String("QEMU_SET_ENV") || key == QLatin1String("QEMU_LD_PREFIX") // Required for QEMU
+ #  if !defined(Q_OS_MAC)
+                 || key == QLatin1String("DISPLAY") || key == QLatin1String("XAUTHLOCALHOSTNAME")
+-                || key.startsWith(QLatin1String("XDG_"))
++                || key.startsWith(QLatin1String("XDG_")) || key == QLatin1String("XAUTHORITY")
+ #  endif // !Q_OS_MAC
+ #endif // Q_OS_UNIX
+ #ifdef __COVERAGESCANNER__
+-- 
+2.31.1
+

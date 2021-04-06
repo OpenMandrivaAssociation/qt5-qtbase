@@ -1,0 +1,99 @@
+From 4796296ed6d7b05e2ba94e5a8a28c48350a3c492 Mon Sep 17 00:00:00 2001
+From: Wang ChunLin <wangchunlin@uniontech.com>
+Date: Fri, 23 Oct 2020 11:02:30 +0800
+Subject: [PATCH 090/171] Fix QSFPM not emitting dataChanged when source model
+ is set
+
+QSortFilterProxyModel did not emit dataChanged when calling
+setSourceModel() after modifying the source model.
+QSortFilterProxyModel::setSourceModel and
+QSortFilterProxyModelPrivate::_q_sourceReset(), _q_clearMapping
+is called to delete the source_index_mapping. They also need to
+call create_mapping function to re-create it.
+
+Fixes: QTBUG-87781
+Change-Id: Idbe34696c9d3a2fbf354b653c870bac61378811d
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 8455bfee76ed3f1bd3bba8bd3688a7afa94ae0bb)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ .../itemmodels/qsortfilterproxymodel.cpp      |  2 ++
+ .../tst_qsortfilterproxymodel.cpp             | 29 +++++++++++++++++++
+ .../tst_qsortfilterproxymodel.h               |  1 +
+ 3 files changed, 32 insertions(+)
+
+diff --git a/src/corelib/itemmodels/qsortfilterproxymodel.cpp b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
+index bd4c7e93c5..626598b2e3 100644
+--- a/src/corelib/itemmodels/qsortfilterproxymodel.cpp
++++ b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
+@@ -1564,6 +1564,7 @@ void QSortFilterProxyModelPrivate::_q_sourceReset()
+     _q_clearMapping();
+     // All internal structures are deleted in clear()
+     q->endResetModel();
++    create_mapping(QModelIndex());
+     update_source_sort_column();
+     if (dynamic_sortfilter && update_source_sort_column())
+         sort();
+@@ -2141,6 +2142,7 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
+     connect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
+ 
+     endResetModel();
++    d->create_mapping(QModelIndex());
+     if (d->update_source_sort_column() && d->dynamic_sortfilter)
+         d->sort();
+ }
+diff --git a/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.cpp b/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.cpp
+index 7f9a996136..729c563981 100644
+--- a/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.cpp
++++ b/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.cpp
+@@ -2191,6 +2191,35 @@ void tst_QSortFilterProxyModel::changeSourceDataForwardsRoles_qtbug35440()
+     QCOMPARE(spy.at(1).at(2).value<QVector<int> >(), expectedChangedRoles);
+ }
+ 
++void tst_QSortFilterProxyModel::changeSourceDataProxySendDataChanged_qtbug87781()
++{
++    QStandardItemModel baseModel;
++    QSortFilterProxyModel proxyModelBefore;
++    QSortFilterProxyModel proxyModelAfter;
++
++    QSignalSpy baseDataChangedSpy(&baseModel, &QStandardItemModel::dataChanged);
++    QSignalSpy beforeDataChangedSpy(&proxyModelBefore, &QSortFilterProxyModel::dataChanged);
++    QSignalSpy afterDataChangedSpy(&proxyModelAfter, &QSortFilterProxyModel::dataChanged);
++
++    QVERIFY(baseDataChangedSpy.isValid());
++    QVERIFY(beforeDataChangedSpy.isValid());
++    QVERIFY(afterDataChangedSpy.isValid());
++
++    proxyModelBefore.setSourceModel(&baseModel);
++    baseModel.insertRows(0, 1);
++    baseModel.insertColumns(0, 1);
++    proxyModelAfter.setSourceModel(&baseModel);
++
++    QCOMPARE(baseDataChangedSpy.size(), 0);
++    QCOMPARE(beforeDataChangedSpy.size(), 0);
++    QCOMPARE(afterDataChangedSpy.size(), 0);
++
++    baseModel.setData(baseModel.index(0, 0), QStringLiteral("new data"), Qt::DisplayRole);
++    QCOMPARE(baseDataChangedSpy.size(), 1);
++    QCOMPARE(beforeDataChangedSpy.size(), 1);
++    QCOMPARE(afterDataChangedSpy.size(), 1);
++}
++
+ void tst_QSortFilterProxyModel::sortFilterRole()
+ {
+     QStandardItemModel model;
+diff --git a/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.h b/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.h
+index 71662bda07..44693d4fd2 100644
+--- a/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.h
++++ b/tests/auto/corelib/itemmodels/qsortfilterproxymodel_common/tst_qsortfilterproxymodel.h
+@@ -90,6 +90,7 @@ private slots:
+     void changeSourceData();
+     void changeSourceDataKeepsStableSorting_qtbug1548();
+     void changeSourceDataForwardsRoles_qtbug35440();
++    void changeSourceDataProxySendDataChanged_qtbug87781();
+     void resortingDoesNotBreakTreeModels();
+     void dynamicFilterWithoutSort();
+     void sortFilterRole();
+-- 
+2.31.1
+

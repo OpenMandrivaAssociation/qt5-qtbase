@@ -1,0 +1,32 @@
+From 6c1c370928329a481f801a95fdc9b1935f07d27c Mon Sep 17 00:00:00 2001
+From: Andy Shaw <andy.shaw@qt.io>
+Date: Wed, 11 Nov 2020 16:25:36 +0100
+Subject: [PATCH 060/171] Android: Add the QtAndroidBearer.jar to the jar
+ dependencies
+
+This amends 8f088c9f82f7db089f62add74e1fe2ac8da55cd3 to ensure that both
+the QtAndroidNetwork.jar and QtAndroidBearer.jar are included as
+dependencies for the network module on Android.
+
+Change-Id: If5b53ee5efeafe17abc854a6c266c3aeab1dd649
+Reviewed-by: Assam Boudjelthia <assam.boudjelthia@qt.io>
+---
+ src/network/network.pro | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/network/network.pro b/src/network/network.pro
+index d8453e879c..160e6c802a 100644
+--- a/src/network/network.pro
++++ b/src/network/network.pro
+@@ -23,7 +23,7 @@ include(ssl/ssl.pri)
+ QMAKE_LIBS += $$QMAKE_LIBS_NETWORK
+ 
+ qtConfig(bearermanagement) {
+-    ANDROID_BUNDLED_JAR_DEPENDENCIES = \
++    ANDROID_BUNDLED_JAR_DEPENDENCIES += \
+         jar/QtAndroidBearer.jar
+     ANDROID_LIB_DEPENDENCIES = \
+         plugins/bearer/libplugins_bearer_qandroidbearer.so
+-- 
+2.31.1
+

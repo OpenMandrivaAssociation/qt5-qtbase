@@ -1,0 +1,37 @@
+From 84f5db7008eff19377859ca13b51ffc7a51ceb88 Mon Sep 17 00:00:00 2001
+From: Joerg Bornemann <joerg.bornemann@qt.io>
+Date: Wed, 28 Oct 2020 09:55:34 +0100
+Subject: [PATCH 026/171] qmake/vcxproj: Fix handling of extra compiler outputs
+
+In commit 68866b1a7bcade79e425f609fc1680203b89112e we introduced a bug:
+At a point where the first output of an extra compiler is extracted, we
+try to evaluate the first output as qmake variable. This is as
+nonsensical as it sounds and leads to malformed extra compiler output in
+vcxproj files.
+
+Task-number: QTBUG-87601
+Change-Id: Ib9aaf8a6eed8c69243f364554325c240d0bfc7f4
+Reviewed-by: Miguel Costa <miguel.costa@qt.io>
+Reviewed-by: Oliver Wolff <oliver.wolff@qt.io>
+(cherry picked from commit 93ac7b9d174d8ba2fcd9762c3ac836c3a1b000f3)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ qmake/generators/win32/msvc_vcproj.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/qmake/generators/win32/msvc_vcproj.cpp b/qmake/generators/win32/msvc_vcproj.cpp
+index e117f472e0..c830ae62f4 100644
+--- a/qmake/generators/win32/msvc_vcproj.cpp
++++ b/qmake/generators/win32/msvc_vcproj.cpp
+@@ -1568,7 +1568,7 @@ void VcprojGenerator::initExtraCompilerOutputs()
+ 
+             QString tmp_out;
+             if (!outputs.isEmpty())
+-                tmp_out = project->first(outputs.first().toKey()).toQString();
++                tmp_out = outputs.first().toQString();
+             if (project->values(ProKey(*it + ".CONFIG")).indexOf("combine") != -1) {
+                 // Combined output, only one file result
+                 extraCompile.addFile(Option::fixPathToTargetOS(
+-- 
+2.31.1
+

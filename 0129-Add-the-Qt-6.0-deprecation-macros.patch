@@ -1,0 +1,44 @@
+From b6d88552c0f1bb93184317b785d0dc43dec5d75b Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Sun, 19 Apr 2020 23:10:40 +0200
+Subject: [PATCH 129/171] Add the Qt 6.0 deprecation macros
+
+Will need to port QVariant to it.
+
+Change-Id: I9146129b1f772c3b028ae782f189aa4421f64b73
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit dac9548a67364eb1edd9ed6805369deac67ab9b1)
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+---
+ src/corelib/global/qglobal.h | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/corelib/global/qglobal.h b/src/corelib/global/qglobal.h
+index a024e69751..12ac48f3cb 100644
+--- a/src/corelib/global/qglobal.h
++++ b/src/corelib/global/qglobal.h
+@@ -378,11 +378,19 @@ typedef double qreal;
+ # define QT_DEPRECATED_VERSION_5_15
+ #endif
+ 
++#if QT_DEPRECATED_WARNINGS_SINCE >= QT_VERSION_CHECK(6, 0, 0)
++# define QT_DEPRECATED_VERSION_X_6_0(text) QT_DEPRECATED_X(text)
++# define QT_DEPRECATED_VERSION_6_0         QT_DEPRECATED
++#else
++# define QT_DEPRECATED_VERSION_X_6_0(text)
++# define QT_DEPRECATED_VERSION_6_0
++#endif
++
+ #define QT_DEPRECATED_VERSION_X_5(minor, text)      QT_DEPRECATED_VERSION_X_5_##minor(text)
+-#define QT_DEPRECATED_VERSION_X(major, minor, text) QT_DEPRECATED_VERSION_X_##major(minor, text)
++#define QT_DEPRECATED_VERSION_X(major, minor, text) QT_DEPRECATED_VERSION_X_##major##_##minor(text)
+ 
+ #define QT_DEPRECATED_VERSION_5(minor)      QT_DEPRECATED_VERSION_5_##minor
+-#define QT_DEPRECATED_VERSION(major, minor) QT_DEPRECATED_VERSION_##major(minor)
++#define QT_DEPRECATED_VERSION(major, minor) QT_DEPRECATED_VERSION_##major##_##minor
+ 
+ #ifdef __cplusplus
+ // A tag to help mark stuff deprecated (cf. QStringViewLiteral)
+-- 
+2.31.1
+

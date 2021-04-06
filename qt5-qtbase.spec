@@ -119,15 +119,18 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.15.2
+Version:	5.15.3
 %if "%{beta}" != ""
 Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 %else
-Release:	3
-%define qttarballdir qtbase-everywhere-src-%{version}
-Source0:	http://download.qt.io/official_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}/submodules/%{qttarballdir}.tar.xz
+# Since Qt has stopped making 5.15 releases (but the tags keep
+# rolling in through kde's qt branch), we have to hardcode 5.15.2
+# (last release) here, even if %{version} keeps rising
+Release:	1
+%define qttarballdir qtbase-everywhere-src-5.15.2
+Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -154,6 +157,170 @@ Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
 ### END OF FEDORA PATCHES
 # (tpg) https://bugreports.qt.io/browse/QTBUG-88491
 Patch103:	0001-Avoid-SIGABRT-on-platform-plugin-initialization-fail.patch
+
+# From KDE https://invent.kde.org/qt/qt/qtbase
+Patch1000:	0001-toolchain.prf-Use-vswhere-to-obtain-VS-installation-.patch
+Patch1001:	0002-Fix-allocated-memory-of-QByteArray-returned-by-QIODe.patch
+Patch1003:	0004-QLayout-docs-explain-better-what-the-QWidget-ctor-ar.patch
+Patch1004:	0005-QMacStyle-fix-tab-rendering.patch
+Patch1005:	0006-QMacStyle-more-pixel-refinements.patch
+Patch1009:	0010-QAbstractItemModelTester-don-t-rely-on-hasChildren.patch
+Patch1010:	0011-Doc-Remove-mentioning-of-old-macos-versions-from-QSe.patch
+Patch1011:	0012-Pass-SameSite-through-QNetworkCookie.patch
+Patch1012:	0013-doc-fix-typo-consise-concise.patch
+Patch1013:	0014-Selftest-copy-XAUTHORITY-environment-variable.patch
+Patch1014:	0015-Fix-delay-first-time-a-font-is-used.patch
+Patch1016:	0017-Android-Request-cursor-to-be-in-proper-position.patch
+Patch1017:	0018-testlib-Let-logger-report-whether-it-is-logging-to-s.patch
+Patch1020:	0021-Use-void-instead-of-Q_UNUSED.patch
+Patch1021:	0022-Don-t-show-QPushButton-as-hovered-unless-the-mouse-i.patch
+Patch1022:	0023-MinGW-Fix-assert-in-QCoreApplication-arguments-when-.patch
+Patch1023:	0024-QCombobox-propagate-the-palette-to-the-embedded-line.patch
+Patch1024:	0025-QMarginsF-document-that-isNull-operator-operator-are.patch
+Patch1025:	0026-qmake-vcxproj-Fix-handling-of-extra-compiler-outputs.patch
+Patch1026:	0027-Android-fix-documentation-about-ANDROID_EXTRA_LIBS.patch
+Patch1027:	0028-Offscreen-QPA-implement-a-native-interface.patch
+Patch1028:	0029-DropSite-example-support-markdown.patch
+Patch1029:	0030-Do-not-define-dynamic_cast.patch
+Patch1030:	0031-Android-fix-crash-by-passing-the-right-Handle-to-dls.patch
+Patch1031:	0032-testlib-Add-private-API-to-add-test-logger.patch
+Patch1032:	0033-Update-third-party-md4c-to-version-0.4.6.patch
+Patch1033:	0034-moc-Handle-include-in-enum-take-2.patch
+Patch1034:	0035-InputMethod-should-call-reset-function-when-proxywid.patch
+Patch1035:	0036-Add-possibility-to-set-QNX-Screen-pipeline-value.patch
+Patch1036:	0037-qglobal-Only-define-QT_ENSURE_STACK_ALIGNED_FOR_SSE-.patch
+Patch1037:	0038-macOS-FreeType-fix-crash-with-non-printable-unicode.patch
+Patch1038:	0039-Linux-fix-crash-in-AtSpi-adaptor-when-handling-windo.patch
+Patch1039:	0040-Add-_MSC_VER-check-to-MSVC-ARM-compiler-workaround.patch
+Patch1040:	0041-QMap-suppress-warning-about-strict-aliasing-violatio.patch
+Patch1042:	0043-Set-the-url-to-have-the-AtNx-filename-if-one-is-foun.patch
+Patch1043:	0044-QMap-don-t-tell-everyone-QMapNode-has-no-friends.patch
+Patch1044:	0045-QNAM-Work-around-QObject-finicky-orphan-cleanup-deta.patch
+Patch1045:	0046-xcb-ensure-that-available-glx-version-is-greater-tha.patch
+Patch1046:	0047-Protect-QImage-colorspace-transform-on-shutdown.patch
+Patch1047:	0048-Fix-qstylesheetstyle-clip-border-error.patch
+Patch1048:	0049-Correct-processEvents-documentation.patch
+Patch1049:	0050-Update-CLDR-to-v38.patch
+Patch1051:	0052-Reduce-memory-reallocations-in-QTextTablePrivate-upd.patch
+Patch1052:	0053-Fix-regular-expression-initialize-with-incorrect-fil.patch
+Patch1053:	0054-Cocoa-Allow-CMD-H-to-hide-the-application-when-a-too.patch
+Patch1054:	0055-Fix-pcre2-feature-conditions.patch
+Patch1055:	0056-Q_PRIMITIVE_TYPE-improve-the-documentation.patch
+Patch1056:	0057-QAsn1Element-Read-value-in-blocks-to-avoid-oom-at-wr.patch
+Patch1057:	0058-Android-Don-t-use-putIfAbsent-as-that-is-not-availab.patch
+Patch1058:	0059-QMutex-order-reads-from-QMutexPrivate-waiters-and-QB.patch
+Patch1059:	0060-Android-Add-the-QtAndroidBearer.jar-to-the-jar-depen.patch
+Patch1060:	0061-Android-Add-the-required-linker-flags-for-unwinding-.patch
+Patch1061:	0062-Android-recommend-against-using-ANDROID_ABIS-inside-.patch
+Patch1062:	0063-Android-fix-android-java-and-templates-targets-with-.patch
+Patch1063:	0064-QCharRef-properly-disable-assignment-from-char.patch
+Patch1064:	0065-Android-Treat-ACTION_CANCEL-as-TouchPointReleased.patch
+Patch1065:	0066-Fix-misidentification-of-some-shearing-QTransforms-a.patch
+Patch1066:	0067-Fix-QGraphicsItem-crash-if-click-right-button-of-mou.patch
+Patch1067:	0068-Bump-version.patch
+Patch1068:	0069-Android-Ensure-windows-always-have-a-geometry-on-cre.patch
+Patch1069:	0070-macOS-Account-for-Big-Sur-always-enabling-layer-back.patch
+Patch1070:	0071-Fix-shaping-problems-on-iOS-14-macOS-11.patch
+Patch1071:	0072-Link-to-qAlpha-in-qRgb-and-qRgba-docs.patch
+Patch1072:	0073-HTTP2-fix-crash-from-assertion.patch
+Patch1073:	0074-Fuzzing-Add-a-test-for-QDateTime-fromString.patch
+Patch1074:	0075-QSocks5SocketEngine-Fix-out-of-bounds-access-of-QBA.patch
+Patch1075:	0076-Use-QTRY_COMPARE-in-an-attempt-to-make-the-test-less.patch
+Patch1076:	0077-Doc-Document-QGradient-Preset-enum-values.patch
+Patch1077:	0078-Doc-Fix-documentation-warnings-for-Qt-XML.patch
+Patch1078:	0079-Doc-Fix-documentation-warnings-in-Qt-Network.patch
+Patch1079:	0080-Ensure-that-QMenu-is-polished-before-setting-the-scr.patch
+Patch1080:	0081-widgets-Don-t-report-new-focus-object-during-clearFo.patch
+Patch1081:	0082-QDtls-remove-redundant-RAII-struct.patch
+Patch1082:	0083-macOS-Propagate-device-pixel-ratio-of-system-tray-ic.patch
+Patch1083:	0084-tst_qocsp-improve-code-coverage.patch
+Patch1084:	0085-Doc-explain-how-to-create-a-test-touch-device-for-us.patch
+Patch1085:	0086-macOS-Upgrade-supported-SDK-to-11.0.patch
+Patch1086:	0087-Fix-logic-error-in-QString-replace-ch-after-cs.patch
+Patch1087:	0088-Be-more-consistent-when-converting-JSON-values-from-.patch
+Patch1088:	0089-QCoreApplication-add-more-information-to-processEven.patch
+Patch1089:	0090-Fix-QSFPM-not-emitting-dataChanged-when-source-model.patch
+Patch1090:	0091-Android-Fix-android-accessibility-not-being-set-acti.patch
+Patch1091:	0092-Fix-x-height-name-in-stylesheet-docs.patch
+Patch1092:	0093-QMutex-Work-around-ICC-bug-in-dealing-with-constexpr.patch
+Patch1093:	0094-wasm-fix-resizing-of-qwidget-windows.patch
+Patch1094:	0095-Avoid-integer-overflow-and-division-by-zero.patch
+Patch1095:	0096-QPasswordDigestor-improve-code-coverage.patch
+Patch1096:	0097-QStackedLayout-fix-a-memory-leak.patch
+Patch1097:	0098-Limit-value-in-setFontWeightFromValue.patch
+Patch1098:	0099-Doc-Fix-documentation-of-qmake-s-exists-function.patch
+Patch1099:	0100-QVLA-do-not-include-QtTest.patch
+Patch1100:	0101-Clean-up-docs-of-QCalendar-related-QLocale-toString-.patch
+Patch1101:	0102-Change-android-target-SDK-version-to-29.patch
+Patch1102:	0103-QVLA-always-use-new-to-create-new-objects.patch
+Patch1103:	0104-QPushButton-fix-support-of-style-sheet-rule-for-text.patch
+Patch1104:	0105-Limit-pen-width-to-maximal-32767.patch
+Patch1105:	0106-Doc-Consistently-use-book-style-capitalization-for-Q.patch
+Patch1106:	0107-qstring.h-fix-warnings-about-shortening-qsizetype-to.patch
+Patch1107:	0108-Fix-invalid-QSortFilterProxyModel-dataChanged-parame.patch
+Patch1108:	0109-Minor-refactor-of-installMetaFile.patch
+Patch1109:	0110-Return-a-more-useful-date-time-on-parser-failure-in-.patch
+Patch1110:	0111-QCalendar-increase-coverage-by-tests.patch
+Patch1111:	0112-Bounds-check-time-zone-offsets-when-parsing.patch
+Patch1112:	0113-Network-self-test-make-it-work-with-docker-container.patch
+Patch1113:	0114-QSslConfiguration-improve-code-coverage.patch
+Patch1114:	0115-Add-new-way-to-mess-up-projects-with-QMAKE_INSTALL_R.patch
+Patch1115:	0116-Install-3rd-party-headers-and-meta-for-static-builds.patch
+Patch1116:	0117-Create-qtlibjpeg-for-jpeg-image-plugin.patch
+Patch1117:	0118-QStandardPaths-Don-t-change-permissions-of-XDG_RUNTI.patch
+Patch1118:	0119-tst_QSslCertificate-improve-code-coverage.patch
+Patch1119:	0120-Let-QXcbConnection-getTimestamp-properly-exit-when-X.patch
+Patch1120:	0121-QDtls-cookie-verifier-make-sure-a-server-can-re-use-.patch
+Patch1121:	0122-QMacStyle-remove-vertical-adjustment-for-inactive-ta.patch
+Patch1122:	0123-Revert-xcb-add-xcb-util-dependency-for-xcb-image.patch
+Patch1123:	0124-Containers-call-constructors-even-for-primitive-type.patch
+Patch1124:	0125-Android-print-tailored-warning-if-qml-dependency-pat.patch
+Patch1125:	0126-Cosmetic-stroker-avoid-overflows-for-non-finite-coor.patch
+Patch1126:	0127-QSslCipher-improve-its-code-coverage-and-auto-tests.patch
+Patch1127:	0128-tst_qsslkey-handle-QT_NO_SSL-properly.patch
+Patch1128:	0129-Add-the-Qt-6.0-deprecation-macros.patch
+Patch1129:	0130-wasm-fix-mouse-double-click.patch
+Patch1130:	0131-Android-avoid-reflection-with-ClipData-addItem.patch
+Patch1131:	0132-QHeaderView-fix-spurious-sorting.patch
+Patch1132:	0133-Fix-exception-with-Android-5.x.patch
+Patch1133:	0134-Http2-Remove-errored-out-requests-from-queue.patch
+Patch1134:	0135-Http2-don-t-call-ensureConnection-when-there-s-no-re.patch
+Patch1135:	0136-Fix-QTranslator-load-search-order-not-following-uiLa.patch
+Patch1136:	0137-Avoid-signed-overflow-in-moc.patch
+Patch1137:	0138-Android-Kill-calls-to-deprecated-func-in-API-29.patch
+Patch1138:	0139-Doc-Improve-_CAST_FROM_ASCII-documentation.patch
+Patch1139:	0140-Improve-documented-function-argument-names.patch
+Patch1140:	0141-Fix-QImage-setPixelColor-on-RGBA64_Premultiplied.patch
+Patch1141:	0142-macOS-Make-sure-that-the-reserved-characters-are-not.patch
+Patch1142:	0143-Enable-testing-for-whether-a-calendar-registered-its.patch
+Patch1143:	0144-tests-add-a-shortcut-to-quit-app-in-allcursors.patch
+Patch1144:	0145-QSslSocket-Don-t-call-transmit-in-unencrypted-mode.patch
+Patch1145:	0146-QStringView-operator-operator-operator-currently-Qt6.patch
+Patch1146:	0147-QCborStreamReader-move-the-readStringChunk-code-to-t.patch
+Patch1147:	0148-Improve-the-documentation-for-QElapsedTimer-restart-.patch
+Patch1148:	0149-QSslSocket-verify-do-not-alter-the-default-configura.patch
+Patch1149:	0150-Fix-tst_QFontDatabase-aliases-failure-with-ambiguous.patch
+Patch1150:	0151-QStyleAnimation-make-sure-the-last-frame-of-animatio.patch
+Patch1151:	0152-PCRE-update-to-10.36.patch
+Patch1152:	0153-tst_QCborValue-adjust-the-size-of-the-minimum-string.patch
+Patch1153:	0154-macOS-Always-allow-interacting-with-popup-windows-du.patch
+Patch1154:	0155-macOS-Add-missing-QT_MANGLE_NAMESPACE.patch
+Patch1155:	0156-QSplashScreen-draw-pixmap-with-SmoothTransfrom.patch
+Patch1156:	0157-Android-Qml-accessibility-fixes.patch
+Patch1157:	0158-Http2-set-the-reply-s-error-code-and-string-on-error.patch
+Patch1158:	0159-Try-again-to-fix-Clang-s-Wconstant-logical-operand-w.patch
+Patch1159:	0160-Revert-Android-print-tailored-warning-if-qml-depende.patch
+Patch1160:	0161-QUrl-fix-parsing-of-empty-IPv6-addresses.patch
+Patch1161:	0162-tst_QSslError-improve-the-code-coverage-as-pointed-a.patch
+Patch1162:	0163-macOS-Disable-WA_QuitOnClose-on-menu-item-widget-con.patch
+Patch1163:	0164-QString-fix-count-QRegularExpression.patch
+Patch1164:	0165-QString-lastIndexOf-fix-off-by-one-for-zero-length-m.patch
+Patch1165:	0166-secureudpclient-a-speculative-fix-for-non-reproducib.patch
+Patch1166:	0167-Android-don-t-use-avx-and-avx2-when-building-for-And.patch
+Patch1167:	0168-Fuzzing-Provide-link-to-oss-fuzz.patch
+Patch1168:	0169-Blacklist-tst_QMdiArea-updateScrollBars-on-macos.patch
+Patch1169:	0170-Fix-build-with-GCC-11-include-limits.patch
+Patch1170:	0171-Build-fixes-for-GCC-11.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -1594,6 +1761,9 @@ Qt LALR parser generator.
 
 %prep
 %autosetup -n %qttarballdir -p1
+# needed after applying patch that bumps the version number
+bin/syncqt.pl -version %{version}
+
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{build_ldflags}|" mkspecs/common/g++-unix.conf

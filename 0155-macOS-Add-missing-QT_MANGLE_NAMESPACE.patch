@@ -1,0 +1,51 @@
+From fbf51efafde9eed7e9effd33eba65d32866f8a10 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Morten=20Johan=20S=C3=B8rvig?= <morten.sorvig@qt.io>
+Date: Wed, 2 Dec 2020 14:18:10 +0100
+Subject: [PATCH 155/171] macOS: Add missing QT_MANGLE_NAMESPACE
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+KeyValueObserver and RunLoopModeTracker were causing
+“Class is implemented in both...” messages when loading
+multiple namespaced Qt versions into the same process.
+
+Change-Id: Idbd2229c61cde6fba2c12b35d045390a371dee68
+Fixes: QTBUG-89059
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit c2c163a7d8cb95a4901b742a72184975e791635a)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/corelib/kernel/qcore_mac.mm           | 2 +-
+ src/corelib/kernel/qeventdispatcher_cf.mm | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/corelib/kernel/qcore_mac.mm b/src/corelib/kernel/qcore_mac.mm
+index 33c64bc474..4e13ba5262 100644
+--- a/src/corelib/kernel/qcore_mac.mm
++++ b/src/corelib/kernel/qcore_mac.mm
+@@ -654,7 +654,7 @@ void QMacKeyValueObserver::removeObserver() {
+ KeyValueObserver *QMacKeyValueObserver::observer = [[KeyValueObserver alloc] init];
+ 
+ QT_END_NAMESPACE
+-@implementation KeyValueObserver
++@implementation QT_MANGLE_NAMESPACE(KeyValueObserver)
+ - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+         change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
+ {
+diff --git a/src/corelib/kernel/qeventdispatcher_cf.mm b/src/corelib/kernel/qeventdispatcher_cf.mm
+index b482269df2..5812442c91 100644
+--- a/src/corelib/kernel/qeventdispatcher_cf.mm
++++ b/src/corelib/kernel/qeventdispatcher_cf.mm
+@@ -89,7 +89,7 @@ QT_USE_NAMESPACE
+ 
+ QT_NAMESPACE_ALIAS_OBJC_CLASS(RunLoopModeTracker);
+ 
+-@implementation RunLoopModeTracker {
++@implementation QT_MANGLE_NAMESPACE(RunLoopModeTracker) {
+     QStack<CFStringRef> m_runLoopModes;
+ }
+ 
+-- 
+2.31.1
+

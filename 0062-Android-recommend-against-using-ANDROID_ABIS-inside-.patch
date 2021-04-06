@@ -1,0 +1,39 @@
+From b673872a40b273b8ad05d8b1d51ed93a5deed2b0 Mon Sep 17 00:00:00 2001
+From: Assam Boudjelthia <assam.boudjelthia@qt.io>
+Date: Thu, 5 Nov 2020 01:52:16 +0200
+Subject: [PATCH 062/171] Android: recommend against using ANDROID_ABIS inside
+ the project file
+
+Task-number: QTCREATORBUG-24674
+Change-Id: Iad6baa1af61d3d1a44f26cb9d51e3cb97d235707
+Reviewed-by: Joerg Bornemann <joerg.bornemann@qt.io>
+(cherry picked from commit 0d6a14bbd992977b5ba07ba4134b1ad68dc4656a)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ qmake/doc/src/qmake-manual.qdoc | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/qmake/doc/src/qmake-manual.qdoc b/qmake/doc/src/qmake-manual.qdoc
+index 517eeed02b..2782f7664e 100644
+--- a/qmake/doc/src/qmake-manual.qdoc
++++ b/qmake/doc/src/qmake-manual.qdoc
+@@ -927,13 +927,9 @@
+     qmake ANDROID_ABIS="armeabi-v7a arm64-v8a"
+     \endcode
+ 
+-    Or directly in the \c .pro file:
+-
+-    \badcode
+-    ANDROID_ABIS = \
+-        armeabi-v7a \
+-        arm64-v8a
+-    \endcode
++    \note It is possible to use this variable inside the *.pro file, however,
++    it is not recommended since it will override any ABIs specified on the
++    \c qmake command line.
+ 
+     \target ANDROID_API_VERSION
+     \section1 ANDROID_API_VERSION
+-- 
+2.31.1
+

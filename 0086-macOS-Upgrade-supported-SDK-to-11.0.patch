@@ -1,0 +1,34 @@
+From b0096facab4fb6b04729bf2c95d170cebfaef31b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Tue, 17 Nov 2020 18:51:44 +0100
+Subject: [PATCH 086/171] macOS: Upgrade supported SDK to 11.0
+
+Testing seems to indicate building against the 11.0 SDK works fine,
+and doesn't opt in to any new behaviors on Big Sur that Qt isn't
+ready for.
+
+Change-Id: I7da11cf25f2be7443c94ba7a4e9cd99dc1034455
+Reviewed-by: Alexandru Croitor <alexandru.croitor@qt.io>
+Reviewed-by: Timur Pocheptsov <timur.pocheptsov@qt.io>
+(cherry picked from commit a07c9a1a70ce755140dd31f55c6acd72270f4ddd)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ mkspecs/common/macx.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mkspecs/common/macx.conf b/mkspecs/common/macx.conf
+index d16b77acb8..61a1300860 100644
+--- a/mkspecs/common/macx.conf
++++ b/mkspecs/common/macx.conf
+@@ -12,7 +12,7 @@ QMAKE_APPLE_DEVICE_ARCHS = x86_64
+ # older SDKs we have to keep this.
+ QT_MAC_SDK_VERSION_MIN = 10.14
+ 
+-QT_MAC_SDK_VERSION_MAX = 10.15
++QT_MAC_SDK_VERSION_MAX = 11.0
+ 
+ device.sdk = macosx
+ device.target = device
+-- 
+2.31.1
+

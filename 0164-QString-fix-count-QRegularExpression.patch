@@ -1,0 +1,71 @@
+From be0301b42fcfa7ae21fef54f88995f2b0b1c573f Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Mon, 7 Dec 2020 19:03:10 +0100
+Subject: [PATCH 164/171] QString: fix count(QRegularExpression)
+
+There is an off by one in the implementation of count(): a match
+must be attempted even at the very end of the string, because
+a 0-length match can happen there. While at it, improve
+the documentation on the counter-intuitive behavior of count(),
+which doesn't merely count how many times a regexp matches
+into a string using ordinary global matching.
+
+[ChangeLog][QtCore][QString] Fixed a corner case when using
+QString::count(QRegularExpression), causing an empty in the
+last position not to be accounted for in the returned result.
+
+Change-Id: I064497839a96979abfbac2d0a96546ce160bbc46
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 7c3208c97d2ad2c046908e144325c4ddb1e54876)
+---
+ src/corelib/text/qstring.cpp                    | 12 +++++++++---
+ tests/auto/corelib/text/qstring/tst_qstring.cpp |  1 +
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/corelib/text/qstring.cpp b/src/corelib/text/qstring.cpp
+index d18d8ec89b..e6e7cbaad4 100644
+--- a/src/corelib/text/qstring.cpp
++++ b/src/corelib/text/qstring.cpp
+@@ -4621,10 +4621,16 @@ bool QString::contains(const QRegularExpression &re, QRegularExpressionMatch *rm
+     Returns the number of times the regular expression \a re matches
+     in the string.
+ 
+-    This function counts overlapping matches, so in the example
+-    below, there are four instances of "ana" or "ama":
++    For historical reasons, this function counts overlapping matches,
++    so in the example below, there are four instances of "ana" or
++    "ama":
+ 
+     \snippet qstring/main.cpp 95
++
++    This behavior is different from simply iterating over the matches
++    in the string using QRegularExpressionMatchIterator.
++
++    \sa QRegularExpression::globalMatch()
+ */
+ int QString::count(const QRegularExpression &re) const
+ {
+@@ -4635,7 +4641,7 @@ int QString::count(const QRegularExpression &re) const
+     int count = 0;
+     int index = -1;
+     int len = length();
+-    while (index < len - 1) {
++    while (index <= len - 1) {
+         QRegularExpressionMatch match = re.match(*this, index + 1);
+         if (!match.hasMatch())
+             break;
+diff --git a/tests/auto/corelib/text/qstring/tst_qstring.cpp b/tests/auto/corelib/text/qstring/tst_qstring.cpp
+index ce091f6688..4c4a8f0416 100644
+--- a/tests/auto/corelib/text/qstring/tst_qstring.cpp
++++ b/tests/auto/corelib/text/qstring/tst_qstring.cpp
+@@ -1765,6 +1765,7 @@ void tst_QString::count()
+     QCOMPARE(a.count( "", Qt::CaseInsensitive), 16);
+     QCOMPARE(a.count(QRegExp("[FG][HI]")),1);
+     QCOMPARE(a.count(QRegExp("[G][HE]")),2);
++    QCOMPARE(a.count(QRegularExpression("")), 16);
+     QCOMPARE(a.count(QRegularExpression("[FG][HI]")), 1);
+     QCOMPARE(a.count(QRegularExpression("[G][HE]")), 2);
+     QTest::ignoreMessage(QtWarningMsg, "QString::count: invalid QRegularExpression object");
+-- 
+2.31.1
+

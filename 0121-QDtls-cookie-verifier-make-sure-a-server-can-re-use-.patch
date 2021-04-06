@@ -1,0 +1,54 @@
+From 864fdea38df3a93c57c7f3a67ba111fefb9acc05 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Mon, 23 Nov 2020 14:27:55 +0100
+Subject: [PATCH 121/171] QDtls(cookie verifier): make sure a server can re-use
+ 'Client Hello'
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+And extend an auto-test for this. When a cookie verification mechanism is
+enabled, and verifier, indeed, verifies that some datagram is a 'Client Hello'
+message with a proper cookie attached, we start a real DTLS handshake creating a
+QDtls object and calling 'doHandshake'. In case cookie verification
+was enabled, we need parameters from the verifier (it's a crypto-strong
+'number' and hash algorithm) to 'lock and load' the TLS state machine in
+a freshly created TLS session object. This code path previously was only
+tested manually and was found by LCOV as untested.
+
+Change-Id: Ieacb8c989997999ea10e15bda6ae106a0338b698
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 6a1d9f6fc1e46f7f0af7ec52dc5d6d415c918bf2)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ .../network/ssl/qdtlscookie/tst_qdtlscookie.cpp    | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/tests/auto/network/ssl/qdtlscookie/tst_qdtlscookie.cpp b/tests/auto/network/ssl/qdtlscookie/tst_qdtlscookie.cpp
+index a273ceaa17..00e4cfbe46 100644
+--- a/tests/auto/network/ssl/qdtlscookie/tst_qdtlscookie.cpp
++++ b/tests/auto/network/ssl/qdtlscookie/tst_qdtlscookie.cpp
+@@ -288,6 +288,20 @@ void tst_QDtlsCookie::verifyClient()
+                                           clientPort), true);
+     QCOMPARE(anotherListener.verifiedHello(), dgram);
+     QCOMPARE(anotherListener.dtlsError(), QDtlsError::NoError);
++
++    // Now, let's test if a DTLS server is able to create a new TLS session
++    // re-using the client's 'Hello' with a cookie inside:
++    QDtls session(QSslSocket::SslServerMode);
++    auto dtlsConf = QSslConfiguration::defaultDtlsConfiguration();
++    dtlsConf.setDtlsCookieVerificationEnabled(true);
++    session.setDtlsConfiguration(dtlsConf);
++    session.setPeer(clientAddress, clientPort);
++    // Borrow a secret and hash algorithm:
++    session.setCookieGeneratorParameters(listener.cookieGeneratorParameters());
++    // Trigger TLS state machine change to think it accepted a cookie and started
++    // a handshake:
++    QVERIFY(session.doHandshake(&serverSocket, dgram));
++
+     // Now let's use a wrong port:
+     QCOMPARE(listener.verifyClient(&serverSocket, dgram, clientAddress, serverPort), false);
+     // Invalid cookie, no verified hello message:
+-- 
+2.31.1
+

@@ -1,0 +1,292 @@
+From dbe6a65bb3acda41f8c21b26550b23da41268abb Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Wed, 25 Nov 2020 22:03:38 +0100
+Subject: [PATCH 132/171] QHeaderView: fix spurious sorting
+
+QHeaderView sorting may be triggered when the user performs
+some mouse interactions that should really not result in sorting.
+
+Generally speaking, this happens when the user:
+
+* presses on a non-movable section (A)
+* moves on another section (B)
+* releases on that section
+
+resulting in B becoming sorted / flipping sorting.
+
+(Non-movable is required, otherwise dragging would cause section moving,
+not sorting.)
+
+To make the matter worse, QHeaderView doesn't check that the release
+happens within its geometry. This makes sense when moving sections: one
+is able to drag a section horizontally/vertically even if the mouse
+leaves the QHeaderView.
+
+But when not moving sections, this means that one can
+
+* press on section (A),
+* move the mouse anywhere vertically (for a horizontal bar, mut.mut
+  for a vertical) above or below another section (B), that is,
+  outside QHeaderView's geometry
+* release the mouse
+
+and cause B to be sorted.
+
+Fix it by
+
+1) remembering which one was the section that the user originally
+clicked on; that's the only one that can possibly become sorted
+(if we're not moving and other conditions hold). No other variable
+seemed to remember this.
+
+2) on release, check that it happens within that section's geometry.
+If so, sort.
+
+Change-Id: Icfb67662221efbde019711f933781ee1e7d9ac43
+Reviewed-by: Christian Ehrlicher <ch.ehrlicher@gmx.de>
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit b5b2640a65de20d05890fa9e6462bb7b88f83964)
+---
+ src/widgets/itemviews/qheaderview.cpp         |  30 +++-
+ src/widgets/itemviews/qheaderview_p.h         |   2 +
+ .../itemviews/qheaderview/tst_qheaderview.cpp | 135 ++++++++++++++++++
+ 3 files changed, 161 insertions(+), 6 deletions(-)
+
+diff --git a/src/widgets/itemviews/qheaderview.cpp b/src/widgets/itemviews/qheaderview.cpp
+index 84e2fd72a9..3b396c689b 100644
+--- a/src/widgets/itemviews/qheaderview.cpp
++++ b/src/widgets/itemviews/qheaderview.cpp
+@@ -2528,7 +2528,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
+     int handle = d->sectionHandleAt(pos);
+     d->originalSize = -1; // clear the stored original size
+     if (handle == -1) {
+-        d->pressed = logicalIndexAt(pos);
++        d->firstPressed = d->pressed = logicalIndexAt(pos);
+         if (d->clickableSections)
+             emit sectionPressed(d->pressed);
+ 
+@@ -2576,7 +2576,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
+         // just before the mouseReleaseEvent and resets the state. This prevents
+         // column dragging from working. So this code is disabled under Cocoa.
+         d->state = QHeaderViewPrivate::NoState;
+-        d->pressed = -1;
++        d->firstPressed = d->pressed = -1;
+     }
+     switch (d->state) {
+         case QHeaderViewPrivate::ResizeSection: {
+@@ -2705,9 +2705,27 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
+     case QHeaderViewPrivate::NoState:
+         if (d->clickableSections) {
+             int section = logicalIndexAt(pos);
+-            if (section != -1 && section == d->pressed) {
+-                d->flipSortIndicator(section);
+-                emit sectionClicked(section);
++            if (section != -1 && section == d->firstPressed) {
++                QRect firstPressedSectionRect;
++                switch (d->orientation) {
++                case Qt::Horizontal:
++                    firstPressedSectionRect.setRect(sectionViewportPosition(d->firstPressed),
++                                                    0,
++                                                    sectionSize(d->firstPressed),
++                                                    d->viewport->height());
++                    break;
++                case Qt::Vertical:
++                    firstPressedSectionRect.setRect(0,
++                                                    sectionViewportPosition(d->firstPressed),
++                                                    d->viewport->width(),
++                                                    sectionSize(d->firstPressed));
++                    break;
++                };
++
++                if (firstPressedSectionRect.contains(e->pos())) {
++                    d->flipSortIndicator(section);
++                    emit sectionClicked(section);
++                }
+             }
+             if (d->pressed != -1)
+                 updateSection(d->pressed);
+@@ -2721,7 +2739,7 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
+         break;
+     }
+     d->state = QHeaderViewPrivate::NoState;
+-    d->pressed = -1;
++    d->firstPressed = d->pressed = -1;
+ }
+ 
+ /*!
+diff --git a/src/widgets/itemviews/qheaderview_p.h b/src/widgets/itemviews/qheaderview_p.h
+index 766adef36d..0f6641c3df 100644
+--- a/src/widgets/itemviews/qheaderview_p.h
++++ b/src/widgets/itemviews/qheaderview_p.h
+@@ -82,6 +82,7 @@ public:
+           originalSize(-1),
+           section(-1),
+           target(-1),
++          firstPressed(-1),
+           pressed(-1),
+           hover(-1),
+           length(0),
+@@ -274,6 +275,7 @@ public:
+     int originalSize;
+     int section; // used for resizing and moving sections
+     int target;
++    int firstPressed;
+     int pressed;
+     int hover;
+ 
+diff --git a/tests/auto/widgets/itemviews/qheaderview/tst_qheaderview.cpp b/tests/auto/widgets/itemviews/qheaderview/tst_qheaderview.cpp
+index d5813d64ff..c355ee9665 100644
+--- a/tests/auto/widgets/itemviews/qheaderview/tst_qheaderview.cpp
++++ b/tests/auto/widgets/itemviews/qheaderview/tst_qheaderview.cpp
+@@ -218,6 +218,7 @@ private slots:
+     void QTBUG75615_sizeHintWithStylesheet();
+     void ensureNoIndexAtLength();
+     void offsetConsistent();
++    void sectionsDontSortWhenNotClickingInThem();
+ 
+     void initialSortOrderRole();
+ 
+@@ -2628,6 +2629,140 @@ void tst_QHeaderView::offsetConsistent()
+     QVERIFY(offset2 > offset1);
+ }
+ 
++void tst_QHeaderView::sectionsDontSortWhenNotClickingInThem()
++{
++    QTableView qtv;
++    QStandardItemModel amodel(1000, 4);
++    qtv.setModel(&amodel);
++    QHeaderView *hv = qtv.horizontalHeader();
++    hv->setSectionsClickable(true);
++    hv->setFirstSectionMovable(true);
++    hv->setSectionsMovable(false);
++
++    enum { DefaultYOffset = 5, OutOfRangeYOffset = 10000 };
++
++    const auto pressOnSection = [&](int section, int yOffset = DefaultYOffset)
++    {
++        QTest::mousePress(hv->viewport(), Qt::LeftButton, Qt::NoModifier,
++                          QPoint(hv->sectionViewportPosition(section) + hv->sectionSize(section) / 2, yOffset));
++    };
++    const auto moveOntoSection = [&](int section, int yOffset = DefaultYOffset)
++    {
++        QTest::mouseMove(hv->viewport(),
++                         QPoint(hv->sectionViewportPosition(section) + hv->sectionSize(section) / 2, yOffset));
++    };
++    const auto releaseOnSection = [&](int section, int yOffset = DefaultYOffset)
++    {
++        QTest::mouseRelease(hv->viewport(), Qt::LeftButton, Qt::NoModifier,
++                            QPoint(hv->sectionViewportPosition(section) + hv->sectionSize(section) / 2, yOffset));
++    };
++
++    hv->setSortIndicator(-1, Qt::AscendingOrder);
++    QCOMPARE(hv->sortIndicatorSection(), -1);
++
++    pressOnSection(0);
++    releaseOnSection(0);
++    // RESULT: sorting
++    QCOMPARE(hv->sortIndicatorSection(), 0);
++
++    hv->setSortIndicator(-1, Qt::AscendingOrder);
++    QCOMPARE(hv->sortIndicatorSection(), -1);
++
++    pressOnSection(0);
++    moveOntoSection(1);
++    releaseOnSection(1);
++    // RESULT: no sorting
++    QCOMPARE(hv->sortIndicatorSection(), -1);
++
++    pressOnSection(0);
++    moveOntoSection(1);
++    moveOntoSection(2);
++    releaseOnSection(2);
++    // RESULT: no sorting
++    QCOMPARE(hv->sortIndicatorSection(), -1);
++
++    pressOnSection(0);
++    moveOntoSection(1);
++    moveOntoSection(0);
++    releaseOnSection(0);
++    // RESULT: sorting by 0
++    QCOMPARE(hv->sortIndicatorSection(), 0);
++
++    pressOnSection(0);
++    moveOntoSection(1);
++    releaseOnSection(1);
++    // RESULT: no change, still sorting by 0
++    QCOMPARE(hv->sortIndicatorSection(), 0);
++
++    auto sortOrder = hv->sortIndicatorOrder();
++    pressOnSection(1);
++    moveOntoSection(0);
++    releaseOnSection(0);
++    // RESULT: no change, still sorting by 0
++    QCOMPARE(hv->sortIndicatorSection(), 0);
++    QCOMPARE(hv->sortIndicatorOrder(), sortOrder);
++
++    pressOnSection(1);
++    moveOntoSection(0);
++    moveOntoSection(1);
++    releaseOnSection(1);
++    // RESULT: sorting by 1
++    QCOMPARE(hv->sortIndicatorSection(), 1);
++
++    pressOnSection(1);
++    moveOntoSection(0);
++    releaseOnSection(0);
++    // RESULT: no change, still sorting by 1
++    QCOMPARE(hv->sortIndicatorSection(), 1);
++
++    hv->setSortIndicator(-1, Qt::AscendingOrder);
++    QCOMPARE(hv->sortIndicatorSection(), -1);
++
++    pressOnSection(0);
++    releaseOnSection(0, OutOfRangeYOffset);
++    // RESULT: no sorting
++    QCOMPARE(hv->sortIndicatorSection(), -1);
++
++    pressOnSection(0);
++    moveOntoSection(0, OutOfRangeYOffset);
++    releaseOnSection(0, OutOfRangeYOffset);
++    // RESULT: no sorting
++    QCOMPARE(hv->sortIndicatorSection(), -1);
++
++    pressOnSection(0);
++    moveOntoSection(0, OutOfRangeYOffset);
++    moveOntoSection(0);
++    releaseOnSection(0);
++    // RESULT: sorting by 0
++    QCOMPARE(hv->sortIndicatorSection(), 0);
++
++    pressOnSection(1);
++    releaseOnSection(1, OutOfRangeYOffset);
++    // RESULT: no change, still sorting by 0
++    QCOMPARE(hv->sortIndicatorSection(), 0);
++
++    pressOnSection(1);
++    moveOntoSection(1, OutOfRangeYOffset);
++    releaseOnSection(1, OutOfRangeYOffset);
++    // RESULT: no change, still sorting by 0
++    QCOMPARE(hv->sortIndicatorSection(), 0);
++
++    pressOnSection(1);
++    moveOntoSection(1, OutOfRangeYOffset);
++    moveOntoSection(1);
++    releaseOnSection(1);
++    // RESULT: sorting by 1
++    QCOMPARE(hv->sortIndicatorSection(), 1);
++
++    pressOnSection(2);
++    moveOntoSection(1);
++    moveOntoSection(2);
++    moveOntoSection(2, OutOfRangeYOffset);
++    releaseOnSection(2, OutOfRangeYOffset);
++    // RESULT: no change, still sorting by 1
++    QCOMPARE(hv->sortIndicatorSection(), 1);
++}
++
+ void tst_QHeaderView::initialSortOrderRole()
+ {
+     QTableView view; // ### Shadowing member view (of type QHeaderView)
+-- 
+2.31.1
+

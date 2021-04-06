@@ -1,0 +1,39 @@
+From 834e30c397cd62adefa1c72333e0b24be6acd3ee Mon Sep 17 00:00:00 2001
+From: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Date: Tue, 10 Nov 2020 22:05:20 +0100
+Subject: [PATCH 076/171] Use QTRY_COMPARE in an attempt to make the test less
+ flaky
+
+The test function only runs on X11, and this might help with the
+asynchronous nature of the client/server architecture, also for
+drag'n'drop.
+
+Change-Id: I38db9104e304e57c36f84932d13f8dfae7452883
+Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
+(cherry picked from commit ee025760cf7040d2864327c9bd478f7d0792a79f)
+---
+ tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp b/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp
+index 941ff52373..04c6acfea1 100644
+--- a/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp
++++ b/tests/auto/widgets/itemviews/qlistview/tst_qlistview.cpp
+@@ -2707,12 +2707,12 @@ void tst_QListView::internalDragDropMove()
+ 
+     list.startDrag(Qt::MoveAction);
+ 
+-    QCOMPARE(data.stringList(), expectedData);
++    QTRY_COMPARE(data.stringList(), expectedData);
+ 
+      // if the model doesn't implement moveRows, or if items are replaced, then selection is lost
+     if (modelMoves && !(itemFlags & Qt::ItemIsDropEnabled)) {
+         const QStringList actualSelected = getSelectedTexts();
+-        QCOMPARE(actualSelected, expectedSelected);
++        QTRY_COMPARE(actualSelected, expectedSelected);
+     }
+ }
+ 
+-- 
+2.31.1
+

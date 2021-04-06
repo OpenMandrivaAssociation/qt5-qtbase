@@ -1,0 +1,69 @@
+From 7927794a8183a4ad3cad01ced49998f069a4f79a Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Wed, 14 Oct 2020 10:12:38 +0200
+Subject: [PATCH 012/171] Pass SameSite through QNetworkCookie
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+It is an important new details in cookies, as a minimum pass it through,
+before we add API for it.
+
+Change-Id: I5222a24e0f50f3822a94cce126b5055fed1a8008
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 5dc1780369927b41b424277330d0e2ec7431252b)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/network/access/qnetworkcookie.cpp | 9 ++++++++-
+ src/network/access/qnetworkcookie_p.h | 1 +
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/src/network/access/qnetworkcookie.cpp b/src/network/access/qnetworkcookie.cpp
+index 47f6112b22..21950b18a5 100644
+--- a/src/network/access/qnetworkcookie.cpp
++++ b/src/network/access/qnetworkcookie.cpp
+@@ -180,7 +180,8 @@ bool QNetworkCookie::operator==(const QNetworkCookie &other) const
+         d->domain == other.d->domain &&
+         d->path == other.d->path &&
+         d->secure == other.d->secure &&
+-        d->comment == other.d->comment;
++        d->comment == other.d->comment &&
++        d->sameSite == other.d->sameSite;
+ }
+ 
+ /*!
+@@ -459,6 +460,10 @@ QByteArray QNetworkCookie::toRawForm(RawForm form) const
+             result += "; secure";
+         if (isHttpOnly())
+             result += "; HttpOnly";
++        if (!d->sameSite.isEmpty()) {
++            result += "; SameSite=";
++            result += d->sameSite;
++        }
+         if (!isSessionCookie()) {
+             result += "; expires=";
+             result += QLocale::c().toString(d->expirationDate.toUTC(),
+@@ -991,6 +996,8 @@ QList<QNetworkCookie> QNetworkCookiePrivate::parseSetCookieHeaderLine(const QByt
+                     cookie.setSecure(true);
+                 } else if (field.first == "httponly") {
+                     cookie.setHttpOnly(true);
++                } else if (field.first == "samesite") {
++                    cookie.d->sameSite = field.second;
+                 } else {
+                     // ignore unknown fields in the cookie (RFC6265 section 5.2, rule 6)
+                 }
+diff --git a/src/network/access/qnetworkcookie_p.h b/src/network/access/qnetworkcookie_p.h
+index 13538ad243..e30e611cf5 100644
+--- a/src/network/access/qnetworkcookie_p.h
++++ b/src/network/access/qnetworkcookie_p.h
+@@ -66,6 +66,7 @@ public:
+     QString domain;
+     QString path;
+     QString comment;
++    QByteArray sameSite;
+     QByteArray name;
+     QByteArray value;
+     bool secure;
+-- 
+2.31.1
+

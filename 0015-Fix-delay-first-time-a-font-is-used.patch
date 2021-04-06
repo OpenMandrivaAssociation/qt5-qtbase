@@ -1,0 +1,50 @@
+From 1a991e186256b137d911ddca41aa506016b0e349 Mon Sep 17 00:00:00 2001
+From: Eskil Abrahamsen Blomfeldt <eskil.abrahamsen-blomfeldt@qt.io>
+Date: Wed, 28 Oct 2020 09:08:11 +0100
+Subject: [PATCH 015/171] Fix delay first time a font is used
+
+Since 066daf750fcffff8eeae4d5749607501b9aa9a2f, we would mistakenly populate the
+fallback list for all ensureAt(index) calls, even when index == 0. This index
+indicates the main font, is always valid and does not require knowledge of any
+fallbacks.
+
+On Windows (and other platforms where QPlatformDatabase::fallbacksForFamily() is used)
+this would cause all fonts on the system to be loaded and should only be done when
+we actually need one of the fallbacks.
+
+With the GDI font database, in which font loading is slow because we have to manually
+read font data, this is especially bad. If we can later move to using DirectWrite
+for this, we should be able to improve on it, but in any case there is no need to
+pay the cost of the fallbacks when the application is just using the fonts it has
+selected (memory-wise this is also a bad idea). On my machine a simple text layout
+went from 370 ms to 37 ms.
+
+[ChangeLog][Text] Fixed an issue where on some platforms, there would be a delay the
+first time any font was used, sometimes causing a visible delay in the UI.
+
+Fixes: QTBUG-71737
+Change-Id: Ie8ce9b73f02a0e5cf39a2b280968b89f4caaf39e
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+Reviewed-by: Konstantin Ritt <ritt.ks@gmail.com>
+(cherry picked from commit a332f3fabc29f796526202648eddf35a24f1cb67)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/gui/text/qfontengine.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/text/qfontengine.cpp b/src/gui/text/qfontengine.cpp
+index f1fd755e91..d9c0239940 100644
+--- a/src/gui/text/qfontengine.cpp
++++ b/src/gui/text/qfontengine.cpp
+@@ -1815,7 +1815,7 @@ void QFontEngineMulti::setFallbackFamiliesList(const QStringList &fallbackFamili
+ 
+ void QFontEngineMulti::ensureEngineAt(int at)
+ {
+-    if (!m_fallbackFamiliesQueried)
++    if (!m_fallbackFamiliesQueried && at > 0)
+         ensureFallbackFamiliesQueried();
+     Q_ASSERT(at < m_engines.size());
+     if (!m_engines.at(at)) {
+-- 
+2.31.1
+

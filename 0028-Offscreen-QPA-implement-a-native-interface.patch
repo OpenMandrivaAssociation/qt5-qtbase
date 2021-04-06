@@ -1,0 +1,219 @@
+From e962f19067b9970231b58cf1c482ff6655d70796 Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Thu, 29 Oct 2020 16:23:10 +0100
+Subject: [PATCH 028/171] Offscreen QPA: implement a native interface
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Many code paths simply expect to have a native interface
+available, and won't check if a plugin is returning nullptr
+for it. This leads to crashes or local workarounds
+(e.g. 3197932e6fb03fb9c0ff669af858cb94e3836d79). Instead,
+have offscreen implement a dummy native interface.
+
+This requires shuffling some code for the X11 integration.
+
+Change-Id: I2bdceee379e4ded9b085ebbb4d03d1e074f60726
+Reviewed-by: Friedemann Kleint <Friedemann.Kleint@qt.io>
+Reviewed-by: Oliver Wolff <oliver.wolff@qt.io>
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit ecd11e498f18a18a79a062c39c0917439479ae4d)
+---
+ .../platforms/offscreen/qoffscreencommon.cpp  |  2 ++
+ .../platforms/offscreen/qoffscreencommon.h    |  7 ++++++
+ .../offscreen/qoffscreenintegration.cpp       |  7 ++++++
+ .../offscreen/qoffscreenintegration.h         |  5 +++-
+ .../offscreen/qoffscreenintegration_x11.cpp   | 24 ++++++++++++-------
+ .../offscreen/qoffscreenintegration_x11.h     | 22 ++++++++++-------
+ 6 files changed, 50 insertions(+), 17 deletions(-)
+
+diff --git a/src/plugins/platforms/offscreen/qoffscreencommon.cpp b/src/plugins/platforms/offscreen/qoffscreencommon.cpp
+index de75a3e012..5b3d944db4 100644
+--- a/src/plugins/platforms/offscreen/qoffscreencommon.cpp
++++ b/src/plugins/platforms/offscreen/qoffscreencommon.cpp
+@@ -223,4 +223,6 @@ void QOffscreenBackingStore::clearHash()
+ 
+ QHash<WId, QOffscreenBackingStore *> QOffscreenBackingStore::m_backingStoreForWinIdHash;
+ 
++QOffscreenPlatformNativeInterface::~QOffscreenPlatformNativeInterface() = default;
++
+ QT_END_NAMESPACE
+diff --git a/src/plugins/platforms/offscreen/qoffscreencommon.h b/src/plugins/platforms/offscreen/qoffscreencommon.h
+index f4f0142911..116944c3b4 100644
+--- a/src/plugins/platforms/offscreen/qoffscreencommon.h
++++ b/src/plugins/platforms/offscreen/qoffscreencommon.h
+@@ -45,6 +45,7 @@
+ #include <qpa/qplatformdrag.h>
+ #endif
+ #include <qpa/qplatformintegration.h>
++#include <qpa/qplatformnativeinterface.h>
+ #include <qpa/qplatformscreen.h>
+ #include <qpa/qplatformwindow.h>
+ 
+@@ -105,6 +106,12 @@ private:
+     static QHash<WId, QOffscreenBackingStore *> m_backingStoreForWinIdHash;
+ };
+ 
++class QOffscreenPlatformNativeInterface : public QPlatformNativeInterface
++{
++public:
++    ~QOffscreenPlatformNativeInterface();
++};
++
+ QT_END_NAMESPACE
+ 
+ #endif
+diff --git a/src/plugins/platforms/offscreen/qoffscreenintegration.cpp b/src/plugins/platforms/offscreen/qoffscreenintegration.cpp
+index 3a4494fc2e..141fb68a23 100644
+--- a/src/plugins/platforms/offscreen/qoffscreenintegration.cpp
++++ b/src/plugins/platforms/offscreen/qoffscreenintegration.cpp
+@@ -176,6 +176,13 @@ QAbstractEventDispatcher *QOffscreenIntegration::createEventDispatcher() const
+ #endif
+ }
+ 
++QPlatformNativeInterface *QOffscreenIntegration::nativeInterface() const
++{
++    if (!m_nativeInterface)
++        m_nativeInterface.reset(new QOffscreenPlatformNativeInterface);
++    return m_nativeInterface.get();
++}
++
+ static QString themeName() { return QStringLiteral("offscreen"); }
+ 
+ QStringList QOffscreenIntegration::themeNames() const
+diff --git a/src/plugins/platforms/offscreen/qoffscreenintegration.h b/src/plugins/platforms/offscreen/qoffscreenintegration.h
+index 098e726550..0ea90f6c2f 100644
+--- a/src/plugins/platforms/offscreen/qoffscreenintegration.h
++++ b/src/plugins/platforms/offscreen/qoffscreenintegration.h
+@@ -70,18 +70,21 @@ public:
+     QPlatformFontDatabase *fontDatabase() const override;
+     QAbstractEventDispatcher *createEventDispatcher() const override;
+ 
++    QPlatformNativeInterface *nativeInterface() const override;
++
+     QStringList themeNames() const override;
+     QPlatformTheme *createPlatformTheme(const QString &name) const override;
+ 
+     static QOffscreenIntegration *createOffscreenIntegration();
+ 
+-private:
++protected:
+     QScopedPointer<QPlatformFontDatabase> m_fontDatabase;
+ #if QT_CONFIG(draganddrop)
+     QScopedPointer<QPlatformDrag> m_drag;
+ #endif
+     QScopedPointer<QPlatformInputContext> m_inputContext;
+     QScopedPointer<QPlatformServices> m_services;
++    mutable QScopedPointer<QPlatformNativeInterface> m_nativeInterface;
+ };
+ 
+ QT_END_NAMESPACE
+diff --git a/src/plugins/platforms/offscreen/qoffscreenintegration_x11.cpp b/src/plugins/platforms/offscreen/qoffscreenintegration_x11.cpp
+index 9c391e2be7..6d86d9f3ae 100644
+--- a/src/plugins/platforms/offscreen/qoffscreenintegration_x11.cpp
++++ b/src/plugins/platforms/offscreen/qoffscreenintegration_x11.cpp
+@@ -77,6 +77,8 @@ private:
+     QOffscreenX11Connection *m_connection;
+ };
+ 
++QOffscreenX11Integration::~QOffscreenX11Integration() = default;
++
+ bool QOffscreenX11Integration::hasCapability(QPlatformIntegration::Capability cap) const
+ {
+     switch (cap) {
+@@ -89,21 +91,27 @@ bool QOffscreenX11Integration::hasCapability(QPlatformIntegration::Capability ca
+ 
+ QPlatformOpenGLContext *QOffscreenX11Integration::createPlatformOpenGLContext(QOpenGLContext *context) const
+ {
+-    if (!m_connection)
+-        m_connection.reset(new QOffscreenX11Connection);
++    auto &connection = nativeInterface()->m_connection;
++
++    if (!connection)
++        connection.reset(new QOffscreenX11Connection);
+ 
+-    if (!m_connection->display())
++    if (!connection->display())
+         return nullptr;
+ 
+-    return new QOffscreenX11GLXContext(m_connection->x11Info(), context);
++    return new QOffscreenX11GLXContext(connection->x11Info(), context);
+ }
+ 
+-QPlatformNativeInterface *QOffscreenX11Integration::nativeInterface() const
++QOffscreenX11PlatformNativeInterface *QOffscreenX11Integration::nativeInterface() const
+ {
+-   return const_cast<QOffscreenX11Integration *>(this);
++   if (!m_nativeInterface)
++       m_nativeInterface.reset(new QOffscreenX11PlatformNativeInterface);
++   return static_cast<QOffscreenX11PlatformNativeInterface *>(m_nativeInterface.data());
+ }
+ 
+-void *QOffscreenX11Integration::nativeResourceForScreen(const QByteArray &resource, QScreen *screen)
++QOffscreenX11PlatformNativeInterface::~QOffscreenX11PlatformNativeInterface() = default;
++
++void *QOffscreenX11PlatformNativeInterface::nativeResourceForScreen(const QByteArray &resource, QScreen *screen)
+ {
+     Q_UNUSED(screen)
+     if (resource.toLower() == QByteArrayLiteral("display") ) {
+@@ -115,7 +123,7 @@ void *QOffscreenX11Integration::nativeResourceForScreen(const QByteArray &resour
+ }
+ 
+ #ifndef QT_NO_OPENGL
+-void *QOffscreenX11Integration::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) {
++void *QOffscreenX11PlatformNativeInterface::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) {
+     if (resource.toLower() == QByteArrayLiteral("glxconfig") ) {
+         if (context) {
+             QOffscreenX11GLXContext *glxPlatformContext = static_cast<QOffscreenX11GLXContext *>(context->handle());
+diff --git a/src/plugins/platforms/offscreen/qoffscreenintegration_x11.h b/src/plugins/platforms/offscreen/qoffscreenintegration_x11.h
+index 5ef51a15a8..d76d065dd1 100644
+--- a/src/plugins/platforms/offscreen/qoffscreenintegration_x11.h
++++ b/src/plugins/platforms/offscreen/qoffscreenintegration_x11.h
+@@ -41,6 +41,7 @@
+ #define QOFFSCREENINTEGRATION_X11_H
+ 
+ #include "qoffscreenintegration.h"
++#include "qoffscreencommon.h"
+ 
+ #include <qglobal.h>
+ #include <qscopedpointer.h>
+@@ -52,22 +53,27 @@ QT_BEGIN_NAMESPACE
+ class QOffscreenX11Connection;
+ class QOffscreenX11Info;
+ 
+-class QOffscreenX11Integration : public QOffscreenIntegration,  public QPlatformNativeInterface
++class QOffscreenX11PlatformNativeInterface : public QOffscreenPlatformNativeInterface
+ {
+ public:
+-    bool hasCapability(QPlatformIntegration::Capability cap) const override;
+-
+-    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const override;
+-    QPlatformNativeInterface *nativeInterface()const override;
++    ~QOffscreenX11PlatformNativeInterface();
+ 
+-    // QPlatformNativeInterface
+     void *nativeResourceForScreen(const QByteArray &resource, QScreen *screen) override;
+ #ifndef QT_NO_OPENGL
+     void *nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) override;
+ #endif
+ 
+-private:
+-    mutable QScopedPointer<QOffscreenX11Connection> m_connection;
++    QScopedPointer<QOffscreenX11Connection> m_connection;
++};
++
++class QOffscreenX11Integration : public QOffscreenIntegration
++{
++public:
++    ~QOffscreenX11Integration();
++    bool hasCapability(QPlatformIntegration::Capability cap) const override;
++
++    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const override;
++    QOffscreenX11PlatformNativeInterface *nativeInterface() const override;
+ };
+ 
+ class QOffscreenX11Connection {
+-- 
+2.31.1
+
