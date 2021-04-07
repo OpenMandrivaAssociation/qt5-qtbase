@@ -333,6 +333,8 @@ BuildRequires:	cmake(double-conversion)
 BuildRequires:	pkgconfig(libpcre2-16)
 # Build scripts
 BuildRequires:	python >= 3.0
+# Binary patch
+BuildRequires:	git-core
 BuildRequires:	pkgconfig(libpng)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	pkgconfig(libzstd)
