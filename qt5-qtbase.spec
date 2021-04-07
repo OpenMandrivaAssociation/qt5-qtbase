@@ -193,7 +193,7 @@ Patch1037:	0038-macOS-FreeType-fix-crash-with-non-printable-unicode.patch
 Patch1038:	0039-Linux-fix-crash-in-AtSpi-adaptor-when-handling-windo.patch
 Patch1039:	0040-Add-_MSC_VER-check-to-MSVC-ARM-compiler-workaround.patch
 Patch1040:	0041-QMap-suppress-warning-about-strict-aliasing-violatio.patch
-Patch1042:	0043-Set-the-url-to-have-the-AtNx-filename-if-one-is-foun.patch
+Source1042:	0043-Set-the-url-to-have-the-AtNx-filename-if-one-is-foun.patch
 Patch1043:	0044-QMap-don-t-tell-everyone-QMapNode-has-no-friends.patch
 Patch1044:	0045-QNAM-Work-around-QObject-finicky-orphan-cleanup-deta.patch
 Patch1045:	0046-xcb-ensure-that-available-glx-version-is-greater-tha.patch
@@ -1761,6 +1761,13 @@ Qt LALR parser generator.
 
 %prep
 %autosetup -n %qttarballdir -p1
+
+# Patch includes a git binary diff
+git init
+git config user.name "OpenMandriva Builder"
+git config user.email "info@openmandriva.org"
+git apply %{S:1042}
+
 # needed after applying patch that bumps the version number
 bin/syncqt.pl -version %{version}
 

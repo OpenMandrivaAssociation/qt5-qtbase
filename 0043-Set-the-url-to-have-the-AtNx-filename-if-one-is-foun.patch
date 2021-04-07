@@ -1,0 +1,233 @@
+From 760df7256588e76d082ea959399af36d7ba80a86 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Morten=20Johan=20S=C3=B8rvig?= <morten.sorvig@qt.io>
+Date: Tue, 16 Jun 2020 15:46:16 +0200
+Subject: [PATCH 043/171] Set the url to have the AtNx filename if one is found
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+There’s no need to convert the file name/path to QUrl,
+and then back again to QString before calling qt_findAtNxFile().
+
+Call qt_findAtNxFile first, and then convert to QUrl.
+This makes sure the url-name and string-name stays
+in sync.
+
+Change-Id: I8b8939eabbdaff473945ebe31faafd408e9c4295
+Fixes: QTBUG-60793
+Reviewed-by: Andy Shaw <andy.shaw@qt.io>
+(cherry picked from commit 52ce0c177e80c2d5b70b38d429abb3689b3da51e)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+---
+ src/gui/text/qtextimagehandler.cpp            |  48 +++-------
+ .../gui/text/qtextimagehandler/data/image.png | Bin 0 -> 101 bytes
+ .../text/qtextimagehandler/data/image@2x.png  | Bin 0 -> 102 bytes
+ .../qtextimagehandler/qtextimagehandler.pro   |   4 +
+ .../tst_qtextimagehandler.cpp                 |  87 ++++++++++++++++++
+ 5 files changed, 104 insertions(+), 35 deletions(-)
+ create mode 100644 tests/auto/gui/text/qtextimagehandler/data/image.png
+ create mode 100644 tests/auto/gui/text/qtextimagehandler/data/image@2x.png
+ create mode 100644 tests/auto/gui/text/qtextimagehandler/qtextimagehandler.pro
+ create mode 100644 tests/auto/gui/text/qtextimagehandler/tst_qtextimagehandler.cpp
+
+diff --git a/src/gui/text/qtextimagehandler.cpp b/src/gui/text/qtextimagehandler.cpp
+index 0d87a2135d..053be89959 100644
+--- a/src/gui/text/qtextimagehandler.cpp
++++ b/src/gui/text/qtextimagehandler.cpp
+@@ -53,40 +53,21 @@ QT_BEGIN_NAMESPACE
+ 
+ extern QString qt_findAtNxFile(const QString &baseFileName, qreal targetDevicePixelRatio,
+                                qreal *sourceDevicePixelRatio);
+-static QString resolveFileName(QString fileName, QUrl *url, qreal targetDevicePixelRatio,
+-                               qreal *sourceDevicePixelRatio)
+-{
+-    // We might use the fileName for loading if url loading fails
+-    // try to make sure it is a valid file path.
+-    // Also, QFile{Info}::exists works only on filepaths (not urls)
+-
+-    if (url->isValid()) {
+-      if (url->scheme() == QLatin1String("qrc")) {
+-        fileName = fileName.right(fileName.length() - 3);
+-      }
+-      else if (url->scheme() == QLatin1String("file")) {
+-        fileName = url->toLocalFile();
+-      }
+-    }
+ 
+-    if (targetDevicePixelRatio <= 1.0)
+-        return fileName;
+-
+-    // try to find a Nx version
+-    return qt_findAtNxFile(fileName, targetDevicePixelRatio, sourceDevicePixelRatio);
++static inline QUrl fromLocalfileOrResources(QString path)
++{
++    if (path.startsWith(QLatin1String(":/"))) // auto-detect resources and convert them to url
++        path.prepend(QLatin1String("qrc"));
++    return QUrl(path);
+ }
+ 
+-
+ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format, const qreal devicePixelRatio = 1.0)
+ {
+-    QPixmap pm;
+-
+-    QString name = format.name();
+-    if (name.startsWith(QLatin1String(":/"))) // auto-detect resources and convert them to url
+-        name.prepend(QLatin1String("qrc"));
+-    QUrl url = QUrl(name);
+     qreal sourcePixelRatio = 1.0;
+-    name = resolveFileName(name, &url, devicePixelRatio, &sourcePixelRatio);
++    const QString name = qt_findAtNxFile(format.name(), devicePixelRatio, &sourcePixelRatio);
++    const QUrl url = fromLocalfileOrResources(name);
++
++    QPixmap pm;
+     const QVariant data = doc->resource(QTextDocument::ImageResource, url);
+     if (data.userType() == QMetaType::QPixmap || data.userType() == QMetaType::QImage) {
+         pm = qvariant_cast<QPixmap>(data);
+@@ -161,14 +142,11 @@ static QSize getPixmapSize(QTextDocument *doc, const QTextImageFormat &format)
+ 
+ static QImage getImage(QTextDocument *doc, const QTextImageFormat &format, const qreal devicePixelRatio = 1.0)
+ {
+-    QImage image;
+-
+-    QString name = format.name();
+-    if (name.startsWith(QLatin1String(":/"))) // auto-detect resources
+-        name.prepend(QLatin1String("qrc"));
+-    QUrl url = QUrl(name);
+     qreal sourcePixelRatio = 1.0;
+-    name = resolveFileName(name, &url, devicePixelRatio, &sourcePixelRatio);
++    const QString name = qt_findAtNxFile(format.name(), devicePixelRatio, &sourcePixelRatio);
++    const QUrl url = fromLocalfileOrResources(name);
++
++    QImage image;
+     const QVariant data = doc->resource(QTextDocument::ImageResource, url);
+     if (data.userType() == QMetaType::QImage) {
+         image = qvariant_cast<QImage>(data);
+diff --git a/tests/auto/gui/text/qtextimagehandler/data/image.png b/tests/auto/gui/text/qtextimagehandler/data/image.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..dd589dd49c36706167b408f3153bfde6fd8c19e7
+GIT binary patch
+literal 101
+zcmeAS@N?(olHy`uVBq!ia0vp^0wB!61SBU+%rFB|oCO|{#S9F5M?jcysy3fAP*B{{
+u#W6%<V)CE!4pIq9fqz%D1@bz3Ff%ylG0IPv$Z;O1gu&C*&t;ucLK6VVUlzUq
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/auto/gui/text/qtextimagehandler/data/image@2x.png b/tests/auto/gui/text/qtextimagehandler/data/image@2x.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b4c0bd05976d33f895b8b524b9bbfea80661933
+GIT binary patch
+literal 102
+zcmeAS@N?(olHy`uVBq!ia0vp^0wB!61SBU+%rFB|oCO|{#S9F5M?jcysy3fAP*B3t
+v#W6%<Vsgrl^A17@O1?i=v<31ydonZF>odx4)S0aWRKwuu>gTe~DWM4f+%Fcg
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/auto/gui/text/qtextimagehandler/qtextimagehandler.pro b/tests/auto/gui/text/qtextimagehandler/qtextimagehandler.pro
+new file mode 100644
+index 0000000000..6214171377
+--- /dev/null
++++ b/tests/auto/gui/text/qtextimagehandler/qtextimagehandler.pro
+@@ -0,0 +1,4 @@
++CONFIG += testcase
++TARGET = tst_qtextimagehandler
++QT += core-private gui gui-private testlib
++SOURCES += tst_qtextimagehandler.cpp
+diff --git a/tests/auto/gui/text/qtextimagehandler/tst_qtextimagehandler.cpp b/tests/auto/gui/text/qtextimagehandler/tst_qtextimagehandler.cpp
+new file mode 100644
+index 0000000000..ee79c36ba5
+--- /dev/null
++++ b/tests/auto/gui/text/qtextimagehandler/tst_qtextimagehandler.cpp
+@@ -0,0 +1,87 @@
++/****************************************************************************
++ **
++ ** Copyright (C) 2020 The Qt Company Ltd.
++ ** Contact: https://www.qt.io/licensing/
++ **
++ ** This file is part of the test suite of the Qt Toolkit.
++ **
++ ** $QT_BEGIN_LICENSE:GPL-EXCEPT$
++ ** Commercial License Usage
++ ** Licensees holding valid commercial Qt licenses may use this file in
++ ** accordance with the commercial license agreement provided with the
++ ** Software or, alternatively, in accordance with the terms contained in
++ ** a written agreement between you and The Qt Company. For licensing terms
++ ** and conditions see https://www.qt.io/terms-conditions. For further
++ ** information use the contact form at https://www.qt.io/contact-us.
++ **
++ ** GNU General Public License Usage
++ ** Alternatively, this file may be used under the terms of the GNU
++ ** General Public License version 3 as published by the Free Software
++ ** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
++ ** included in the packaging of this file. Please review the following
++ ** information to ensure the GNU General Public License requirements will
++ ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
++ **
++ ** $QT_END_LICENSE$
++ **
++ ****************************************************************************/
++
++#include <QtTest/QtTest>
++
++#include <QPainter>
++#include <private/qtextimagehandler_p.h>
++
++class tst_QTextImageHandler : public QObject
++{
++    Q_OBJECT
++
++public:
++    tst_QTextImageHandler();
++
++private slots:
++    void init();
++    void cleanup();
++    void cleanupTestCase();
++    void loadAtNImages();
++};
++
++tst_QTextImageHandler::tst_QTextImageHandler()
++{
++}
++
++void tst_QTextImageHandler::init()
++{
++}
++
++void tst_QTextImageHandler::cleanup()
++{
++}
++
++void tst_QTextImageHandler::cleanupTestCase()
++{
++}
++
++void tst_QTextImageHandler::loadAtNImages()
++{
++    QTextDocument doc;
++    QTextCursor c(&doc);
++    c.insertHtml("<img src=\"data/image.png\">");
++    QTextImageHandler handler;
++    QTextImageFormat fmt;
++    fmt.setName("data/image.png");
++
++    for (int i = 1; i < 3; ++i) {
++        QImage img(20, 20, QImage::Format_ARGB32_Premultiplied);
++        img.fill(Qt::white);
++        img.setDevicePixelRatio(i);
++        QPainter p(&img);
++        handler.drawObject(&p, QRect(0, 0, 20, 20), &doc, 0, fmt);
++        p.end();
++        QVERIFY(!img.isNull());
++        const auto expectedColor = i == 1 ? Qt::red : Qt::green;
++        QCOMPARE(img.pixelColor(0, 0), expectedColor);
++    }
++}
++
++QTEST_MAIN(tst_QTextImageHandler)
++#include "tst_qtextimagehandler.moc"
+-- 
+2.31.1
+
