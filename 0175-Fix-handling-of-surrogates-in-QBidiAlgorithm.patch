@@ -1,0 +1,46 @@
+From e25bc8593e2d35b97b547973c27126b4a7b1ec81 Mon Sep 17 00:00:00 2001
+From: Edward Welbourne <edward.welbourne@qt.io>
+Date: Mon, 8 Feb 2021 12:13:13 +0100
+Subject: [PATCH 175/182] Fix handling of surrogates in QBidiAlgorithm
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Prior code was naively assuming the character after a high surrogate
+would necessarily be a low surrogate, which is buggy.
+Fixes oss-fuzz issue 29718.
+
+Pick-to: 6.0 6.1 5.15
+Change-Id: I10f023c4b5024a0d76fea0a3672001063591ec6d
+Reviewed-by: Konstantin Ritt <ritt.ks@gmail.com>
+Reviewed-by: Robert Löhning <robert.loehning@qt.io>
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit aeeaab1a5ac0b4d91c9f9b542035b8970e4c61dd)
+---
+ src/gui/text/qtextengine.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/gui/text/qtextengine.cpp b/src/gui/text/qtextengine.cpp
+index b7459bf826..cdaa729785 100644
+--- a/src/gui/text/qtextengine.cpp
++++ b/src/gui/text/qtextengine.cpp
+@@ -1,6 +1,6 @@
+ /****************************************************************************
+ **
+-** Copyright (C) 2016 The Qt Company Ltd.
++** Copyright (C) 2021 The Qt Company Ltd.
+ ** Contact: https://www.qt.io/licensing/
+ **
+ ** This file is part of the QtGui module of the Qt Toolkit.
+@@ -258,7 +258,7 @@ struct QBidiAlgorithm {
+         for (int i = 0; i < length; ++i) {
+             int pos = i;
+             uint uc = text[i].unicode();
+-            if (QChar::isHighSurrogate(uc) && i < length - 1) {
++            if (QChar::isHighSurrogate(uc) && i < length - 1 && text[i + 1].isLowSurrogate()) {
+                 ++i;
+                 analysis[i].bidiDirection = QChar::DirNSM;
+                 uc = QChar::surrogateToUcs4(ushort(uc), text[i].unicode());
+-- 
+2.31.1
+

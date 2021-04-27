@@ -121,16 +121,16 @@ Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
 Version:	5.15.3
 %if "%{beta}" != ""
-Release:	0.%{beta}.1
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
+Release:	0.%{beta}.1
 %else
 # Since Qt has stopped making 5.15 releases (but the tags keep
 # rolling in through kde's qt branch), we have to hardcode 5.15.2
 # (last release) here, even if %{version} keeps rising
-Release:	1
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
+Release:	2
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -321,6 +321,17 @@ Patch1167:	0168-Fuzzing-Provide-link-to-oss-fuzz.patch
 Patch1168:	0169-Blacklist-tst_QMdiArea-updateScrollBars-on-macos.patch
 Patch1169:	0170-Fix-build-with-GCC-11-include-limits.patch
 Patch1170:	0171-Build-fixes-for-GCC-11.patch
+Patch1171:	0172-Partially-revert-813a928c7c3cf98670b6043149880ed5c95.patch
+Patch1172:	0173-Fix-removing-columns-when-QSortFilterProxyModel-has-.patch
+Patch1173:	0174-Fix-get-out-of-bounds-index-in-QSortFilterProxyModel.patch
+Patch1174:	0175-Fix-handling-of-surrogates-in-QBidiAlgorithm.patch
+Patch1175:	0176-Avoid-undefined-color-values-in-corrupt-xpm-image.patch
+Patch1176:	0177-Gracefully-reject-requests-for-absurd-font-sizes.patch
+Patch1177:	0178-Don-t-own-unique-name-for-QDBusTrayIcon.patch
+Patch1178:	0179-QAbstractItemModelTester-fix-false-positive-when-mod.patch
+Patch1179:	0180-Fix-QAbstractItemModelTester-false-positive.patch
+Patch1180:	0181-Deprecate-QMutex-in-recursive-mode.patch
+Patch1181:	0182-Fix-QAbstractItemModelTester-false-positive.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the

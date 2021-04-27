@@ -1,0 +1,36 @@
+From 478b5c9f21e77af00134f0f1fc6c638993033252 Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Thu, 21 Jan 2021 09:55:00 +0100
+Subject: [PATCH 177/182] Gracefully reject requests for absurd font sizes
+
+Avoid overflows.
+
+Fixes: QTBUG-89899
+Pick-to: 6.0 5.15 5.12
+Change-Id: Ic1a83c1704fe20be3d032358dc91ee8e751f2281
+Reviewed-by: Eskil Abrahamsen Blomfeldt <eskil.abrahamsen-blomfeldt@qt.io>
+(cherry picked from commit 679750684087cad7a48921c4174a53cdf4855049)
+---
+ src/gui/text/qfontdatabase.cpp | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/gui/text/qfontdatabase.cpp b/src/gui/text/qfontdatabase.cpp
+index 1a4d8f938b..0f5219410d 100644
+--- a/src/gui/text/qfontdatabase.cpp
++++ b/src/gui/text/qfontdatabase.cpp
+@@ -2679,6 +2679,12 @@ QFontEngine *QFontDatabase::findFont(const QFontDef &request, int script)
+         return engine;
+     }
+ 
++    if (request.pixelSize > 0xffff) {
++        // Stop absurd requests reaching the engines; pixel size is assumed to fit ushort
++        qCDebug(lcFontMatch, "Rejecting request for pixel size %g2, returning box engine", double(request.pixelSize));
++        return new QFontEngineBox(32); // not request.pixelSize, to avoid overflow/DOS
++    }
++
+     QString family_name, foundry_name;
+     const QString requestFamily = request.families.size() > 0 ? request.families.at(0) : request.family;
+     parseFontName(requestFamily, foundry_name, family_name);
+-- 
+2.31.1
+

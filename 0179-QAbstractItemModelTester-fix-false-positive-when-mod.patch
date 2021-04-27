@@ -1,0 +1,63 @@
+From a31377fd65640de2e05189eb5deccecb649ea8dc Mon Sep 17 00:00:00 2001
+From: David Faure <david.faure@kdab.com>
+Date: Mon, 29 Mar 2021 18:34:43 +0200
+Subject: [PATCH 179/182] QAbstractItemModelTester: fix false positive when
+ model has zero columns
+
+Regression introduced by me in commit 72e0d699cec09458ca9325035d477d4899e8e47b
+
+Fixes: QTBUG-92220
+Change-Id: Ic7dd4eda0a1993f9763933882baf928bfc83b08b
+Pick-to: 6.1 6.0 5.15
+Reviewed-by: Luca Beldi <v.ronin@yahoo.it>
+Reviewed-by: Alexandru Croitor <alexandru.croitor@qt.io>
+(cherry picked from commit b4aac2af19690917553f93660e3ad760fc15d0b9)
+---
+ src/testlib/qabstractitemmodeltester.cpp               |  2 +-
+ .../tst_qabstractitemmodeltester.cpp                   | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/src/testlib/qabstractitemmodeltester.cpp b/src/testlib/qabstractitemmodeltester.cpp
+index 2348f8fdfe..a85b291220 100644
+--- a/src/testlib/qabstractitemmodeltester.cpp
++++ b/src/testlib/qabstractitemmodeltester.cpp
+@@ -438,7 +438,7 @@ void QAbstractItemModelTesterPrivate::parent()
+     // when asked for the parent of an invalid index.
+     MODELTESTER_VERIFY(!model->parent(QModelIndex()).isValid());
+ 
+-    if (model->rowCount() == 0)
++    if (model->rowCount() == 0 || model->columnCount() == 0)
+         return;
+ 
+     // Column 0                | Column 1    |
+diff --git a/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp b/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
+index b305eee0ec..08419b335e 100644
+--- a/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
++++ b/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
+@@ -40,6 +40,7 @@ private slots:
+     void stringListModel();
+     void treeWidgetModel();
+     void standardItemModel();
++    void standardItemModelZeroColumns();
+     void testInsertThroughProxy();
+     void moveSourceItems();
+     void testResetThroughProxy();
+@@ -104,6 +105,15 @@ void tst_QAbstractItemModelTester::standardItemModel()
+     model.insertColumns(0, 5, model.index(1, 3));
+ }
+ 
++void tst_QAbstractItemModelTester::standardItemModelZeroColumns() // QTBUG-92220
++{
++    QStandardItemModel model;
++
++    QAbstractItemModelTester t1(&model);
++    model.insertRows(0, 5);
++    model.removeRows(0, 5);
++}
++
+ void tst_QAbstractItemModelTester::testInsertThroughProxy()
+ {
+     DynamicTreeModel *model = new DynamicTreeModel(this);
+-- 
+2.31.1
+

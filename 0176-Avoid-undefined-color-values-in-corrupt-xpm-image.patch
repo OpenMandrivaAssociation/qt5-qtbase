@@ -1,0 +1,31 @@
+From ca6e5c2b526f08ce631c828c515d33efa914134d Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Wed, 10 Mar 2021 15:18:03 +0100
+Subject: [PATCH 176/182] Avoid undefined color values in corrupt xpm image
+
+Issue reported by Codechecker.
+
+Pick-to: 6.1 6.0 5.15 5.12
+Change-Id: I1a5aa2203fb31e0ce3b630a11e450925aee81fb0
+Reviewed-by: Allan Sandfeld Jensen <allan.jensen@qt.io>
+(cherry picked from commit f651e6a26cb59f7b7c7671cded8a10b9f98f5c71)
+---
+ src/gui/image/qxpmhandler.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/image/qxpmhandler.cpp b/src/gui/image/qxpmhandler.cpp
+index 8acc80776c..16fd78f25f 100644
+--- a/src/gui/image/qxpmhandler.cpp
++++ b/src/gui/image/qxpmhandler.cpp
+@@ -924,7 +924,7 @@ static bool read_xpm_body(
+                 colorMap.insert(xpmHash(QLatin1String(index.constData())), 0);
+             }
+         } else {
+-            QRgb c_rgb;
++            QRgb c_rgb = 0;
+             if (((buf.length()-1) % 3) && (buf[0] == '#')) {
+                 buf.truncate(((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
+             }
+-- 
+2.31.1
+
