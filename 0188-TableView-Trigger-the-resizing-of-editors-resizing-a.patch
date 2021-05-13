@@ -1,0 +1,44 @@
+From 4dad2a02c2f3f98ee0d61bbd5098c7dc66ae6309 Mon Sep 17 00:00:00 2001
+From: Andy Shaw <andy.shaw@qt.io>
+Date: Mon, 14 Dec 2020 14:16:48 +0100
+Subject: [PATCH 188/192] TableView: Trigger the resizing of editors resizing a
+ row/column
+
+If there is an editor in the table then this needs to be updated as
+the resize happens, otherwise it will not adapt to the new size
+correctly and can appear drawn over other cells.
+
+Fixes: QTBUG-85484
+Pick-to: 5.15 6.0
+Change-Id: I918c37f1ee1b0614c03c6b38f95f0f8b35a571f2
+Reviewed-by: Samuel Gaist <samuel.gaist@idiap.ch>
+(cherry picked from commit 9d36ee1904114a91a5c08b18ccfb72cd1d33d58f)
+---
+ src/widgets/itemviews/qtableview.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/widgets/itemviews/qtableview.cpp b/src/widgets/itemviews/qtableview.cpp
+index 71b749c2af..f79bb24249 100644
+--- a/src/widgets/itemviews/qtableview.cpp
++++ b/src/widgets/itemviews/qtableview.cpp
+@@ -2961,6 +2961,8 @@ void QTableView::timerEvent(QTimerEvent *event)
+             updateGeometries();
+             killTimer(d->columnResizeTimerID);
+             d->columnResizeTimerID = 0;
++        } else {
++            updateEditorGeometries();
+         }
+ 
+         QRect rect;
+@@ -2989,6 +2991,8 @@ void QTableView::timerEvent(QTimerEvent *event)
+             updateGeometries();
+             killTimer(d->rowResizeTimerID);
+             d->rowResizeTimerID = 0;
++        } else {
++            updateEditorGeometries();
+         }
+ 
+         int viewportHeight = d->viewport->height();
+-- 
+2.31.1
+

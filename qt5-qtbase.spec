@@ -130,7 +130,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	2
+Release:	3
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -332,6 +332,16 @@ Patch1178:	0179-QAbstractItemModelTester-fix-false-positive-when-mod.patch
 Patch1179:	0180-Fix-QAbstractItemModelTester-false-positive.patch
 Patch1180:	0181-Deprecate-QMutex-in-recursive-mode.patch
 Patch1181:	0182-Fix-QAbstractItemModelTester-false-positive.patch
+Patch1182:	0183-Fix-crash-on-serializing-default-constructed-QTimeZo.patch
+Patch1183:	0184-Fix-QTreeModel-calling-beginRemoveRows-twice.patch
+Patch1184:	0185-QConcatenateTablesProxyModel-skip-dataChanged-in-hid.patch
+Patch1185:	0186-QComboBox-fix-select-all-columns-in-the-view.patch
+Patch1186:	0187-QTableView-honor-spans-when-calculating-height-width.patch
+Patch1187:	0188-TableView-Trigger-the-resizing-of-editors-resizing-a.patch
+Patch1188:	0189-Fix-no-mapping-for-SysReq-key.patch
+Patch1189:	0190-qdbus-add-support-for-aay-QByteArrayList.patch
+Patch1190:	0191-QRandom-drop-a-usage-of-std-is_literal_type.patch
+Patch1191:	0192-fix-Optimize-the-performance-of-the-inotify-file-sys.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
