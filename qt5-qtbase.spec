@@ -5,11 +5,18 @@
 # this makes sure the files dont get marked as docs
 %define _no_default_doc_files 1
 
-# If we ever switch back to ld.gold as default
+# WARNING
+# Don't ever add -Ofast to compiler flags. It breaks
+# QVariant in subtle ways (causing non-POD types to
+# easily convert to the number 0, breaking among other
+# things display of HTML messages in kmail and the
+# UI of plasma-systemmonitor [we have a workaround
+# for this in plasma-systemmonitor, so double-check
+# without that patch]).
+# Also, if we ever switch back to ld.gold as default
 # linker, we need to add -fuse-ld=bfd or -fuse-ld=lld
 # on aarch64 as workaround for a weird signal/slot problem
 # (slots defined as lambdas never called)
-%global optflags %{optflags} -Ofast
 
 #% define debug_package %{nil}
 %define beta %{nil}
