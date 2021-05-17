@@ -17,6 +17,7 @@
 # linker, we need to add -fuse-ld=bfd or -fuse-ld=lld
 # on aarch64 as workaround for a weird signal/slot problem
 # (slots defined as lambdas never called)
+%global optflags %{optflags} -O3
 
 #% define debug_package %{nil}
 %define beta %{nil}
@@ -137,7 +138,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	3
+Release:	4
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
