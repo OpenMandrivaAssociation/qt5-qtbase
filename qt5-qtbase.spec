@@ -138,7 +138,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	4
+Release:	5
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -350,6 +350,10 @@ Patch1188:	0189-Fix-no-mapping-for-SysReq-key.patch
 Patch1189:	0190-qdbus-add-support-for-aay-QByteArrayList.patch
 Patch1190:	0191-QRandom-drop-a-usage-of-std-is_literal_type.patch
 Patch1191:	0192-fix-Optimize-the-performance-of-the-inotify-file-sys.patch
+Patch1192:	0193-Remove-the-unnecessary-template-parameter-from-the-c.patch
+Patch1193:	0194-Fix-memory-leak-when-using-small-caps-font.patch
+Patch1194:	0195-Make-sure-_q_printerChanged-is-called-even-if-only-p.patch
+Patch1195:	0196-fix-Alt-shortcut-on-non-US-layouts.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
