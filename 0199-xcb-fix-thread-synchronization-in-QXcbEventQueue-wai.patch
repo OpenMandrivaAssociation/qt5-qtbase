@@ -1,0 +1,110 @@
+From 9dac9e3bb01a025a358cf9a78f13d043da225d09 Mon Sep 17 00:00:00 2001
+From: Igor Kushnir <igorkuo@gmail.com>
+Date: Fri, 10 Jan 2020 19:48:43 +0200
+Subject: [PATCH 199/200] xcb: fix thread synchronization in
+ QXcbEventQueue::waitForNewEvents() again
+
+This patch amends a41701904e880f58e19b352ade1931d6cd1a7112
+
+If peeking into the event queue looking for a clipboard event fails,
+QXcbClipboard::waitForClipboardEvent() calls queue->peek for the second
+time to "process other clipboard events, since someone is probably
+requesting data from us". QXcbEventQueue::peek() in turn calls
+QXcbEventQueue::flushBufferedEvents(). This second flushing can acquire
+a waited-for clipboard event. The issue was that the code in
+waitForNewEvents() ignored this possibility and assumed that there were
+no clipboard events before or at its current m_flushedTail. If there
+were no more events on the X11 connection after tailBeforeFlush,
+the waitForNewEvents() in waitForClipboardEvent() blocked execution
+for 5 seconds and eventually timed out.
+
+The fix is to remember QXcbEventQueue::m_flushedTail just after looking
+for and not finding a clipboard event in the queue. And then wait for
+more events via QWaitCondition in waitForNewEvents() only if there were
+no more events after the remembered m_flushedTail.
+
+Fixes: QTBUG-75319
+Change-Id: I4919c5b9b9227b3a8a29a11e7094f97960b3a121
+Reviewed-by: Gatis Paeglis <gatis.paeglis@qt.io>
+(cherry picked from commit f2d22d5a5126e7a73da620a60847fc124f724333)
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+(cherry picked from commit b427721f58dce480519fe6f0d3f6442cde6c49c9)
+---
+ src/plugins/platforms/xcb/qxcbclipboard.cpp  | 8 +++++++-
+ src/plugins/platforms/xcb/qxcbeventqueue.cpp | 8 +++++---
+ src/plugins/platforms/xcb/qxcbeventqueue.h   | 4 +++-
+ 3 files changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbclipboard.cpp b/src/plugins/platforms/xcb/qxcbclipboard.cpp
+index fe9ddfece7..0a4d675606 100644
+--- a/src/plugins/platforms/xcb/qxcbclipboard.cpp
++++ b/src/plugins/platforms/xcb/qxcbclipboard.cpp
+@@ -781,6 +781,12 @@ xcb_generic_event_t *QXcbClipboard::waitForClipboardEvent(xcb_window_t window, i
+         if (e) // found the waited for event
+             return e;
+ 
++        // It is safe to assume here that the pointed to node won't be re-used
++        // while we are holding the pointer to it. The nodes can be recycled
++        // only when they are dequeued, which is done only by
++        // QXcbConnection::processXcbEvents().
++        const QXcbEventNode *flushedTailNode = queue->flushedTail();
++
+         if (checkManager) {
+             auto reply = Q_XCB_REPLY(xcb_get_selection_owner, xcb_connection(), atom(QXcbAtom::CLIPBOARD_MANAGER));
+             if (!reply || reply->owner == XCB_NONE)
+@@ -806,7 +812,7 @@ xcb_generic_event_t *QXcbClipboard::waitForClipboardEvent(xcb_window_t window, i
+ 
+         const auto elapsed = timer.elapsed();
+         if (elapsed < clipboard_timeout)
+-            queue->waitForNewEvents(clipboard_timeout - elapsed);
++            queue->waitForNewEvents(flushedTailNode, clipboard_timeout - elapsed);
+     } while (timer.elapsed() < clipboard_timeout);
+ 
+     return nullptr;
+diff --git a/src/plugins/platforms/xcb/qxcbeventqueue.cpp b/src/plugins/platforms/xcb/qxcbeventqueue.cpp
+index 759ee3cc95..9f3c381216 100644
+--- a/src/plugins/platforms/xcb/qxcbeventqueue.cpp
++++ b/src/plugins/platforms/xcb/qxcbeventqueue.cpp
+@@ -226,6 +226,8 @@ void QXcbEventQueue::run()
+     };
+ 
+     while (!m_closeConnectionDetected && (event = xcb_wait_for_event(connection))) {
++        // This lock can block only if there are users of waitForNewEvents().
++        // Currently only the clipboard implementation relies on it.
+         m_newEventsMutex.lock();
+         enqueueEvent(event);
+         while (!m_closeConnectionDetected && (event = xcb_poll_for_queued_event(connection)))
+@@ -350,12 +352,12 @@ bool QXcbEventQueue::peekEventQueue(PeekerCallback peeker, void *peekerData,
+     return result;
+ }
+ 
+-void QXcbEventQueue::waitForNewEvents(unsigned long time)
++void QXcbEventQueue::waitForNewEvents(const QXcbEventNode *sinceFlushedTail,
++                                      unsigned long time)
+ {
+     QMutexLocker locker(&m_newEventsMutex);
+-    QXcbEventNode *tailBeforeFlush = m_flushedTail;
+     flushBufferedEvents();
+-    if (tailBeforeFlush != m_flushedTail)
++    if (sinceFlushedTail != m_flushedTail)
+         return;
+     m_newEventsCondition.wait(&m_newEventsMutex, time);
+ }
+diff --git a/src/plugins/platforms/xcb/qxcbeventqueue.h b/src/plugins/platforms/xcb/qxcbeventqueue.h
+index 11d0b8e963..c8f09ed9e3 100644
+--- a/src/plugins/platforms/xcb/qxcbeventqueue.h
++++ b/src/plugins/platforms/xcb/qxcbeventqueue.h
+@@ -106,7 +106,9 @@ public:
+     bool peekEventQueue(PeekerCallback peeker, void *peekerData = nullptr,
+                         PeekOptions option = PeekDefault, qint32 peekerId = -1);
+ 
+-    void waitForNewEvents(unsigned long time = ULONG_MAX);
++    const QXcbEventNode *flushedTail() const { return m_flushedTail; }
++    void waitForNewEvents(const QXcbEventNode *sinceFlushedTail,
++                          unsigned long time = ULONG_MAX);
+ 
+ private:
+     QXcbEventNode *qXcbEventNodeFactory(xcb_generic_event_t *event);
+-- 
+2.32.0
+

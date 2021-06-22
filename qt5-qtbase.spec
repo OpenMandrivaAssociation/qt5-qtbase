@@ -138,7 +138,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	5
+Release:	6
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -354,6 +354,10 @@ Patch1192:	0193-Remove-the-unnecessary-template-parameter-from-the-c.patch
 Patch1193:	0194-Fix-memory-leak-when-using-small-caps-font.patch
 Patch1194:	0195-Make-sure-_q_printerChanged-is-called-even-if-only-p.patch
 Patch1195:	0196-fix-Alt-shortcut-on-non-US-layouts.patch
+Patch1196:	0197-Fix-copy-and-paste-bug-in-QDTEP-getMaximum.patch
+Patch1197:	0198-QSortFilterProxyModel-create-mappings-on-demand-agai.patch
+Patch1198:	0199-xcb-fix-thread-synchronization-in-QXcbEventQueue-wai.patch
+Patch1199:	0200-Optimize-quadratic-time-insertion-in-QSortFilterProx.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -1809,6 +1813,7 @@ bin/syncqt.pl -version %{version}
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{build_ldflags}|" mkspecs/common/g++-unix.conf
+#OPTFLAGS="%{optflags} -fno-semantic-interposition -fPIC"
 OPTFLAGS="%{optflags}"
 %ifarch %{arm}
 OPTFLAGS="$(echo ${OPTFLAGS} |sed -e 's,-mfpu=neon ,-mfpu=neon-vfpv4 ,g;s,-mfpu=neon$,-mfpu=neon-vfpv4,')"
@@ -1821,6 +1826,9 @@ sed -i -e "s|gcc-nm|llvm-nm|g" mkspecs/common/clang.conf
 sed -i -e "s|-fvar-tracking-assignments||g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-frecord-gcc-switches||g" mkspecs/common/gcc-base.conf
 sed -i -e "s|-Wp,-D_FORTIFY_SOURCE=2||g" mkspecs/common/gcc-base.conf
+# full LTO takes a long time to compile, but can potentially
+# optimize a bit better than thinlto
+sed -i -e "s,-flto=thin,-flto,g" mkspecs/common/clang.conf
 
 # Make sure we have -flto in the linker flags if we have it in the compiler
 # flags...
