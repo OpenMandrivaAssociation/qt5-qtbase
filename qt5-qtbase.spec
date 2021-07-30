@@ -138,7 +138,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	6
+Release:	7
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -358,6 +358,17 @@ Patch1196:	0197-Fix-copy-and-paste-bug-in-QDTEP-getMaximum.patch
 Patch1197:	0198-QSortFilterProxyModel-create-mappings-on-demand-agai.patch
 Patch1198:	0199-xcb-fix-thread-synchronization-in-QXcbEventQueue-wai.patch
 Patch1199:	0200-Optimize-quadratic-time-insertion-in-QSortFilterProx.patch
+Patch1200:	0201-Update-shared-mime-info-to-the-2.1-release-adjust-im.patch
+Patch1201:	0202-xcb-Remove-need-for-QXCBScreen-to-resolve-QXcbGlInte.patch
+Patch1202:	0203-xcb-Avoid-use-after-free-in-QXcbConnection-initializ.patch
+Patch1203:	0204-Add-missing-limits-include.patch
+Patch1204:	0205-Fix-tst_moc-for-C-17.patch
+Patch1205:	0206-Fix-memory-leak-of-QOffscreenScreen-in-QOffscreenInt.patch
+Patch1206:	0207-QVarLengthArray-fix-aliasing-error-in-insert-it-n-v.patch
+Patch1207:	0208-Fix-rvalue-overload-of-qobject_pointer_cast-for-GCC-.patch
+Patch1208:	0209-opengl-fix-a-typo-in-QOpenGLPaintDevice-dotsPerMeter.patch
+Patch1209:	0210-Restore-C-11-compatibility-of-QSharedPointer-code.patch
+Patch1210:	0211-doCrypt-check-the-error-codes.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the

@@ -1,0 +1,46 @@
+From d23de39db3b84c8c9a80da36d8d0de8da4321566 Mon Sep 17 00:00:00 2001
+From: Alexander Volkov <avolkov@astralinux.ru>
+Date: Mon, 16 Nov 2020 00:50:35 +0300
+Subject: [PATCH 203/211] xcb: Avoid use-after-free in
+ QXcbConnection::initializeScreens()
+
+Extend the scope of the resources variable to avoid its
+destruction while it's still in use.
+
+Fixes: QTBUG-88512
+Pick-to: 5.15 5.12
+Change-Id: I3298aabc871ff455bd1203ec276e7600d3e151ef
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
+(cherry picked from commit 86b8c5c3f32c245795e9eab2a74e4b6982e5a496)
+---
+ src/plugins/platforms/xcb/qxcbconnection_screens.cpp | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbconnection_screens.cpp b/src/plugins/platforms/xcb/qxcbconnection_screens.cpp
+index 9ba71ada37..ec099101f5 100644
+--- a/src/plugins/platforms/xcb/qxcbconnection_screens.cpp
++++ b/src/plugins/platforms/xcb/qxcbconnection_screens.cpp
+@@ -290,6 +290,8 @@ void QXcbConnection::initializeScreens()
+             // RRGetScreenResources in this case.
+             auto resources_current = Q_XCB_REPLY(xcb_randr_get_screen_resources_current,
+                                                  xcb_connection(), xcbScreen->root);
++            decltype(Q_XCB_REPLY(xcb_randr_get_screen_resources,
++                                 xcb_connection(), xcbScreen->root)) resources;
+             if (!resources_current) {
+                 qWarning("failed to get the current screen resources");
+             } else {
+@@ -300,8 +302,8 @@ void QXcbConnection::initializeScreens()
+                     timestamp = resources_current->config_timestamp;
+                     outputs = xcb_randr_get_screen_resources_current_outputs(resources_current.get());
+                 } else {
+-                    auto resources = Q_XCB_REPLY(xcb_randr_get_screen_resources,
+-                                                 xcb_connection(), xcbScreen->root);
++                    resources = Q_XCB_REPLY(xcb_randr_get_screen_resources,
++                                            xcb_connection(), xcbScreen->root);
+                     if (!resources) {
+                         qWarning("failed to get the screen resources");
+                     } else {
+-- 
+2.32.0
+
