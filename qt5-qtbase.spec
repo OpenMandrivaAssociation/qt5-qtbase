@@ -138,7 +138,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	7
+Release:	8
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -369,6 +369,16 @@ Patch1207:	0208-Fix-rvalue-overload-of-qobject_pointer_cast-for-GCC-.patch
 Patch1208:	0209-opengl-fix-a-typo-in-QOpenGLPaintDevice-dotsPerMeter.patch
 Patch1209:	0210-Restore-C-11-compatibility-of-QSharedPointer-code.patch
 Patch1210:	0211-doCrypt-check-the-error-codes.patch
+Patch1211:	0212-QLibraryInfo-Add-MSVC-2022.patch
+Patch1212:	0213-MySQL-remove-the-version-number-checks-in-favor-of-a.patch
+Patch1213:	0214-Remove-another-usage-of-mysql_get_client_version.patch
+Patch1214:	0215-xcb-add-a-timeout-control-when-reading-INCR-property.patch
+Patch1215:	0216-Avoid-processing-intensive-painting-of-high-number-o.patch
+Patch1216:	0217-Improve-fix-for-avoiding-huge-number-of-tiny-dashes.patch
+Patch1217:	0218-Refix-for-avoiding-huge-number-of-tiny-dashes.patch
+Patch1218:	0219-linux-clang-qplatformdefs-fix-building-with-musl-lib.patch
+Patch1219:	0220-Remove-checks-for-glibc-2-from-qplatformdefs.h-files.patch
+Patch1220:	0221-MySQL-treat-the-MYSQL_FIELD-as-read-only.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
