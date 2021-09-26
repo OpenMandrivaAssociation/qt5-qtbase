@@ -43,19 +43,7 @@
 # chipsets (esp. in ARM SOCs) that do only ES.
 # ES is also closer to WebGL - which should be a nice
 # performance boost there.
-# However, as of Mesa 20.2, Qt 5.15.1, gltype es2 seems
-# to break:
-# - plasmashell when using the nouveau driver
-# - Launching obs-studio
-# - VirtualBox
-# Until those are fixed, let's stick with OpenGL
-# Desktop on x86 and use ES on platforms that may
-# not have anything else.
-%ifarch %{arm} %{aarch64}
 %define gltype es2
-%else
-%define gltype desktop
-%endif
 
 # qt base components
 %define qtbootstrapd %mklibname qt%{api}bootstrap -d
@@ -106,7 +94,6 @@
 
 %bcond_with bootstrap
 
-%bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
 %if %{with bootstrap}
 # Requires qdoc5 and qt5-tools to build
@@ -458,10 +445,6 @@ BuildRequires:	pkgconfig(harfbuzz)
 # For proper font access
 BuildRequires:	pkgconfig(fontconfig)
 BuildRequires:	pkgconfig(freetype2)
-%if %{with directfb}
-# DirectFB platform plugin:
-BuildRequires:	pkgconfig(directfb)
-%endif
 # Accessibility
 BuildRequires:	pkgconfig(atspi-2)
 # Assorted...
@@ -723,9 +706,6 @@ Requires:	%{qtxcbqpa} = %{EVRD}
 # We need all the Platform plugins because the plugin related cmake files in
 # %{_qt_libdir}/cmake/Qt%{api}Gui cause fatal errors if the plugins aren't
 # installed.
-%if %{with directfb}
-Requires:	%{qtgui}-directfb = %{EVRD}
-%endif
 %ifos linux
 Requires:	%{qtgui}-linuxfb = %{EVRD}
 %endif
@@ -772,21 +752,6 @@ Development files for version 5 of the QtGui library.
 %{_qt_libdir}/pkgconfig/Qt%{api}Gui.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Gui.pc
-%endif
-
-#----------------------------------------------------------------------------
-%if %{with directfb}
-%package -n %{qtgui}-directfb
-Summary:	DirectFB output driver for QtGui v5
-Group:		System/Libraries
-Requires:	%{qtgui} = %{EVRD}
-Provides:	%{_lib}qt5-output-driver = %{EVRD}
-
-%description -n %{qtgui}-directfb
-DirectFB output driver for QtGui v5.
-
-%files -n %{qtgui}-directfb
-%{_qt_plugindir}/platforms/libqdirectfb.so
 %endif
 
 #----------------------------------------------------------------------------
@@ -2009,11 +1974,7 @@ fi
 %endif
 	-reduce-exports \
 	-no-reduce-relocations \
-%if %{with directfb}
-	-directfb \
-%else
 	-no-directfb \
-%endif
 %if %{with gtk}
 	-gtk \
 %endif
