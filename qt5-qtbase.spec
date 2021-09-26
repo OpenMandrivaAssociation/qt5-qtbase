@@ -126,7 +126,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	9
+Release:	10
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -1851,14 +1851,6 @@ cd -
 %build
 %set_build_flags
 
-# As of Qt 5.12.0, clang 7.0.1 (and gcc 8.2.0),
-# -reduce-relocations breaks the signal/slot system badly.
-# Immediately obvious effect: sddm crashes
-# Probably related to
-# https://bugreports.qt.io/browse/QTBUG-52439
-# (tpg) 2020-05-28 according to this bugs, it's clang issue
-# https://bugreports.qt.io/browse/QTBUG-43556
-# https://bugreports.qt.io/browse/QTBUG-61710
 ./configure \
 	-prefix %{_qt_prefix} \
 	-bindir %{_qt_bindir} \
@@ -1947,7 +1939,7 @@ cd -
 	-avx \
 %endif
 	-reduce-exports \
-	-no-reduce-relocations \
+	-reduce-relocations \
 	-no-directfb \
 %if %{with gtk}
 	-gtk \
