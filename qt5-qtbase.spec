@@ -4,7 +4,7 @@
 # on abf using --excludedocs option they are missing, causing qt5-qtdoc to fail
 # this makes sure the files dont get marked as docs
 %global _excludedocs 0
-%global __docdir_path %(rpm --eval %__docdir_patch | sed -e :s/%_docdir://g")
+%global __docdir_path %(rpm --eval %__docdir_path | sed -e :s/%_docdir://g")
 
 # WARNING
 # Don't ever add -Ofast to compiler flags. It breaks
@@ -57,6 +57,9 @@
 %else
 %define gltype desktop
 %endif
+
+# (tpg) do not pull useless requires
+%global __requires_exclude_from ^%{_qt5_plugindir}/platformthemes/.*$
 
 # qt base components
 %define qtbootstrapd %mklibname qt%{api}bootstrap -d
@@ -163,9 +166,11 @@ Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
+Patch103:	qtbase-everywhere-src-5.14.2-no_relocatable.patch
 ### END OF FEDORA PATCHES
+
 # (tpg) https://bugreports.qt.io/browse/QTBUG-88491
-Patch103:	0001-Avoid-SIGABRT-on-platform-plugin-initialization-fail.patch
+Patch200:	0001-Avoid-SIGABRT-on-platform-plugin-initialization-fail.patch
 
 # From KDE https://invent.kde.org/qt/qt/qtbase
 Patch1000:	0001-toolchain.prf-Use-vswhere-to-obtain-VS-installation-.patch
@@ -2007,6 +2012,7 @@ fi
 	-avx \
 %endif
 	-reduce-exports \
+	-no-feature-relocatable \
 	-no-reduce-relocations \
 %if %{with directfb}
 	-directfb \
