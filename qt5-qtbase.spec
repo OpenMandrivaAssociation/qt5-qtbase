@@ -17,7 +17,8 @@
 # linker, we need to add -fuse-ld=bfd or -fuse-ld=lld
 # on aarch64 as workaround for a weird signal/slot problem
 # (slots defined as lambdas never called)
-%global optflags %{optflags} -O3
+%global optflags %{optflags} -O3 -fPIC -fno-semantic-interposition -Wl,-Bsymbolic-functions
+%global build_ldflags %{ldflags} -fno-semantic-interposition -Wl,-Bsymbolic
 
 #% define debug_package %{nil}
 %define beta %{nil}
@@ -1799,8 +1800,6 @@ bin/syncqt.pl -version %{version}
 # respect cflags
 sed -i -e '/^CPPFLAGS\s*=/ s/-g //' qmake/Makefile.unix
 sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 %{build_ldflags}|" mkspecs/common/g++-unix.conf
-#OPTFLAGS="%{optflags} -fno-semantic-interposition -fPIC"
-OPTFLAGS="%{optflags}"
 %ifarch %{arm}
 OPTFLAGS="$(echo ${OPTFLAGS} |sed -e 's,-mfpu=neon ,-mfpu=neon-vfpv4 ,g;s,-mfpu=neon$,-mfpu=neon-vfpv4,')"
 %endif
@@ -1848,31 +1847,6 @@ mkdir UNUSED
 mv freetype libjpeg libpng zlib xcb sqlite UNUSED/
 cd -
 
-# FIXME this is still a valid bug, but it only occurs with the
-# combination of clang, LTO and -fuse-ld=gold.
-# Since we default to lld these days, the workaround is no
-# longer needed.
-%if 0
-# Check for clang bug #28194
-cat >test1.cpp <<'EOF'
-struct A {} a;
-EOF
-cat >test2.cpp <<'EOF'
-enum A {} a;
-EOF
-%{__cxx} -Os -gdwarf-4 -flto -fPIC -o test1.o -c test1.cpp
-%{__cxx} -Os -gdwarf-4 -flto -fPIC -o test2.o -c test2.cpp
-if LC_ALL=C %{__cxx} -Os -gdwarf-4 -flto -fPIC -shared -fuse-ld=gold -o test.so test1.o test2.o 2>&1 |grep -q "invalid debug info"; then
-	echo "Applying workaround for clang bug #28194"
-	sed -i -e 's,Operator,ComparisonOperator,g' src/gui/opengl/qopengl.cpp
-elif ! echo %{__cxx} |grep -q clang; then
-	echo "Not using clang - workaround not needed"
-else
-	echo "Clang bug #28194 is fixed, please remove the workaround"
-	echo "(search the spec file for \"Check for clang bug #28194\")"
-	exit 1
-fi
-%endif
 
 %build
 %set_build_flags
