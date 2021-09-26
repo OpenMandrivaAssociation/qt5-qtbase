@@ -3,7 +3,7 @@
 # all files there get marked as doc so that when they are installed
 # on abf using --excludedocs option they are missing, causing qt5-qtdoc to fail
 # this makes sure the files dont get marked as docs
-%define _excludedocs 0
+%define _excludedocs 1
 
 # WARNING
 # Don't ever add -Ofast to compiler flags. It breaks
@@ -748,7 +748,6 @@ Development files for version 5 of the QtGui library.
 %{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QICOPlugin.cmake
 %{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QJpegPlugin.cmake
 %{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QLibInputPlugin.cmake
-%{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QGifPlugin.cmake
 %{_qt_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QTuioTouchPlugin.cmake
 %{_qt_libdir}/pkgconfig/Qt%{api}Gui.pc
 %if "%{_qt_libdir}" != "%{_libdir}"
@@ -768,9 +767,6 @@ Linux Framebuffer output driver for QtGui v5.
 
 %files -n %{qtgui}-linuxfb
 %{_qt_plugindir}/platforms/libqlinuxfb.so
-# FIXME need to determine why those aren't built all the time. We're probably
-# missing a BuildRequires: somewhere.
-%optional %{_qt_libdir}/fonts
 
 #----------------------------------------------------------------------------
 
@@ -853,7 +849,6 @@ Development files for the X11 output driver for QtGui v5.
 %files -n %{qtgui}-x11-devel
 %{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QComposePlatformInputContextPlugin.cmake
 %{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QXcb*IntegrationPlugin.cmake
-%{_includedir}/qt5/QtXkbCommonSupport/*/QtXkbCommonSupport
 %{_includedir}/qt5/QtXkbCommonSupport
 %{_libdir}/libQt5XkbCommonSupport.a
 %{_libdir}/libQt5XkbCommonSupport.prl
@@ -1945,7 +1940,6 @@ cd -
 	-gtk \
 %endif
 	-fontconfig \
-	-accessibility \
 	-opengl %{gltype} -egl -eglfs -gbm -kms \
 	-gnumake \
 	-pkg-config \
@@ -1964,7 +1958,6 @@ cd -
 	-xcb-xlib \
 	-no-bundled-xcb-xinput \
 	-no-separate-debug-info \
-	-no-strip \
 	-xkbcommon \
 %if "%{_qt_libdir}" == "%{_libdir}"
 	-no-rpath \
