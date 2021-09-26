@@ -3,7 +3,8 @@
 # all files there get marked as doc so that when they are installed
 # on abf using --excludedocs option they are missing, causing qt5-qtdoc to fail
 # this makes sure the files dont get marked as docs
-%define _excludedocs 1
+%global _excludedocs 0
+%global __docdir_path %(rpm --eval %__docdir_patch | sed -e :s/%_docdir://g")
 
 # WARNING
 # Don't ever add -Ofast to compiler flags. It breaks
@@ -860,15 +861,18 @@ Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
 Provides:	%{_lib}qt5-output-driver = %{EVRD}
 Provides:	%{_lib}qt5-output-driver-default = %{EVRD}
+%ifnarch znver1 aarch64
 # (tpg) this is needed for %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
 Requires:	glxinfo
-Requires:	dri-drivers >= 11.1.0-3
+%endif
 
 %description -n %{qtgui}-x11
 X11 output driver for QtGui v5.
 
 %files -n %{qtgui}-x11
+%ifnarch znver1 aarch64
 %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
+%endif
 %{_qt_plugindir}/platforms/libqxcb.so
 %{_qt_plugindir}/platforminputcontexts/libcomposeplatforminputcontextplugin.so
 
@@ -2167,5 +2171,7 @@ for prl_file in libQt5*.prl ; do
 done
 popd
 
+%ifnarch znver1 aarch64
 install -p -m755 -D %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
+%endif
 install -m644 -p -D %{SOURCE3} %{buildroot}%{_qt_datadir}/qtlogging.ini
