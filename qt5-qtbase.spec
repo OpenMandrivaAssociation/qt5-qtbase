@@ -3,7 +3,7 @@
 # all files there get marked as doc so that when they are installed
 # on abf using --excludedocs option they are missing, causing qt5-qtdoc to fail
 # this makes sure the files dont get marked as docs
-%define _no_default_doc_files 1
+%define _excludedocs 0
 
 # WARNING
 # Don't ever add -Ofast to compiler flags. It breaks
@@ -138,7 +138,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	8
+Release:	9
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -1536,7 +1536,7 @@ Group:		Development/KDE and Qt
 Requires:	qt5-platformtheme-xdgdesktopportal = %{EVRD}
 
 %description -n qt5-platformtheme-xdgdesktopportal-devel
-Development files for the Qt5 XDG Desktop Portal platform theme integration
+Development files for the Qt5 XDG Desktop Portal platform theme integration.
 
 %files -n qt5-platformtheme-xdgdesktopportal-devel
 %{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QXdgDesktopPortalThemePlugin.cmake
@@ -1566,7 +1566,7 @@ Group:		Development/KDE and Qt
 Requires:	qt5-platformtheme-gtk3 = %{EVRD}
 
 %description -n qt5-platformtheme-gtk3-devel
-Development files for the Qt5 GTK3 platform theme integration
+Development files for the Qt5 GTK3 platform theme integration.
 
 %files -n qt5-platformtheme-gtk3-devel
 %{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QGtk3ThemePlugin.cmake
@@ -1579,7 +1579,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtaccessibilitysupportd}
-Helper library for Qt accessibility support
+Helper library for Qt accessibility support.
 
 %files -n %{qtaccessibilitysupportd}
 %{_includedir}/qt%{api}/QtAccessibilitySupport
@@ -1595,7 +1595,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtedidsupportd}
-Helper library for Qt EDID support
+Helper library for Qt EDID support.
 
 %files -n %{qtedidsupportd}
 %{_includedir}/qt%{api}/QtEdidSupport
@@ -1610,7 +1610,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtvulkansupportd}
-Helper library for Qt Vulkan support
+Helper library for Qt Vulkan support.
 
 %files -n %{qtvulkansupportd}
 %{_includedir}/qt%{api}/QtVulkanSupport
@@ -1626,7 +1626,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtdevicediscoverysupportd}
-Helper library for Qt device discovery
+Helper library for Qt device discovery.
 
 %files -n %{qtdevicediscoverysupportd}
 %{_includedir}/qt%{api}/QtDeviceDiscoverySupport
@@ -1641,7 +1641,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qteglsupportd}
-Helper library for Qt EGL support
+Helper library for Qt EGL support.
 
 %files -n %{qteglsupportd}
 %{_includedir}/qt%{api}/QtEglSupport
@@ -1656,7 +1656,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qteventdispatchersupportd}
-Helper library for Qt event dispatcher support
+Helper library for Qt event dispatcher support.
 
 %files -n %{qteventdispatchersupportd}
 %{_includedir}/qt%{api}/QtEventDispatcherSupport
@@ -1671,7 +1671,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtfbsupportd}
-Helper library for Qt framebuffer support
+Helper library for Qt framebuffer support.
 
 %files -n %{qtfbsupportd}
 %{_includedir}/qt%{api}/QtFbSupport
@@ -1687,7 +1687,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtfontdatabasesupportd}
-Helper library for Qt font database support
+Helper library for Qt font database support.
 
 %files -n %{qtfontdatabasesupportd}
 %{_includedir}/qt%{api}/QtFontDatabaseSupport
@@ -1703,7 +1703,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtglxsupportd}
-Helper library for Qt GLX support
+Helper library for Qt GLX support.
 
 %files -n %{qtglxsupportd}
 %{_includedir}/qt%{api}/QtGlxSupport
@@ -1719,7 +1719,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtinputsupportd}
-Helper library for Qt input support
+Helper library for Qt input support.
 
 %files -n %{qtinputsupportd}
 %{_includedir}/qt%{api}/QtInputSupport
@@ -1734,7 +1734,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtlinuxaccessibilitysupportd}
-Helper library for Qt Linux accessibility support
+Helper library for Qt Linux accessibility support.
 
 %files -n %{qtlinuxaccessibilitysupportd}
 %{_includedir}/qt%{api}/QtLinuxAccessibilitySupport
@@ -1749,7 +1749,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtplatformcompositorsupportd}
-Helper library for Qt platform compositor support
+Helper library for Qt platform compositor support.
 
 %files -n %{qtplatformcompositorsupportd}
 %{_includedir}/qt%{api}/QtPlatformCompositorSupport
@@ -1764,7 +1764,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtservicesupportd}
-Helper library for Qt service support
+Helper library for Qt service support.
 
 %files -n %{qtservicesupportd}
 %{_includedir}/qt%{api}/QtServiceSupport
@@ -1779,7 +1779,7 @@ Group:		Graphical desktop/KDE
 Requires:	%{qtcored} = %{EVRD}
 
 %description -n %{qtthemesupportd}
-Helper library for Qt theme support
+Helper library for Qt theme support.
 
 %files -n %{qtthemesupportd}
 %{_includedir}/qt%{api}/QtThemeSupport
@@ -2127,7 +2127,6 @@ Cflags: -I\${includedir}/QtAccessibilitySupport -I\${includedir}
 Requires: Qt%{api}Core
 EOF
 fi
-
 
 # Fix some wrong permissions
 find %{buildroot} -type f -perm -0755 -name "*.png" |xargs --no-run-if-empty chmod 0644
