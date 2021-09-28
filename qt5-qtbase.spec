@@ -142,7 +142,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	9
+Release:	10
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -172,7 +172,7 @@ Patch103:	qtbase-everywhere-src-5.14.2-no_relocatable.patch
 # (tpg) https://bugreports.qt.io/browse/QTBUG-88491
 Patch200:	0001-Avoid-SIGABRT-on-platform-plugin-initialization-fail.patch
 
-# From KDE https://invent.kde.org/qt/qt/qtbase
+# From KDE https://invent.kde.org/qt/qt/qtbase -b kde/5.14
 Patch1000:	0001-toolchain.prf-Use-vswhere-to-obtain-VS-installation-.patch
 Patch1001:	0002-Fix-allocated-memory-of-QByteArray-returned-by-QIODe.patch
 Patch1003:	0004-QLayout-docs-explain-better-what-the-QWidget-ctor-ar.patch
@@ -385,6 +385,12 @@ Patch1217:	0218-Refix-for-avoiding-huge-number-of-tiny-dashes.patch
 Patch1218:	0219-linux-clang-qplatformdefs-fix-building-with-musl-lib.patch
 Patch1219:	0220-Remove-checks-for-glibc-2-from-qplatformdefs.h-files.patch
 Patch1220:	0221-MySQL-treat-the-MYSQL_FIELD-as-read-only.patch
+Patch1221:	0222-Revert-QString-lastIndexOf-fix-off-by-one-for-zero-l.patch
+Patch1222:	0223-Fix-access-to-content-URLs-with-transient-read-write.patch
+Patch1223:	0224-QTextOdfWriter-fix-exporting-pixmaps-to-ODT.patch
+Patch1224:	0225-Cater-for-upstream-changes-in-eglplatform.h.patch
+Patch1225:	0226-QPlatformWindow-fix-isAncestorOf-not-breaking-recurs.patch
+Patch1226:	0227-Fix-reading-gamma-from-PNGs-without-ICC-profile.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -574,7 +580,7 @@ Summary:	qtchooser integration for Qt 5.x
 Group:		System/Libraries
 
 %description -n qt5-qtchooser
-qtchooser integration for Qt 5.x
+qtchooser integration for Qt 5.x .
 
 %files -n qt5-qtchooser
 %{_sysconfdir}/xdg/qtchooser/*.conf
@@ -1235,7 +1241,6 @@ TDS (MS SQL) support for the QtSql library v5.
 %files -n %{qtsql}-tds
 %{_qt_plugindir}/sqldrivers/libqsqltds.so
 
-
 #----------------------------------------------------------------------------
 
 %package -n %{qttest}
@@ -1336,7 +1341,6 @@ Development files for version 5 of the QtXcbQpa library.
 %{_qt_libdir}/libQt%{api}XcbQpa.so
 %{_qt_libdir}/libQt%{api}XcbQpa.prl
 %{_libdir}/cmake/Qt%{api}XcbQpa
-
 
 #----------------------------------------------------------------------------
 %package -n %{qtxml}
@@ -1444,7 +1448,7 @@ Requires:	pkgconfig(Qt5ScriptTools) = %{version}
 Requires:	pkgconfig(Qt5Svg) = %{version}
 Suggests:	pkgconfig(Qt5WaylandClient) = %{version}
 Suggests:	pkgconfig(Qt5WaylandCompositor) = %{version}
-%ifnarch %arm
+%ifnarch %{arm}
 Requires:	pkgconfig(Qt5WebEngine) >= %{version}
 %endif
 Requires:	pkgconfig(Qt5WebChannel) = %{version}
@@ -1484,7 +1488,7 @@ Summary:	Tools that help porting code from Qt 4.x to 5.x
 Group:		Development/Tools
 
 %description -n qt5-porting-tools
-Tools that help porting code from Qt 4.x to 5.x
+Tools that help porting code from Qt 4.x to 5.x .
 
 %files -n qt5-porting-tools
 %{_qt_bindir}/fixqt4headers.pl
@@ -1824,7 +1828,7 @@ Qt LALR parser generator.
 #----------------------------------------------------------------------------
 
 %prep
-%autosetup -n %qttarballdir -p1
+%autosetup -n %{qttarballdir} -p1
 
 # Patch includes a git binary diff
 git init
@@ -2151,7 +2155,7 @@ find %{buildroot} -name .deps |xargs rm -rf
 #   and  /usr/lib/qt5/bin/moc
 # ...
 # while generating debug info
-find %{buildroot} -type f -perm -0755 |grep -vE '\.(so|qml|sh|pl|ttf|eot|woff|py)' |xargs %__strip --strip-unneeded
+find %{buildroot} -type f -perm -0755 |grep -vE '\.(so|qml|sh|pl|ttf|eot|woff|py)' |xargs %{__strip} --strip-unneeded
 
 # Install rpm macros
 mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d

@@ -1,0 +1,39 @@
+From 64a0068011e12f178fb7ff65fafe7cfaa4620719 Mon Sep 17 00:00:00 2001
+From: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+Date: Mon, 13 Sep 2021 16:41:08 +0200
+Subject: [PATCH 226/227] QPlatformWindow: fix isAncestorOf not breaking
+ recursion
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The current implementation got stuck always asking for
+the parent of the same child
+
+This patch will make sure we actually walk up the
+parent chain.
+
+Pick-to: 6.2 6.2.0 6.1 5.15
+Change-Id: I9f67f6305e0143526f53952a563d496e760ac2e7
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit f06f39779c11cabc9b4fc281f38c80edb65bd86a)
+---
+ src/gui/kernel/qplatformwindow.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/kernel/qplatformwindow.cpp b/src/gui/kernel/qplatformwindow.cpp
+index fc736033c2..eb6b332a96 100644
+--- a/src/gui/kernel/qplatformwindow.cpp
++++ b/src/gui/kernel/qplatformwindow.cpp
+@@ -229,7 +229,7 @@ bool QPlatformWindow::isActive() const
+ */
+ bool QPlatformWindow::isAncestorOf(const QPlatformWindow *child) const
+ {
+-    for (const QPlatformWindow *parent = child->parent(); parent; parent = child->parent()) {
++    for (const QPlatformWindow *parent = child->parent(); parent; parent = parent->parent()) {
+         if (parent == this)
+             return true;
+     }
+-- 
+2.33.0
+
