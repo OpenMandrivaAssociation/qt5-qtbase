@@ -1,0 +1,72 @@
+From 9749bcc95e465d38fb9d810d4c97b1e230465e0d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Matthias=20M=C3=B6ller?= <m_moeller@live.de>
+Date: Wed, 9 Dec 2020 21:39:20 +0100
+Subject: [PATCH 251/254] fix potential mem leak on connection lost
+
+The PostgreSQL driver can change it's connection status
+after the first established connection.
+In this case, the function "isOpen()" returns false
+and the "close()" function would not free all resources.
+With this fix, the "close()" function
+always frees any allocated resource
+independent of the connection status.
+
+Fixes: QTBUG-88984
+Pick-to: 6.0 5.15 5.12
+Change-Id: I7c9add6a183bf46a8573952ab39f8cb1f728c00c
+Reviewed-by: Andy Shaw <andy.shaw@qt.io>
+(cherry picked from commit 6e9125608f2c07c6c5f41a7a42ea097d1333e1e3)
+---
+ src/plugins/sqldrivers/psql/qsql_psql.cpp | 27 ++++++++++-------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
+
+diff --git a/src/plugins/sqldrivers/psql/qsql_psql.cpp b/src/plugins/sqldrivers/psql/qsql_psql.cpp
+index ccaeca9362..d9fb343261 100644
+--- a/src/plugins/sqldrivers/psql/qsql_psql.cpp
++++ b/src/plugins/sqldrivers/psql/qsql_psql.cpp
+@@ -1198,8 +1198,7 @@ bool QPSQLDriver::open(const QString &db,
+                        const QString &connOpts)
+ {
+     Q_D(QPSQLDriver);
+-    if (isOpen())
+-        close();
++    close();
+     QString connectString;
+     if (!host.isEmpty())
+         connectString.append(QLatin1String("host=")).append(qQuote(host));
+@@ -1242,21 +1241,19 @@ bool QPSQLDriver::open(const QString &db,
+ void QPSQLDriver::close()
+ {
+     Q_D(QPSQLDriver);
+-    if (isOpen()) {
+ 
+-        d->seid.clear();
+-        if (d->sn) {
+-            disconnect(d->sn, SIGNAL(activated(QSocketDescriptor)), this, SLOT(_q_handleNotification()));
+-            delete d->sn;
+-            d->sn = nullptr;
+-        }
+-
+-        if (d->connection)
+-            PQfinish(d->connection);
+-        d->connection = nullptr;
+-        setOpen(false);
+-        setOpenError(false);
++    d->seid.clear();
++    if (d->sn) {
++        disconnect(d->sn, SIGNAL(activated(QSocketDescriptor)), this, SLOT(_q_handleNotification()));
++        delete d->sn;
++        d->sn = nullptr;
+     }
++
++    if (d->connection)
++        PQfinish(d->connection);
++    d->connection = nullptr;
++    setOpen(false);
++    setOpenError(false);
+ }
+ 
+ QSqlResult *QPSQLDriver::createResult() const
+-- 
+2.33.1
+

@@ -1,0 +1,47 @@
+From ee08ede4c4f5f4f797dfe13be229c7d156cbd1d5 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Thu, 17 Dec 2020 06:42:11 +0100
+Subject: [PATCH 240/254] QSslCertificate::operator == - cleanup error queue
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Another case when an OpenSSL's call can dump some errors into the shared
+error queue discovered. An invalid certificate with non-null X509 * may
+result in several errors appended to the queue.
+
+Pick-to: 6.0 5.15
+Change-Id: I1278b371bd1edf2d656760c371bfb6da5dcab6ec
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 3bc398f76669c2532ae6e3f163f994feb7e6a0bf)
+---
+ src/network/ssl/qsslcertificate_openssl.cpp | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/src/network/ssl/qsslcertificate_openssl.cpp b/src/network/ssl/qsslcertificate_openssl.cpp
+index ca9d61ccb1..62dbbdf81f 100644
+--- a/src/network/ssl/qsslcertificate_openssl.cpp
++++ b/src/network/ssl/qsslcertificate_openssl.cpp
+@@ -65,10 +65,17 @@ bool QSslCertificate::operator==(const QSslCertificate &other) const
+ {
+     if (d == other.d)
+         return true;
++
+     if (d->null && other.d->null)
+         return true;
+-    if (d->x509 && other.d->x509)
+-        return q_X509_cmp(d->x509, other.d->x509) == 0;
++
++    if (d->x509 && other.d->x509) {
++        const int ret = q_X509_cmp(d->x509, other.d->x509);
++        if (ret >= -1 && ret <= 1)
++            return ret == 0;
++        QSslSocketBackendPrivate::logAndClearErrorQueue();
++    }
++
+     return false;
+ }
+ 
+-- 
+2.33.1
+

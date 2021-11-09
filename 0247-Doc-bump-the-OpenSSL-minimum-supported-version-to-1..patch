@@ -1,0 +1,32 @@
+From 33f91ea6ee18a522bb1f6f00d07481dd2bd027f5 Mon Sep 17 00:00:00 2001
+From: Tasuku Suzuki <tasuku.suzuki@signal-slot.co.jp>
+Date: Wed, 23 Jun 2021 14:11:26 +0900
+Subject: [PATCH 247/254] Doc: bump the OpenSSL minimum supported version to
+ 1.1.1
+
+Pick-to: 5.15 6.1 6.2
+Change-Id: Ibfc8b64be23eb023dafb875f367da98b7c7bb5f6
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+(cherry picked from commit 418850d55976ca283f1ad92997379df27bb6028a)
+---
+ src/network/doc/src/ssl.qdoc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/network/doc/src/ssl.qdoc b/src/network/doc/src/ssl.qdoc
+index e485a1b393..efe4111cfe 100644
+--- a/src/network/doc/src/ssl.qdoc
++++ b/src/network/doc/src/ssl.qdoc
+@@ -36,8 +36,8 @@
+     the Secure Sockets Layer (SSL) protocol, using the \l{OpenSSL Toolkit}
+     to perform encryption and protocol handling.
+ 
+-    From Qt version 5.6 onwards, the officially supported version for OpenSSL
+-    is 1.0.0 or later.
++    From Qt version 5.15 onwards, the officially supported version for OpenSSL
++    is 1.1.1 or later.
+ 
+     \annotatedlist ssl
+ 
+-- 
+2.33.1
+

@@ -1,0 +1,69 @@
+From ffea51cf36563439288a5ae453550c709dff4e0a Mon Sep 17 00:00:00 2001
+From: Christoph Keller <keller@conntac.net>
+Date: Sun, 11 Apr 2021 16:11:01 +0200
+Subject: [PATCH 231/254] Explicitly set input files for qtpreprocess
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This fixes build errors with Xcode 10.
+Xcode 10 build system (a.k.a "New Build System") needs to know the input files
+in order to build a correct dependency graph. Especially when a build is not run
+for the first time and files changed in-between.
+
+Task-number: QTBUG-71035
+Change-Id: If8fbad3a1915add9b35c79131b03cdbe6b7ac06d
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit 8115219407fdbe7c01e97c76ccf3aa48b1fd8f78)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+
+
+(cherry picked from commit 8edba37d549f9cf9320677006d0786fc230bb315)
+---
+ qmake/generators/mac/pbuilder_pbx.cpp | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/qmake/generators/mac/pbuilder_pbx.cpp b/qmake/generators/mac/pbuilder_pbx.cpp
+index 25cca16243..a9d0125825 100644
+--- a/qmake/generators/mac/pbuilder_pbx.cpp
++++ b/qmake/generators/mac/pbuilder_pbx.cpp
+@@ -779,6 +779,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
+         QString mkfile = pbx_dir + Option::dir_sep + "qt_preprocess.mak";
+         QFile mkf(mkfile);
+         ProStringList outputPaths;
++        ProStringList inputPaths;
+         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
+             writingUnixMakefileGenerator = true;
+             debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
+@@ -831,6 +832,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
+                             QString path = escapeDependencyPath(Option::fixPathToTargetOS(
+                                     replaceExtraCompilerVariables(tmpOut, file_name, QString(), NoShell)));
+                             mkt << ' ' << path;
++                            inputPaths << fn;
+                             outputPaths << path;
+                         }
+                     }
+@@ -844,6 +846,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
+         }
+         // Remove duplicates from build steps with "combine"
+         outputPaths.removeDuplicates();
++
++        // Don't create cycles. We only have one qt_preprocess.mak which runs different compilers
++        // whose inputs may depend on the output of another. The "compilers" step will run all
++        // compilers anyway
++        inputPaths.removeEach(outputPaths);
++
+         mkfile = fileFixify(mkfile);
+         QString phase_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
+ //        project->values("QMAKE_PBX_BUILDPHASES").append(phase_key);
+@@ -854,6 +862,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
+           << "\t\t\t" << writeSettings("isa", "PBXShellScriptBuildPhase", SettingsNoQuote) << ";\n"
+           << "\t\t\t" << writeSettings("runOnlyForDeploymentPostprocessing", "0", SettingsNoQuote) << ";\n"
+           << "\t\t\t" << writeSettings("name", "Qt Preprocessors") << ";\n"
++          << "\t\t\t" << writeSettings("inputPaths", inputPaths, SettingsAsList, 4) << ";\n"
+           << "\t\t\t" << writeSettings("outputPaths", outputPaths, SettingsAsList, 4) << ";\n"
+           << "\t\t\t" << writeSettings("shellPath", "/bin/sh") << ";\n"
+           << "\t\t\t" << writeSettings("shellScript", "make -C " + IoUtils::shellQuoteUnix(Option::output_dir)
+-- 
+2.33.1
+

@@ -64,4 +64,4 @@
   -DCMAKE_MODULE_LINKER_FLAGS="%(echo ${LDFLAGS}|sed -e 's#-Wl,--no-undefined##')" \\\
   -DDBUS_SERVICES_DIR=%{_datadir}/dbus-1/services \\\
   -DDBUS_INTERFACES_DIR=%{_datadir}/dbus-1/interfaces
-  
+

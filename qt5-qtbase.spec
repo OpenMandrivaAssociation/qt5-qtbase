@@ -142,7 +142,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	10
+Release:	11
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -172,7 +172,7 @@ Patch103:	qtbase-everywhere-src-5.14.2-no_relocatable.patch
 # (tpg) https://bugreports.qt.io/browse/QTBUG-88491
 Patch200:	0001-Avoid-SIGABRT-on-platform-plugin-initialization-fail.patch
 
-# From KDE https://invent.kde.org/qt/qt/qtbase -b kde/5.14
+# From KDE https://invent.kde.org/qt/qt/qtbase -b kde/5.15
 Patch1000:	0001-toolchain.prf-Use-vswhere-to-obtain-VS-installation-.patch
 Patch1001:	0002-Fix-allocated-memory-of-QByteArray-returned-by-QIODe.patch
 Patch1003:	0004-QLayout-docs-explain-better-what-the-QWidget-ctor-ar.patch
@@ -391,6 +391,33 @@ Patch1223:	0224-QTextOdfWriter-fix-exporting-pixmaps-to-ODT.patch
 Patch1224:	0225-Cater-for-upstream-changes-in-eglplatform.h.patch
 Patch1225:	0226-QPlatformWindow-fix-isAncestorOf-not-breaking-recurs.patch
 Patch1226:	0227-Fix-reading-gamma-from-PNGs-without-ICC-profile.patch
+Patch1227:	0228-Fix-memory-leak.patch
+Patch1228:	0229-Explicitly-set-output-files-for-qtpreprocess.patch
+Patch1229:	0230-Only-embed-launch-screen-when-building-an-app.patch
+Patch1230:	0231-Explicitly-set-input-files-for-qtpreprocess.patch
+Patch1231:	0232-qmake-Switch-to-using-Xcode-s-new-build-system.patch
+Patch1232:	0233-PDF-generation-disentangle-native-pen-from-transform.patch
+Patch1233:	0234-Avoid-generating-large-pdf-files-when-using-dashed-c.patch
+Patch1234:	0235-Fix-QPainterPath-with-QFont-SmallCaps.patch
+Patch1235:	0236-Respect-font-stretch-if-set-together-with-font-style.patch
+Patch1236:	0237-Support-transformations-in-pattern-texture-brushes-i.patch
+Patch1237:	0238-Fix-highdpi-conversion-of-QTabletEvent-coordinates-o.patch
+Patch1238:	0239-Revert-Fix-highdpi-conversion-of-QTabletEvent-coordi.patch
+Patch1239:	0240-QSslCertificate-operator-cleanup-error-queue.patch
+Patch1240:	0241-Fix-populating-selection-clipboard-with-keyboard.patch
+Patch1241:	0242-Prefer-previously-used-channels-in-QHttpNetworkConne.patch
+Patch1242:	0243-Make-QStyle-proxy-always-return-the-leaf-proxy.patch
+Patch1243:	0244-QSslCertificate-Guard-against-accessing-empty-QByteA.patch
+Patch1244:	0245-QSslCertificate-OpenSSL-harden-protection-against-nu.patch
+Patch1245:	0246-QHttpSocketEngine-Fix-memory-leak.patch
+Patch1246:	0247-Doc-bump-the-OpenSSL-minimum-supported-version-to-1..patch
+Patch1247:	0248-tst_QSslCertificate-verify-skip-auto-test.patch
+Patch1248:	0249-tst_QSslCertificate-verify-remove-QSKIP.patch
+Patch1249:	0250-tst_QSslSocket-replace-an-old-certificate.patch
+Patch1250:	0251-fix-potential-mem-leak-on-connection-lost.patch
+Patch1251:	0252-Optimize-mime-type-matching.patch
+Patch1252:	0253-Revert-Fix-invalid-text-layout-data-when-a-full-layo.patch
+Patch1253:	0254-Revert-QPushButton-fix-support-of-style-sheet-rule-f.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
