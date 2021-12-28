@@ -1,0 +1,30 @@
+From 4a39a3005c372778e9578814a51e7489ef30da2c Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Wed, 10 Nov 2021 15:18:18 +0100
+Subject: [PATCH 255/268] Fix developer build
+
+Some incomplete refactoring from upstream left an unused variable
+which makes a -developer-build fail (as it enables -Werror).
+
+Remove the unused variable and fix the build.
+
+Change-Id: I2c5857ba9d80ba225d1a4f42414888564ebfe4a4
+---
+ src/plugins/sqldrivers/mysql/qsql_mysql.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/plugins/sqldrivers/mysql/qsql_mysql.cpp b/src/plugins/sqldrivers/mysql/qsql_mysql.cpp
+index ceee4a3a59..6bc9d46755 100644
+--- a/src/plugins/sqldrivers/mysql/qsql_mysql.cpp
++++ b/src/plugins/sqldrivers/mysql/qsql_mysql.cpp
+@@ -379,7 +379,6 @@ void QMYSQLResultPrivate::bindBlobs()
+ bool QMYSQLResultPrivate::bindInValues()
+ {
+     MYSQL_BIND *bind;
+-    char *field;
+     int i = 0;
+ 
+     if (!meta)
+-- 
+2.34.1
+

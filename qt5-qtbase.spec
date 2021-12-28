@@ -142,7 +142,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	11
+Release:	12
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -418,6 +418,20 @@ Patch1250:	0251-fix-potential-mem-leak-on-connection-lost.patch
 Patch1251:	0252-Optimize-mime-type-matching.patch
 Patch1252:	0253-Revert-Fix-invalid-text-layout-data-when-a-full-layo.patch
 Patch1253:	0254-Revert-QPushButton-fix-support-of-style-sheet-rule-f.patch
+Patch1254:	0255-Fix-developer-build.patch
+Patch1255:	0256-Fix-handling-of-Sunday-in-POSIX-time-zone-rules.patch
+Patch1256:	0257-Reject-truncated-and-corrupt-ascii-pnm-images.patch
+Patch1257:	0258-Increment-reference-count-when-restoring-reference.patch
+Patch1258:	0259-QAbstractFileEngine-fix-UB-data-race-on-qt_file_engi.patch
+Patch1259:	0260-Use-icon-themes-in-QPrintPreviewDialog-if-they-exist.patch
+Patch1260:	0261-Don-t-shrink-a-column-when-it-spans-multiple-columns.patch
+Patch1261:	0262-Don-t-let-text-table-cells-shrink-below-their-minimu.patch
+Patch1262:	0263-Fix-qtdeclarative-baseline-test-failure-for-text-tab.patch
+Patch1263:	0264-Avoid-mixing-atomic-futex-changes-and-QAtomic.patch
+Patch1264:	0265-Dont-s-use-DTLS_MAX_VERSION-when-setting-SSL_CTX.patch
+Patch1265:	0266-Diffie-Hellman-parameters-remove-useless-fix.patch
+Patch1266:	0267-Don-t-use-a-deprecated-function-if-built-linked-with.patch
+Patch1267:	0268-Adapt-for-q_EVP_PKEY_base_id-q_EVP_PKEY_get_base_id-.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the

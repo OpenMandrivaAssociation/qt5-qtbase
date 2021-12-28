@@ -1,0 +1,43 @@
+From 4df387ceecef0371df64053d310d18bb6a2241ee Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Fri, 9 Jul 2021 15:00:19 +0200
+Subject: [PATCH 265/268] Dont's use DTLS_MAX_VERSION when setting SSL_CTX
+
+It was fixed quite some time ago for TLS counterpart (TLS_MAX_VERSION),
+but somehow the similar fix was missing for DTLS. OpenSSL v3 deprecated
+those constants and they can be compiled out by OPENSSL_API_COMPAT.
+
+Pick-to: 6.2
+Task-number: QTBUG-94596
+Change-Id: Ia0246170a003db900c430b2fbfc177caf05a395a
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+(cherry picked from commit 3186ca3e3972cf46eb48a33fe90063eb112e32b3)
+---
+ src/network/ssl/qsslcontext_openssl.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/network/ssl/qsslcontext_openssl.cpp b/src/network/ssl/qsslcontext_openssl.cpp
+index c9f202f573..d0a428c2d2 100644
+--- a/src/network/ssl/qsslcontext_openssl.cpp
++++ b/src/network/ssl/qsslcontext_openssl.cpp
+@@ -409,7 +409,7 @@ init_context:
+         break;
+     case QSsl::DtlsV1_0OrLater:
+         minVersion = DTLS1_VERSION;
+-        maxVersion = DTLS_MAX_VERSION;
++        maxVersion = 0;
+         break;
+     case QSsl::DtlsV1_2:
+         minVersion = DTLS1_2_VERSION;
+@@ -417,7 +417,7 @@ init_context:
+         break;
+     case QSsl::DtlsV1_2OrLater:
+         minVersion = DTLS1_2_VERSION;
+-        maxVersion = DTLS_MAX_VERSION;
++        maxVersion = 0;
+         break;
+     case QSsl::TlsV1_3OrLater:
+ #ifdef TLS1_3_VERSION
+-- 
+2.34.1
+
