@@ -142,7 +142,7 @@ Release:	0.%{beta}.1
 # (last release) here, even if %{version} keeps rising
 %define qttarballdir qtbase-everywhere-src-5.15.2
 Source0:	http://download.qt.io/official_releases/qt/5.15/5.15.2/submodules/%{qttarballdir}.tar.xz
-Release:	12
+Release:	13
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -432,6 +432,35 @@ Patch1264:	0265-Dont-s-use-DTLS_MAX_VERSION-when-setting-SSL_CTX.patch
 Patch1265:	0266-Diffie-Hellman-parameters-remove-useless-fix.patch
 Patch1266:	0267-Don-t-use-a-deprecated-function-if-built-linked-with.patch
 Patch1267:	0268-Adapt-for-q_EVP_PKEY_base_id-q_EVP_PKEY_get_base_id-.patch
+Patch1268:	0269-Fix-segmentation-fault-in-QObject-dumpObjectInfo.patch
+Patch1269:	0270-QVarLengthArray-fix-UB-precondition-violation-in-ran.patch
+Patch1270:	0271-tst_QIODevice-fix-UB-precondition-violation-in-Seque.patch
+Patch1271:	0272-QString-fix-UB-pointer-arithmetic-on-nullptr-in-qLas.patch
+Patch1272:	0273-QDateTime-fix-UB-signed-overflow-in-addDays.patch
+Patch1273:	0274-QVariantAnimation-fix-UB-FP-0-0-in-interpolated-arg-.patch
+Patch1274:	0275-QDateTime-Don-t-require-c-17.patch
+Patch1275:	0276-Use-block-char-format-to-render-list-item-bullets-an.patch
+Patch1276:	0277-QThread-fix-UB-invalid-enum-value-on-Private-Priorit.patch
+Patch1277:	0278-Fix-pattern-type-matching.patch
+Patch1278:	0279-QVarLengthArray-assert-that-the-range-passed-to-eras.patch
+Patch1279:	0280-Use-qint64-to-replace-int-while-qt_transform_image_r.patch
+Patch1280:	0281-QVarLengthArray-fix-insert-type-alias-mismatch-betwe.patch
+Patch1281:	0282-xcb-avoid-to-use-invalid-pointers.patch
+Patch1282:	0283-QXcb-don-t-dereference-pointer-before-checking.patch
+Patch1283:	0284-Add-missing-macOS-header-file-that-was-indirectly-in.patch
+Patch1284:	0285-QThread-Reset-the-system-thread-ID-when-thread-exits.patch
+Patch1285:	0286-QThread-Remove-superfluous-initialization-of-threadI.patch
+Patch1286:	0287-Call-statx-with-AT_NO_AUTOMOUNT.patch
+Patch1287:	0288-QVarLengthArray-fix-size-update-on-failed-append.patch
+Patch1288:	0289-Restore-C-11-compatibility-after-e8b9f4c28d3ab5e960d.patch
+Patch1289:	0290-Don-t-access-QObject-objectName-during-QThread-start.patch
+Patch1290:	0291-QTzTimeZonePrivate-fix-UB-data-race-on-m_icu.patch
+Patch1291:	0292-QPathEdge-Fix-array-initialization.patch
+Patch1292:	0293-Restore-support-for-reading-etc-timezone-for-system-.patch
+Patch1293:	0294-QTzTimeZonePrivate-init-fix-handling-of-empty-ID.patch
+Patch1294:	0295-QMdiSubWindow-Set-correct-ControlLabel-size.patch
+Patch1295:	0296-QVersionNumber-remove-pure-declaration-from-fromStri.patch
+Patch1296:	0297-Fix-infinite-loop-in-dash-stroker.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the

@@ -1,0 +1,35 @@
+From 5851d8e0719d0d1b4170329cd20ef78c32f8027f Mon Sep 17 00:00:00 2001
+From: Andreas Buhr <andreas.buhr@qt.io>
+Date: Wed, 6 Jan 2021 11:14:56 +0100
+Subject: [PATCH 269/297] Fix segmentation fault in QObject::dumpObjectInfo
+
+There was a check "if (cd && cd->signalVectorCount())" in the code
+which was faulty because "signalVectorCount()" could return -1 to
+indicate that no signalVector is available. This patch fixes
+the problem.
+
+Fixes: QTBUG-89846
+Pick-to: 5.15
+Change-Id: I12c512ff8d889ba2bd298789ab6081930f739089
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 6a664d0660911173c7e85c60b9af195a0ef4f110)
+---
+ src/corelib/kernel/qobject.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/kernel/qobject.cpp b/src/corelib/kernel/qobject.cpp
+index 4a4fdc4ace..8f4083ba9d 100644
+--- a/src/corelib/kernel/qobject.cpp
++++ b/src/corelib/kernel/qobject.cpp
+@@ -4223,7 +4223,7 @@ void QObject::dumpObjectInfo() const
+     qDebug("  SIGNALS OUT");
+ 
+     QObjectPrivate::ConnectionData *cd = d->connections.loadRelaxed();
+-    if (cd && cd->signalVectorCount()) {
++    if (cd && cd->signalVectorCount() > 0) {
+         QObjectPrivate::SignalVector *signalVector = cd->signalVector.loadRelaxed();
+         for (int signal_index = 0; signal_index < signalVector->count(); ++signal_index) {
+             const QObjectPrivate::Connection *c = signalVector->at(signal_index).first.loadRelaxed();
+-- 
+2.35.1
+

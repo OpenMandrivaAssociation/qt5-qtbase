@@ -1,0 +1,74 @@
+From f5bba66f9bd586b80a9efc8cd0cb8dee563e34fa Mon Sep 17 00:00:00 2001
+From: Edward Welbourne <edward.welbourne@qt.io>
+Date: Mon, 22 Mar 2021 13:03:59 +0100
+Subject: [PATCH 293/297] Restore support for reading /etc/timezone for system
+ zone name
+
+This restores one of the two mechanisms removed in
+commit b0383cbd388336f698ceeac11a4f50cdff931dd9,
+transformed to fit in with the new cached system-zone determination.
+
+Fixes: QTBUG-87326
+Pick-to: 6.1 6.0 5.15
+Change-Id: Ic270acb0d958e17dbc74a0ff93a5a1843c939678
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 824d963700a91294ba4a543ebb486aedbd650284)
+---
+ src/corelib/time/qtimezoneprivate_tz.cpp | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/src/corelib/time/qtimezoneprivate_tz.cpp b/src/corelib/time/qtimezoneprivate_tz.cpp
+index b890568429..681ffc922f 100644
+--- a/src/corelib/time/qtimezoneprivate_tz.cpp
++++ b/src/corelib/time/qtimezoneprivate_tz.cpp
+@@ -1174,8 +1174,11 @@ public:
+          */
+         const StatIdent local = identify("/etc/localtime");
+         const StatIdent tz = identify("/etc/TZ");
+-        if (!m_name.isEmpty() && m_last.isValid() && (m_last == local || m_last == tz))
++        const StatIdent timezone = identify("/etc/timezone");
++        if (!m_name.isEmpty() && m_last.isValid()
++            && (m_last == local || m_last == tz || m_last == timezone)) {
+             return m_name;
++        }
+ 
+         m_name = etcLocalTime();
+         if (!m_name.isEmpty()) {
+@@ -1183,12 +1186,19 @@ public:
+             return m_name;
+         }
+ 
+-        m_name = etcTZ();
+-        m_last = m_name.isEmpty() ? StatIdent() : tz;
++        // Some systems (e.g. uClibc) have a default value for $TZ in /etc/TZ:
++        m_name = etcContent(QStringLiteral("/etc/TZ"));
++        if (!m_name.isEmpty()) {
++            m_last = tz;
++            return m_name;
++        }
++
++        // Gentoo still (2020, QTBUG-87326) uses this:
++        m_name = etcContent(QStringLiteral("/etc/timezone"));
++        m_last = m_name.isEmpty() ? StatIdent() : timezone;
+         return m_name;
+     }
+ 
+-
+ private:
+     QByteArray m_name;
+     struct StatIdent
+@@ -1229,10 +1239,8 @@ private:
+         return QByteArray();
+     }
+ 
+-    static QByteArray etcTZ()
++    static QByteArray etcContent(const QString &path)
+     {
+-        // Some systems (e.g. uClibc) have a default value for $TZ in /etc/TZ:
+-        const QString path = QStringLiteral("/etc/TZ");
+         QFile zone(path);
+         if (zone.open(QIODevice::ReadOnly))
+             return zone.readAll().trimmed();
+-- 
+2.35.1
+

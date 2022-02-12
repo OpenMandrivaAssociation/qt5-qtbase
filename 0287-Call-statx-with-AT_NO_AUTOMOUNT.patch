@@ -1,0 +1,32 @@
+From 5fc636aae60d71c1980c04de4fec651d4d539dbf Mon Sep 17 00:00:00 2001
+From: Alexander Volkov <avolkov@astralinux.ru>
+Date: Thu, 25 Mar 2021 19:08:00 +0300
+Subject: [PATCH 287/297] Call statx() with AT_NO_AUTOMOUNT
+
+Otherwise it can be very slow in some cases (e.g. 0.5 sec).
+Besides, AT_NO_AUTOMOUNT is used by {l,f}stat() internally.
+
+Pick-to: 6.1 6.0 5.15
+Change-Id: Iae9c8b46dcdc96d21ac6b114a51c382b4949d3dd
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 9667ac1c2d3b3d48cbd154bece36ec1d41d93a59)
+---
+ src/corelib/io/qfilesystemengine_unix.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/io/qfilesystemengine_unix.cpp b/src/corelib/io/qfilesystemengine_unix.cpp
+index 231e5cb0ea..f32bb5248b 100644
+--- a/src/corelib/io/qfilesystemengine_unix.cpp
++++ b/src/corelib/io/qfilesystemengine_unix.cpp
+@@ -312,7 +312,7 @@ mtime(const T &statBuffer, int)
+ static int qt_real_statx(int fd, const char *pathname, int flags, struct statx *statxBuffer)
+ {
+     unsigned mask = STATX_BASIC_STATS | STATX_BTIME;
+-    int ret = statx(fd, pathname, flags, mask, statxBuffer);
++    int ret = statx(fd, pathname, flags | AT_NO_AUTOMOUNT, mask, statxBuffer);
+     return ret == -1 ? -errno : 0;
+ }
+ 
+-- 
+2.35.1
+

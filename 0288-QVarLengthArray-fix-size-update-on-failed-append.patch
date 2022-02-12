@@ -1,0 +1,129 @@
+From 8221d5ba8e0d72dc24d7b73405f9c9bb57b0ed8c Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Tue, 7 Dec 2021 17:46:26 +0100
+Subject: [PATCH 288/297] QVarLengthArray: fix size update on failed append()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+If the in-place constructor throws, the old code had already updated
+the container's size(). Fix by delaying the update to after the
+in-place construction.
+
+[ChangeLog][QtCore][QVarLengthArray] Fixed a bug whereby a failed
+append() would leave the container with an inconsistent size().
+
+Pick-to: 6.2 5.15
+Change-Id: Ief1e668d945149bd8ba96c8af1398baaa7876880
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit d4a88e4ea4dd0d24c9c43553dd4c48a79635803c)
+
+* asturmlechner 2022-01-09: resolve conflicts with dev branch changes
+  s/QVERIFY_THROWS_EXCEPTION/QVERIFY_EXCEPTION_THROWN/
+---
+ src/corelib/tools/qvarlengtharray.h           | 11 +++--
+ .../qvarlengtharray/tst_qvarlengtharray.cpp   | 45 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 6 deletions(-)
+
+diff --git a/src/corelib/tools/qvarlengtharray.h b/src/corelib/tools/qvarlengtharray.h
+index 3612afd15c..2b30da0d2c 100644
+--- a/src/corelib/tools/qvarlengtharray.h
++++ b/src/corelib/tools/qvarlengtharray.h
+@@ -152,19 +152,18 @@ public:
+         if (s == a) {   // i.e. s != 0
+             T copy(t);
+             realloc(s, s<<1);
+-            const int idx = s++;
+-            new (ptr + idx) T(std::move(copy));
++            new (end()) T(std::move(copy));
+         } else {
+-            const int idx = s++;
+-            new (ptr + idx) T(t);
++            new (end()) T(t);
+         }
++        ++s;
+     }
+ 
+     void append(T &&t) {
+         if (s == a)
+             realloc(s, s << 1);
+-        const int idx = s++;
+-        new (ptr + idx) T(std::move(t));
++        new (end()) T(std::move(t));
++        ++s;
+     }
+ 
+     void append(const T *buf, int size);
+diff --git a/tests/auto/corelib/tools/qvarlengtharray/tst_qvarlengtharray.cpp b/tests/auto/corelib/tools/qvarlengtharray/tst_qvarlengtharray.cpp
+index 5443cf120b..625da129c4 100644
+--- a/tests/auto/corelib/tools/qvarlengtharray/tst_qvarlengtharray.cpp
++++ b/tests/auto/corelib/tools/qvarlengtharray/tst_qvarlengtharray.cpp
+@@ -29,6 +29,7 @@
+ #include <QtTest/QTest>
+ #include <qvarlengtharray.h>
+ #include <qvariant.h>
++#include <qscopedvaluerollback.h>
+ 
+ #include <memory>
+ 
+@@ -40,6 +41,7 @@ private slots:
+     void removeLast();
+     void oldTests();
+     void appendCausingRealloc();
++    void appendIsStronglyExceptionSafe();
+     void resize();
+     void realloc();
+     void reverseIterators();
+@@ -245,6 +247,49 @@ void tst_QVarLengthArray::appendCausingRealloc()
+         d.append(i);
+ }
+ 
++void tst_QVarLengthArray::appendIsStronglyExceptionSafe()
++{
++#ifdef QT_NO_EXCEPTIONS
++    QSKIP("This test requires exception support enabled in the compiler.");
++#else
++    static bool throwOnCopyNow = false;
++    static bool throwOnMoveNow = false;
++    struct Thrower {
++        Thrower() = default;
++        Thrower(const Thrower &)
++        {
++            if (throwOnCopyNow)
++                throw 1;
++        }
++        Thrower &operator=(const Thrower &) = default;
++        Thrower(Thrower &&)
++        {
++            if (throwOnMoveNow)
++                throw 1;
++        }
++        Thrower &operator=(Thrower &&) = default;
++        ~Thrower() = default;
++    };
++
++    {
++        // ### TODO: QVLA isn't exception-safe when throwing during reallocation,
++        // ### so check with size() < capacity() for now
++        QVarLengthArray<Thrower, 2> vla(1);
++        {
++            Thrower t;
++            const QScopedValueRollback rb(throwOnCopyNow, true);
++            QVERIFY_EXCEPTION_THROWN(vla.push_back(t), int);
++            QCOMPARE(vla.size(), 1);
++        }
++        {
++            const QScopedValueRollback rb(throwOnMoveNow, true);
++            QVERIFY_EXCEPTION_THROWN(vla.push_back({}), int);
++            QCOMPARE(vla.size(), 1);
++        }
++    }
++#endif
++}
++
+ void tst_QVarLengthArray::resize()
+ {
+     //MOVABLE
+-- 
+2.35.1
+
