@@ -1,0 +1,95 @@
+From 6c11375ecad82026c029d6118ee84cf75e1d833c Mon Sep 17 00:00:00 2001
+From: Zhang Hao <zhanghao@uniontech.com>
+Date: Thu, 13 Jan 2022 16:30:12 +0800
+Subject: [PATCH 120/132] Fix UI mismatch when QPrinter::setDuplex
+
+Amends fa854f214a3c812e5548ff55d179dd07ef99053b. If user call
+QPrinter::setDuplex method, the QPrintDialog explicitDuplexMode value
+won't update.
+
+Fix this by:
+1) handle device-specific default and value set in QPrinter in
+QCupsPrintEngine(Private)
+2) handle the explicitly user-selected value in QPrintDialog(Private)
+
+Done-with: Michael Weghorn <m.weghorn@posteo.de>
+Pick-to: 5.15 6.2 6.3
+Fixes: QTBUG-99504
+Change-Id: I1a471a8554e83aa4bec8bb95fcc95f9135b0ac8c
+Reviewed-by: Michael Weghorn <m.weghorn@posteo.de>
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit 72931f492092a67c39cd7fb124d54e8752ee4933)
+---
+ src/plugins/printsupport/cups/qcupsprintengine.cpp | 11 ++++++++---
+ src/plugins/printsupport/cups/qcupsprintengine_p.h |  1 +
+ src/printsupport/dialogs/qprintdialog_unix.cpp     |  7 ++++---
+ 3 files changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/src/plugins/printsupport/cups/qcupsprintengine.cpp b/src/plugins/printsupport/cups/qcupsprintengine.cpp
+index 43d5e119ad..1f9cbc4565 100644
+--- a/src/plugins/printsupport/cups/qcupsprintengine.cpp
++++ b/src/plugins/printsupport/cups/qcupsprintengine.cpp
+@@ -89,8 +89,10 @@ void QCupsPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &v
+         break;
+     case PPK_Duplex: {
+         QPrint::DuplexMode mode = QPrint::DuplexMode(value.toInt());
+-        if (mode != d->duplex && d->m_printDevice.supportedDuplexModes().contains(mode))
++        if (d->m_printDevice.supportedDuplexModes().contains(mode)) {
+             d->duplex = mode;
++            d->duplexRequestedExplicitly = true;
++        }
+         break;
+     }
+     case PPK_PrinterName:
+@@ -277,9 +279,12 @@ void QCupsPrintEnginePrivate::changePrinter(const QString &newPrinter)
+     m_printDevice.swap(printDevice);
+     printerName = m_printDevice.id();
+ 
+-    // Check if new printer supports current settings, otherwise us defaults
+-    if (duplex != QPrint::DuplexAuto && !m_printDevice.supportedDuplexModes().contains(duplex))
++    // in case a duplex value was explicitly set, check if new printer supports current value,
++    // otherwise use device default
++    if (!duplexRequestedExplicitly || !m_printDevice.supportedDuplexModes().contains(duplex)) {
+         duplex = m_printDevice.defaultDuplexMode();
++        duplexRequestedExplicitly = false;
++    }
+     QPrint::ColorMode colorMode = grayscale ? QPrint::GrayScale : QPrint::Color;
+     if (!m_printDevice.supportedColorModes().contains(colorMode))
+         grayscale = m_printDevice.defaultColorMode() == QPrint::GrayScale;
+diff --git a/src/plugins/printsupport/cups/qcupsprintengine_p.h b/src/plugins/printsupport/cups/qcupsprintengine_p.h
+index c021b0c643..8f81fe478d 100644
+--- a/src/plugins/printsupport/cups/qcupsprintengine_p.h
++++ b/src/plugins/printsupport/cups/qcupsprintengine_p.h
+@@ -100,6 +100,7 @@ private:
+     QStringList cupsOptions;
+     QString cupsTempFile;
+     QPrint::DuplexMode duplex;
++    bool duplexRequestedExplicitly = false;
+ };
+ 
+ QT_END_NAMESPACE
+diff --git a/src/printsupport/dialogs/qprintdialog_unix.cpp b/src/printsupport/dialogs/qprintdialog_unix.cpp
+index c5b845f4ec..236e9b4980 100644
+--- a/src/printsupport/dialogs/qprintdialog_unix.cpp
++++ b/src/printsupport/dialogs/qprintdialog_unix.cpp
+@@ -702,13 +702,14 @@ void QPrintDialogPrivate::selectPrinter(const QPrinter::OutputFormat outputForma
+         else
+             options.grayscale->setChecked(true);
+ 
+-        // keep duplex value explicitly set by user, if any, and selected printer supports it;
+-        // use device default otherwise
++        // duplex priorities to be as follows:
++        // 1) a user-selected duplex value in the dialog has highest prority
++        // 2) duplex value set in the QPrinter
+         QPrint::DuplexMode duplex;
+         if (explicitDuplexMode != QPrint::DuplexAuto && supportedDuplexMode.contains(explicitDuplexMode))
+             duplex = explicitDuplexMode;
+         else
+-            duplex = top->d->m_currentPrintDevice.defaultDuplexMode();
++            duplex = static_cast<QPrint::DuplexMode>(p->duplex());
+         switch (duplex) {
+         case QPrint::DuplexNone:
+             options.noDuplex->setChecked(true); break;
+-- 
+2.35.1
+

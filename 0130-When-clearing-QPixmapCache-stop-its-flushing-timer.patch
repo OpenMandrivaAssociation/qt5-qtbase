@@ -1,0 +1,40 @@
+From 60e4c9951f49d9996e95c832888de1a64d802b39 Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Tue, 31 Aug 2021 15:34:10 +0200
+Subject: [PATCH 130/132] When clearing QPixmapCache, stop its flushing timer
+
+No need for timer event to reduce cache size when it is already empty.
+
+May also avoid the "Timers cannot be stopped from another thread"
+warning at exit, if the global cache object is then deleted by another
+thread.
+
+Fixes: QTBUG-96101
+Pick-to: 6.2 5.15
+Change-Id: Id1aeecfbb43a25a887ebd5cc7242749a74290bb0
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit dc65267ad8c086950c23185c8cebc304a8d1c3dc)
+---
+ src/gui/image/qpixmapcache.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/gui/image/qpixmapcache.cpp b/src/gui/image/qpixmapcache.cpp
+index 9709df9e0c..b6e5e70f55 100644
+--- a/src/gui/image/qpixmapcache.cpp
++++ b/src/gui/image/qpixmapcache.cpp
+@@ -461,6 +461,11 @@ void QPMCache::clear()
+     for (int i = 0; i < keys.size(); ++i)
+         keys.at(i).d->isValid = false;
+     QCache<QPixmapCache::Key, QPixmapCacheEntry>::clear();
++    // Nothing left to flush; stop the timer
++    if (theid) {
++        killTimer(theid);
++        theid = 0;
++    }
+ }
+ 
+ QPixmapCache::KeyData* QPMCache::getKeyData(QPixmapCache::Key *key)
+-- 
+2.35.1
+

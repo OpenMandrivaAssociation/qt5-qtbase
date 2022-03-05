@@ -1,0 +1,36 @@
+From b34924d825bdab004734adaea2bec713e02561a7 Mon Sep 17 00:00:00 2001
+From: Eskil Abrahamsen Blomfeldt <eskil.abrahamsen-blomfeldt@qt.io>
+Date: Fri, 11 Feb 2022 14:09:25 +0100
+Subject: [PATCH 116/132] Fix integer overflow for broken QPainterPaths
+
+With some bogus input, we can end up with NaN in the
+bounding rects of the control points. This in turn
+causes problems later when it is converted to ints
+and used in code. To avoid it, we exit early if the
+rect is invalid (negative or NaN size).
+
+Pick-to: 5.15 6.2 6.3
+Fixes: QTBUG-100217
+Change-Id: Idbc6700b85cb30198d69fedbf8f3be3e1ab65e40
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit d6c4a3edf9adb02b6f96d43768db9f90a6623de7)
+---
+ src/gui/painting/qpaintengine_raster.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/painting/qpaintengine_raster.cpp b/src/gui/painting/qpaintengine_raster.cpp
+index a3e199cec9..b25700692c 100644
+--- a/src/gui/painting/qpaintengine_raster.cpp
++++ b/src/gui/painting/qpaintengine_raster.cpp
+@@ -1793,7 +1793,7 @@ void QRasterPaintEngine::fill(const QVectorPath &path, const QBrush &brush)
+     QRectF cpRect = path.controlPointRect();
+     const QRectF pathDeviceRect = s->matrix.mapRect(cpRect);
+     // Skip paths that by conservative estimates are completely outside the paint device.
+-    if (!pathDeviceRect.intersects(QRectF(d->deviceRect)))
++    if (!pathDeviceRect.intersects(QRectF(d->deviceRect)) || !pathDeviceRect.isValid())
+         return;
+ 
+     ProcessSpans blend = d->getBrushFunc(pathDeviceRect, &s->brushData);
+-- 
+2.35.1
+

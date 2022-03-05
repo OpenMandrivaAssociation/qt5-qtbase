@@ -1,0 +1,40 @@
+From 24313c0325669ea1c3776f67ece63d9df2f94751 Mon Sep 17 00:00:00 2001
+From: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Date: Thu, 4 Jun 2020 10:37:59 +0200
+Subject: [PATCH 126/132] Fix check for malformed input when decoding
+ translations
+
+Any integer modulo 1 can never be anything else but 0, so the statement
+could never be true. The intention is to abort in case of an odd number
+of bytes, as this would indicate malformed input that can't be decoded
+into a QString.
+
+Note that QTranslator will then silently continue to search for valid
+translations, and not print any error message at runtime, or otherwise
+inform the user or developer that an input message file contains
+malformed content.
+
+Change-Id: I957b337ee035f3aca013e0859f8ee70553d9a97b
+Coverity-Id: 11014
+Reviewed-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+(cherry picked from commit 458d49861f5ab04490014f7839be0dab30c8ac61)
+---
+ src/corelib/kernel/qtranslator.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/kernel/qtranslator.cpp b/src/corelib/kernel/qtranslator.cpp
+index 36d9ea4998..b610fb0b24 100644
+--- a/src/corelib/kernel/qtranslator.cpp
++++ b/src/corelib/kernel/qtranslator.cpp
+@@ -897,7 +897,7 @@ static QString getMessage(const uchar *m, const uchar *end, const char *context,
+             goto end;
+         case Tag_Translation: {
+             int len = read32(m);
+-            if (len % 1)
++            if (len & 1)
+                 return QString();
+             m += 4;
+             if (!numerus--) {
+-- 
+2.35.1
+

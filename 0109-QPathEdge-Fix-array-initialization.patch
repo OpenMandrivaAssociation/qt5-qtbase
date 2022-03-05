@@ -1,0 +1,46 @@
+From 6b5120f70d5c8d013972412eeb012e1be583f203 Mon Sep 17 00:00:00 2001
+From: Ivan Tkachenko <me@ratijas.tk>
+Date: Wed, 12 Jan 2022 21:09:45 +0300
+Subject: [PATCH 109/132] QPathEdge: Fix array initialization
+
+We had a copy-paste error there: not all array members were initialized.
+
+Pointed out by PVS-Studio static analysis tool:
+https://habr.com/ru/company/pvs-studio/blog/542760
+
+Co-Authored-By: Marc Mutz <marc.mutz@qt.io>
+Pick-to: 6.3 6.2 5.15
+Change-Id: I06a4f2cd928846eab6330af014981fd0a3170ba0
+Reviewed-by: Marc Mutz <marc.mutz@qt.io>
+(cherry picked from commit 3215416e3c07e662f5ea99c82d4f8b08340be005)
+---
+ src/gui/painting/qpathclipper_p.h | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/src/gui/painting/qpathclipper_p.h b/src/gui/painting/qpathclipper_p.h
+index 9444a87b71..18f64c5e8c 100644
+--- a/src/gui/painting/qpathclipper_p.h
++++ b/src/gui/painting/qpathclipper_p.h
+@@ -156,7 +156,7 @@ public:
+     int vertex(Direction direction) const;
+ 
+ private:
+-    int m_next[2][2];
++    int m_next[2][2] = { { -1, -1 }, { -1, -1 } };
+ };
+ 
+ class QPathSegments
+@@ -296,10 +296,6 @@ inline QPathEdge::QPathEdge(int a, int b)
+     , angle(0)
+     , invAngle(0)
+ {
+-    m_next[0][0] = -1;
+-    m_next[1][0] = -1;
+-    m_next[0][0] = -1;
+-    m_next[1][0] = -1;
+ }
+ 
+ inline int QPathEdge::next(Traversal traversal, Direction direction) const
+-- 
+2.35.1
+

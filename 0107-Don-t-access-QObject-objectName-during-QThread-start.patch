@@ -1,0 +1,97 @@
+From 65797ee7414ef287f9e49aee7ceae22a69651956 Mon Sep 17 00:00:00 2001
+From: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Date: Mon, 10 Jan 2022 18:10:48 +0100
+Subject: [PATCH 107/132] Don't access QObject::objectName during QThread start
+
+This is a data race, as the thread accesses QObject::objectName on the
+QThread instance while the thread owning the QThread might modify the
+objectName.
+
+Instead, make a copy in the QThreadPrivate that can be accessed safely.
+
+Task-number: QTBUG-96718
+Pick-to: 6.3 6.2 5.15
+Change-Id: I10701551d498993ca5055daf161636bfb648840c
+Reviewed-by: Marc Mutz <marc.mutz@qt.io>
+(cherry picked from commit 4a4240f1bdf184a52a22b94f37090b07434770e7)
+---
+ src/corelib/thread/qthread_p.h      | 7 +++++++
+ src/corelib/thread/qthread_unix.cpp | 7 +++++--
+ src/corelib/thread/qthread_win.cpp  | 8 ++++----
+ 3 files changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/src/corelib/thread/qthread_p.h b/src/corelib/thread/qthread_p.h
+index c21332dc38..f32f6f0460 100644
+--- a/src/corelib/thread/qthread_p.h
++++ b/src/corelib/thread/qthread_p.h
+@@ -213,6 +213,13 @@ public:
+             QCoreApplication::instance()->postEvent(q_ptr, new QEvent(QEvent::Quit));
+         }
+     }
++
++#ifndef Q_OS_INTEGRITY
++private:
++    // Used in QThread(Private)::start to avoid racy access to QObject::objectName,
++    // unset afterwards. On INTEGRITY we set the thread name before starting it.
++    QString objectName;
++#endif
+ };
+ 
+ #else // QT_CONFIG(thread)
+diff --git a/src/corelib/thread/qthread_unix.cpp b/src/corelib/thread/qthread_unix.cpp
+index 5508b9e585..cbeb870395 100644
+--- a/src/corelib/thread/qthread_unix.cpp
++++ b/src/corelib/thread/qthread_unix.cpp
+@@ -316,10 +316,10 @@ void *QThreadPrivate::start(void *arg)
+             // Sets the name of the current thread. We can only do this
+             // when the thread is starting, as we don't have a cross
+             // platform way of setting the name of an arbitrary thread.
+-            if (Q_LIKELY(thr->objectName().isEmpty()))
++            if (Q_LIKELY(thr->d_func()->objectName.isEmpty()))
+                 setCurrentThreadName(thr->metaObject()->className());
+             else
+-                setCurrentThreadName(thr->objectName().toLocal8Bit());
++                setCurrentThreadName(std::exchange(thr->d_func()->objectName, {}).toLocal8Bit());
+         }
+ #endif
+ 
+@@ -702,7 +702,10 @@ void QThread::start(Priority priority)
+         pthread_attr_setthreadname(&attr, metaObject()->className());
+     else
+         pthread_attr_setthreadname(&attr, objectName().toLocal8Bit());
++#else
++    d->objectName = objectName();
+ #endif
++
+     pthread_t threadId;
+     int code = pthread_create(&threadId, &attr, QThreadPrivate::start, this);
+     if (code == EPERM) {
+diff --git a/src/corelib/thread/qthread_win.cpp b/src/corelib/thread/qthread_win.cpp
+index 9ddc6b3b34..4e76972498 100644
+--- a/src/corelib/thread/qthread_win.cpp
++++ b/src/corelib/thread/qthread_win.cpp
+@@ -394,10 +394,9 @@ unsigned int __stdcall QT_ENSURE_STACK_ALIGNED_FOR_SSE QThreadPrivate::start(voi
+ 
+ #if !defined(QT_NO_DEBUG) && defined(Q_CC_MSVC) && !defined(Q_OS_WINRT)
+     // sets the name of the current thread.
+-    QByteArray objectName = thr->objectName().toLocal8Bit();
+-    qt_set_thread_name(HANDLE(-1),
+-                       objectName.isEmpty() ?
+-                       thr->metaObject()->className() : objectName.constData());
++    qt_set_thread_name(HANDLE(-1), thr->d_func()->objectName.isEmpty()
++                        ? thr->metaObject()->className()
++                        : std::exchange(thr->d_func()->objectName, {}).toLocal8Bit().constData());
+ #endif
+ 
+     emit thr->started(QThread::QPrivateSignal());
+@@ -503,6 +502,7 @@ void QThread::start(Priority priority)
+     if (d->running)
+         return;
+ 
++    d->objectName = objectName();
+     d->running = true;
+     d->finished = false;
+     d->exited = false;
+-- 
+2.35.1
+
