@@ -108,7 +108,7 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
@@ -302,6 +302,7 @@ Patch1128:	0129-QLabel-setPixmap-remove-the-no-op-self-masking.patch
 Patch1129:	0130-When-clearing-QPixmapCache-stop-its-flushing-timer.patch
 Patch1130:	0131-Sync-QPrinter-orientation-when-PageSetup-Orientation.patch
 Patch1131:	0132-Qt-namespace-fix-QT_Q_FLAG-declaration-for-Qt-MouseE.patch
+Patch1132:	0133-Windows-use-QSystemLibrary-instead-of-LoadLibrary-di.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
