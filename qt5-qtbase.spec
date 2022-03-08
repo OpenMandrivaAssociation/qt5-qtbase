@@ -1740,14 +1740,7 @@ Qt LALR parser generator.
 #----------------------------------------------------------------------------
 
 %prep
-%autosetup -n %{qttarballdir} -p1
-
-# Patch includes a git binary diff
-git init
-git config user.name "OpenMandriva Builder"
-git config user.email "info@openmandriva.org"
-git apply %{S:1042}
-
+%autosetup -n %(echo %{qttarballdir}|sed -e 's,-opensource,,') -p1
 # needed after applying patch that bumps the version number
 bin/syncqt.pl -version %{version}
 
