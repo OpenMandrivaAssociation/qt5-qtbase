@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	16
+Release:	17
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -615,8 +615,17 @@ Development files for version 5 of the QtEGLDeviceIntegration library.
 Summary:	Qt GUI library
 Group:		System/Libraries
 Suggests:	qt5-style-plugins
+%rename %{qtgui}-x11
 Requires:	%{_lib}qt5-output-driver = %{EVRD}
+%if %omvver >= 405000
 Suggests:	%{_lib}qt5-output-driver-default = %{EVRD}
+%else
+Provides:	%{_lib}qt5-output-driver-default = %{EVRD}
+%endif
+%ifnarch znver1 aarch64
+# (tpg) this is needed for %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
+Requires:	glxinfo
+%endif
 
 %description -n %{qtgui}
 Qt GUI library.
@@ -636,6 +645,11 @@ Qt GUI library.
 %{_qt_plugindir}/printsupport
 %{_qt_datadir}/qtlogging.ini
 %{_libdir}/metatypes/qt5gui_metatypes.json
+%ifnarch znver1 aarch64
+%{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
+%endif
+%{_qt_plugindir}/platforms/libqxcb.so
+%{_qt_plugindir}/platforminputcontexts/libcomposeplatforminputcontextplugin.so
 
 #----------------------------------------------------------------------------
 
@@ -660,6 +674,7 @@ Requires:	%{qtgui}-eglfs = %{EVRD}
 Requires:	%{qtgui}-minimalegl = %{EVRD}
 Requires:	%{qtgui}-vnc = %{EVRD}
 Obsoletes:	%{qtgui}-kms < %{EVRD}
+%rename %{qtgui}-x11-devel
 # *-platformtheme-* requirements are because of Qt5GuiConfig.cmake
 # referencing the files, requiring it to exist.
 %if %{with gtk}
@@ -696,6 +711,12 @@ Development files for version 5 of the QtGui library.
 %if "%{_qt_libdir}" != "%{_libdir}"
 %{_libdir}/pkgconfig/Qt%{api}Gui.pc
 %endif
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QComposePlatformInputContextPlugin.cmake
+%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QXcb*IntegrationPlugin.cmake
+%{_includedir}/qt5/QtXkbCommonSupport
+%{_libdir}/libQt5XkbCommonSupport.a
+%{_libdir}/libQt5XkbCommonSupport.prl
+%{_libdir}/cmake/Qt%{api}XkbCommonSupport
 
 #----------------------------------------------------------------------------
 %if %{with directfb}
@@ -775,47 +796,6 @@ Development files for the Offscreen output driver for QtGui v5.
 
 %files -n %{qtgui}-offscreen-devel
 %{_libdir}/cmake/Qt%{api}Gui/Qt%{api}Gui_QOffscreen*.cmake
-
-#----------------------------------------------------------------------------
-
-%package -n %{qtgui}-x11
-Summary:	X11 output driver for QtGui v5
-Group:		System/Libraries
-Requires:	%{qtgui} = %{EVRD}
-Provides:	%{_lib}qt5-output-driver = %{EVRD}
-%if %omvver < 405000
-Provides:	%{_lib}qt5-output-driver-default = %{EVRD}
-%endif
-%ifnarch znver1 aarch64
-# (tpg) this is needed for %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
-Requires:	glxinfo
-%endif
-
-%description -n %{qtgui}-x11
-X11 output driver for QtGui v5.
-
-%files -n %{qtgui}-x11
-%ifnarch znver1 aarch64
-%{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
-%endif
-%{_qt_plugindir}/platforms/libqxcb.so
-%{_qt_plugindir}/platforminputcontexts/libcomposeplatforminputcontextplugin.so
-
-%package -n %{qtgui}-x11-devel
-Summary:	Development files for the X11 output driver for QtGui v5
-Group:		Development/KDE and Qt
-Requires:	%{qtgui}-x11 = %{EVRD}
-
-%description -n %{qtgui}-x11-devel
-Development files for the X11 output driver for QtGui v5.
-
-%files -n %{qtgui}-x11-devel
-%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QComposePlatformInputContextPlugin.cmake
-%{_libdir}/cmake/Qt%{api}Gui/Qt5Gui_QXcb*IntegrationPlugin.cmake
-%{_includedir}/qt5/QtXkbCommonSupport
-%{_libdir}/libQt5XkbCommonSupport.a
-%{_libdir}/libQt5XkbCommonSupport.prl
-%{_libdir}/cmake/Qt%{api}XkbCommonSupport
 
 #----------------------------------------------------------------------------
 
