@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	15
+Release:	16
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -783,7 +783,9 @@ Summary:	X11 output driver for QtGui v5
 Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
 Provides:	%{_lib}qt5-output-driver = %{EVRD}
+%if %omvver < 405000
 Provides:	%{_lib}qt5-output-driver-default = %{EVRD}
+%endif
 %ifnarch znver1 aarch64
 # (tpg) this is needed for %{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
 Requires:	glxinfo
@@ -847,6 +849,9 @@ Group:		System/Libraries
 Requires:	%{qtgui} = %{EVRD}
 Provides:	%{_lib}qt5-output-driver = %{EVRD}
 Provides:	%{_lib}qt5-output-driver-eglfs = %{EVRD}
+%if %omvver >= 405000
+Provides:	%{_lib}qt5-output-driver-default = %{EVRD}
+%endif
 
 %description -n %{qtgui}-eglfs
 EGL fullscreen output driver for QtGui v5.
@@ -1946,7 +1951,7 @@ fi
 	-linuxfb \
 	-evdev \
 	-libudev \
-	-qpa "xcb;wayland" \
+	-qpa "wayland;xcb" \
 	-xcb-xlib \
 	-no-bundled-xcb-xinput \
 	-no-separate-debug-info \
