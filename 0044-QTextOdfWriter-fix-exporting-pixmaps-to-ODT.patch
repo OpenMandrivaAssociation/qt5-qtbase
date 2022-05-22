@@ -1,0 +1,50 @@
+From 020a30b696c8241671ffb1a3301a5bc3d23141ea Mon Sep 17 00:00:00 2001
+From: David Faure <david.faure@kdab.com>
+Date: Wed, 8 Sep 2021 09:52:50 +0200
+Subject: [PATCH 044/144] QTextOdfWriter: fix exporting pixmaps to ODT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The QVariant returned by resource() can contain either a QPixmap
+or a QImage. The code here is now more similar to the one in
+qtextimagehandler.cpp.
+
+Also, the quality is 0 when not set, in which case we want a nice PNG
+rather than a very very low quality JPG with just a few large blocks of
+same-color pixels.
+
+Pick-to: 5.15 6.2
+Change-Id: I49db542e2234c8068f85a636a81a7d8cdb7b5876
+Reviewed-by: André Hartmann <aha_1980@gmx.de>
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit b67f887a048755bbab24df721636f9c294acb8b0)
+---
+ src/gui/text/qtextodfwriter.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/gui/text/qtextodfwriter.cpp b/src/gui/text/qtextodfwriter.cpp
+index 155ec43c50..b3ec43702c 100644
+--- a/src/gui/text/qtextodfwriter.cpp
++++ b/src/gui/text/qtextodfwriter.cpp
+@@ -455,7 +455,7 @@ void QTextOdfWriter::writeInlineCharacter(QXmlStreamWriter &writer, const QTextF
+             name.prepend(QLatin1String("qrc"));
+         QUrl url = QUrl(name);
+         const QVariant variant = m_document->resource(QTextDocument::ImageResource, url);
+-        if (variant.userType() == QMetaType::QImage) {
++        if (variant.userType() == QMetaType::QPixmap || variant.userType() == QMetaType::QImage) {
+             image = qvariant_cast<QImage>(variant);
+         } else if (variant.userType() == QMetaType::QByteArray) {
+             data = variant.toByteArray();
+@@ -476,7 +476,7 @@ void QTextOdfWriter::writeInlineCharacter(QXmlStreamWriter &writer, const QTextF
+             QBuffer imageBytes;
+ 
+             int imgQuality = imageFormat.quality();
+-            if (imgQuality >= 100 || imgQuality < 0 || image.hasAlphaChannel()) {
++            if (imgQuality >= 100 || imgQuality <= 0 || image.hasAlphaChannel()) {
+                 QImageWriter imageWriter(&imageBytes, "png");
+                 imageWriter.write(image);
+ 
+-- 
+2.36.1
+

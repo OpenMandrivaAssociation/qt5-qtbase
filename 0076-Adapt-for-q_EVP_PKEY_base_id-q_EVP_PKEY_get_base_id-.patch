@@ -1,0 +1,86 @@
+From 0f5103a2f08a7083afe06acfd304059d0fd03a54 Mon Sep 17 00:00:00 2001
+From: Dmitry Shachnev <mitya57@gmail.com>
+Date: Sun, 5 Dec 2021 16:07:44 +0300
+Subject: [PATCH 076/144] =?UTF-8?q?Adapt=20for=20q=5FEVP=5FPKEY=5Fbase=5Fi?=
+ =?UTF-8?q?d=20=E2=86=92=20q=5FEVP=5FPKEY=5Fget=5Fbase=5Fid=20rename=20in?=
+ =?UTF-8?q?=20OpenSSL=203?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Based on upstream commit 4c0f81490ba0c4ec (the whole commit does not
+apply cleanly).
+---
+ src/network/ssl/qsslsocket_openssl_symbols.cpp | 6 ++++--
+ src/network/ssl/qsslsocket_openssl_symbols_p.h | 4 +++-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index f343349e2c..f89f5206a3 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -148,7 +148,6 @@ DEFINEFUNC(int, EVP_PKEY_up_ref, EVP_PKEY *a, a, return 0, return)
+ DEFINEFUNC2(EVP_PKEY_CTX *, EVP_PKEY_CTX_new, EVP_PKEY *pkey, pkey, ENGINE *e, e, return nullptr, return)
+ DEFINEFUNC(int, EVP_PKEY_param_check, EVP_PKEY_CTX *ctx, ctx, return 0, return)
+ DEFINEFUNC(void, EVP_PKEY_CTX_free, EVP_PKEY_CTX *ctx, ctx, return, return)
+-DEFINEFUNC(int, EVP_PKEY_base_id, EVP_PKEY *a, a, return NID_undef, return)
+ DEFINEFUNC(int, RSA_bits, RSA *a, a, return 0, return)
+ DEFINEFUNC(int, DSA_bits, DSA *a, a, return 0, return)
+ DEFINEFUNC(int, OPENSSL_sk_num, OPENSSL_STACK *a, a, return -1, return)
+@@ -371,8 +370,10 @@ DEFINEFUNC(STACK_OF(X509) *, SSL_get_peer_cert_chain, SSL *a, a, return nullptr,
+ 
+ #if defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3
+ DEFINEFUNC(X509 *, SSL_get1_peer_certificate, SSL *a, a, return nullptr, return)
++DEFINEFUNC(int, EVP_PKEY_get_base_id, const EVP_PKEY *pkey, pkey, return -1, return)
+ #else
+ DEFINEFUNC(X509 *, SSL_get_peer_certificate, SSL *a, a, return nullptr, return)
++DEFINEFUNC(int, EVP_PKEY_base_id, EVP_PKEY *a, a, return NID_undef, return)
+ #endif // OPENSSL_VERSION_MAJOR >= 3
+ 
+ DEFINEFUNC(long, SSL_get_verify_result, const SSL *a, a, return -1, return)
+@@ -856,7 +857,6 @@ bool q_resolveOpenSslSymbols()
+     RESOLVEFUNC(EVP_PKEY_CTX_new)
+     RESOLVEFUNC(EVP_PKEY_param_check)
+     RESOLVEFUNC(EVP_PKEY_CTX_free)
+-    RESOLVEFUNC(EVP_PKEY_base_id)
+     RESOLVEFUNC(RSA_bits)
+     RESOLVEFUNC(OPENSSL_sk_new_null)
+     RESOLVEFUNC(OPENSSL_sk_push)
+@@ -1084,8 +1084,10 @@ bool q_resolveOpenSslSymbols()
+ 
+ #if defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3
+     RESOLVEFUNC(SSL_get1_peer_certificate)
++    RESOLVEFUNC(EVP_PKEY_get_base_id)
+ #else
+     RESOLVEFUNC(SSL_get_peer_certificate)
++    RESOLVEFUNC(EVP_PKEY_base_id)
+ #endif // OPENSSL_VERSION_MAJOR >= 3
+ 
+     RESOLVEFUNC(SSL_get_verify_result)
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index 58300cc549..b36d0bc126 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -236,7 +236,6 @@ Q_AUTOTEST_EXPORT int q_EVP_PKEY_up_ref(EVP_PKEY *a);
+ EVP_PKEY_CTX *q_EVP_PKEY_CTX_new(EVP_PKEY *pkey, ENGINE *e);
+ void q_EVP_PKEY_CTX_free(EVP_PKEY_CTX *ctx);
+ int q_EVP_PKEY_param_check(EVP_PKEY_CTX *ctx);
+-int q_EVP_PKEY_base_id(EVP_PKEY *a);
+ int q_RSA_bits(RSA *a);
+ Q_AUTOTEST_EXPORT int q_OPENSSL_sk_num(OPENSSL_STACK *a);
+ Q_AUTOTEST_EXPORT void q_OPENSSL_sk_pop_free(OPENSSL_STACK *a, void (*b)(void *));
+@@ -751,8 +750,11 @@ void q_SSL_CTX_set_security_level(SSL_CTX *ctx, int level);
+ #if defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3
+ X509 *q_SSL_get1_peer_certificate(SSL *a);
+ #define q_SSL_get_peer_certificate q_SSL_get1_peer_certificate
++int q_EVP_PKEY_get_base_id(const EVP_PKEY *pkey);
++#define q_EVP_PKEY_base_id q_EVP_PKEY_get_base_id
+ #else
+ X509 *q_SSL_get_peer_certificate(SSL *a);
++int q_EVP_PKEY_base_id(EVP_PKEY *a);
+ #endif // OPENSSL_VERSION_MAJOR >= 3
+ 
+ QT_END_NAMESPACE
+-- 
+2.36.1
+

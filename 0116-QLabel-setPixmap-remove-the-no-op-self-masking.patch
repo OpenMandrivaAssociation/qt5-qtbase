@@ -1,0 +1,57 @@
+From 9eca8eb7d938edc32c2459f63ce7d229af77fe16 Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Thu, 24 Feb 2022 01:10:43 +0100
+Subject: [PATCH 116/144] QLabel::setPixmap(): remove the no-op self-masking
+
+When calling QLabel::setPixmap() with a 1bpp pixmap (i.e. a bitmap), and
+that pixmap didn't have a mask set, QLabel would then set the pixmap as
+its own mask.
+
+This seems to be a no-op due to how QPixmap::setMask is coded:
+
+  void QPixmap::setMask(const QBitmap &mask) {
+
+    // ...
+
+    if (static_cast<const QPixmap &>(mask).data == data) // trying to selfmask
+      return;
+
+  }
+
+Moreover, in order to convert the pixmap to a QBitmap, the code would just
+straight downcast it, triggering UB (if the input to setPixmap wasn't a
+QBitmap to begin with).
+
+I *guess* this was done this way to avoid a QBitmap::fromPixmap call,
+which however is not expensive at all if the pixmap is already 1bpp,
+which QLabel::setPixmap checks explicitly (before attempting to mask the
+pixmap). I don't know the historical reasons for the code to have the
+shape it had (and the code history is from before open governance).
+
+So get two birds with one stone: remove the no-op and also the UB.
+
+Change-Id: Ibab20492c2945bd1d01f98a18b168fabc56292b0
+Pick-to: 6.3 6.2 5.15
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit b20cf7feee6413a40a69c9e41544d44c53ee6877)
+---
+ src/widgets/widgets/qlabel.cpp | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/src/widgets/widgets/qlabel.cpp b/src/widgets/widgets/qlabel.cpp
+index 30ff80cbb0..cf2605c17c 100644
+--- a/src/widgets/widgets/qlabel.cpp
++++ b/src/widgets/widgets/qlabel.cpp
+@@ -421,9 +421,6 @@ void QLabel::setPixmap(const QPixmap &pixmap)
+         d->pixmap = new QPixmap(pixmap);
+     }
+ 
+-    if (d->pixmap->depth() == 1 && !d->pixmap->mask())
+-        d->pixmap->setMask(*((QBitmap *)d->pixmap));
+-
+     d->updateLabel();
+ }
+ 
+-- 
+2.36.1
+

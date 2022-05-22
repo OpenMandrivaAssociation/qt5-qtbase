@@ -1,0 +1,30 @@
+From a5b9fef71275743723da62bbf1e7292dc223d47c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Thu, 18 Jun 2020 17:03:03 +0200
+Subject: [PATCH 023/144] xcb: Remove need for QXCBScreen to resolve
+ QXcbGlIntegration
+
+Change-Id: I9de4f47bfdf88c92959f210e05c1fc1e8a459cde
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+(cherry picked from commit 590ac717a2c073292027111d5c99d68fb17b160c)
+---
+ src/plugins/platforms/xcb/qxcbintegration.cpp | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbintegration.cpp b/src/plugins/platforms/xcb/qxcbintegration.cpp
+index 76869ced60..02d2eebb56 100644
+--- a/src/plugins/platforms/xcb/qxcbintegration.cpp
++++ b/src/plugins/platforms/xcb/qxcbintegration.cpp
+@@ -274,8 +274,7 @@ QPlatformWindow *QXcbIntegration::createForeignWindow(QWindow *window, WId nativ
+ #ifndef QT_NO_OPENGL
+ QPlatformOpenGLContext *QXcbIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
+ {
+-    QXcbScreen *screen = static_cast<QXcbScreen *>(context->screen()->handle());
+-    QXcbGlIntegration *glIntegration = screen->connection()->glIntegration();
++    QXcbGlIntegration *glIntegration = defaultConnection()->glIntegration();
+     if (!glIntegration) {
+         qWarning("QXcbIntegration: Cannot create platform OpenGL context, neither GLX nor EGL are enabled");
+         return nullptr;
+-- 
+2.36.1
+

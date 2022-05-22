@@ -1,0 +1,42 @@
+From 6dafbf538c7c0ea8085f410e7f66c5cd86c11012 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@kdab.com>
+Date: Fri, 25 Jun 2021 23:54:05 +0200
+Subject: [PATCH 027/144] QVarLengthArray: fix aliasing error in insert(it, n,
+ v)
+
+Taking the copy after the resize is completely pointless: the copy is
+there to ensure that `t`, being a reference potentially aliasing an
+element in [begin(), end()[ before the resize(), isn't invalidated by
+the resize(), so it must be taken before resize().
+
+Add a comment so the next rewrite doesn't cause this to be mixed up
+again.
+
+[ChangeLog][QtCore][QVarLengthArray] Fixed an aliasing bug affecting
+insertions of objects aliasing existing elements.
+
+Pick-to: 6.2 6.1 6.0 5.15 5.12
+Change-Id: I26bc449fa99bf8d09a19147a12a69ac4314cc61d
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+(cherry picked from commit 6e57e41f9aef5ccfa122c10bc6253d47dafd93d2)
+---
+ src/corelib/tools/qvarlengtharray.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/tools/qvarlengtharray.h b/src/corelib/tools/qvarlengtharray.h
+index fd0c99c032..0110956b77 100644
+--- a/src/corelib/tools/qvarlengtharray.h
++++ b/src/corelib/tools/qvarlengtharray.h
+@@ -507,8 +507,8 @@ Q_OUTOFLINE_TEMPLATE typename QVarLengthArray<T, Prealloc>::iterator QVarLengthA
+ 
+     int offset = int(before - ptr);
+     if (n != 0) {
++        const T copy(t); // `t` could alias an element in [begin(), end()[
+         resize(s + n);
+-        const T copy(t);
+         if (!QTypeInfoQuery<T>::isRelocatable) {
+             T *b = ptr + offset;
+             T *j = ptr + s;
+-- 
+2.36.1
+

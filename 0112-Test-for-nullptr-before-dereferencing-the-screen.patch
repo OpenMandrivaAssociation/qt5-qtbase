@@ -1,0 +1,53 @@
+From b313b6b2b665af47010b86e20dedbfdc32d768d3 Mon Sep 17 00:00:00 2001
+From: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Date: Tue, 7 Dec 2021 14:36:33 +0100
+Subject: [PATCH 112/144] Test for nullptr before dereferencing the screen
+
+Touch event processing might still be ongoing even after the screen
+has been disconnected. If that screen was also the primary screen, we
+would dereference nullptr.
+
+Check for nullptr to avoid potential crashes during shutdown.
+
+Fixes: QTBUG-95192
+Pick-to: 6.2 5.15
+Change-Id: I49ccd30c4126fe12cf5bb675e532e6e59b40b9c1
+Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
+(cherry picked from commit 30b0b72453239666952ab516c618c19f0ca0aca6)
+
+* asturmlechner 2022-03-03: Resolve conflict with dev branch commit
+  4b899a29fa5a8acc381673e6b527345f8eaad7b5
+---
+ src/platformsupport/input/evdevtouch/qevdevtouchhandler.cpp | 2 +-
+ src/platformsupport/input/libinput/qlibinputtouch.cpp       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/platformsupport/input/evdevtouch/qevdevtouchhandler.cpp b/src/platformsupport/input/evdevtouch/qevdevtouchhandler.cpp
+index f57e1540e0..80a911a210 100644
+--- a/src/platformsupport/input/evdevtouch/qevdevtouchhandler.cpp
++++ b/src/platformsupport/input/evdevtouch/qevdevtouchhandler.cpp
+@@ -756,7 +756,7 @@ QRect QEvdevTouchScreenData::screenGeometry() const
+         if (m_screen)
+             screen = m_screen;
+     }
+-    return QHighDpi::toNativePixels(screen->geometry(), screen);
++    return screen ? QHighDpi::toNativePixels(screen->geometry(), screen) : QRect();
+ }
+ 
+ void QEvdevTouchScreenData::reportPoints()
+diff --git a/src/platformsupport/input/libinput/qlibinputtouch.cpp b/src/platformsupport/input/libinput/qlibinputtouch.cpp
+index 446218e4b3..6eb3a8a355 100644
+--- a/src/platformsupport/input/libinput/qlibinputtouch.cpp
++++ b/src/platformsupport/input/libinput/qlibinputtouch.cpp
+@@ -82,7 +82,7 @@ QPointF QLibInputTouch::getPos(libinput_event_touch *e)
+         if (m_screen)
+             screen = m_screen;
+     }
+-    const QRect geom = QHighDpi::toNativePixels(screen->geometry(), screen);
++    const QRect geom = screen ? QHighDpi::toNativePixels(screen->geometry(), screen) : QRect();
+     const double x = libinput_event_touch_get_x_transformed(e, geom.width());
+     const double y = libinput_event_touch_get_y_transformed(e, geom.height());
+     return geom.topLeft() + QPointF(x, y);
+-- 
+2.36.1
+

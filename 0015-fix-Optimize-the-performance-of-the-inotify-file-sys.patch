@@ -1,0 +1,44 @@
+From 0768d6eb4cc804eb13e117ce5fab0dfa56e8db23 Mon Sep 17 00:00:00 2001
+From: Gong Heng <gongheng@uniontech.com>
+Date: Thu, 18 Mar 2021 16:53:11 +0800
+Subject: [PATCH 015/144] =?UTF-8?q?fix:=20Optimize=20the=20performance=20o?=
+ =?UTF-8?q?f=20the=20inotify=20file=20system=20monitoring=20program?=
+ =?UTF-8?q?=E3=80=82?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When the ioctl() functions is executed correctly, the value of buffSize may be 0.
+In this situation, there is no need to execute the following code.
+This modification can solve two benefits:
+1. The readFromInotify function runs frequently, and this modification can improve the
+efficiency of the program.
+2. When the buffSize is equal to 0, "read(inotifyFd, buffer.data(), buffSize)" function will
+be stuck.(I have encountered this kind of problem)
+
+Pick-to: 5.15 6.0 6.1
+Change-Id: I9f85491ec91e336b4a1bec5c99b911835c5c06a5
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit bb8fc324d16278c27a211093fb47bafcc4fe7874)
+---
+ src/corelib/io/qfilesystemwatcher_inotify.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/corelib/io/qfilesystemwatcher_inotify.cpp b/src/corelib/io/qfilesystemwatcher_inotify.cpp
+index 94d9d06bcb..27e0b13b0b 100644
+--- a/src/corelib/io/qfilesystemwatcher_inotify.cpp
++++ b/src/corelib/io/qfilesystemwatcher_inotify.cpp
+@@ -366,7 +366,9 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
+     // qDebug("QInotifyFileSystemWatcherEngine::readFromInotify");
+ 
+     int buffSize = 0;
+-    ioctl(inotifyFd, FIONREAD, (char *) &buffSize);
++    if (ioctl(inotifyFd, FIONREAD, (char *) &buffSize) == -1 || buffSize == 0)
++        return;
++
+     QVarLengthArray<char, 4096> buffer(buffSize);
+     buffSize = read(inotifyFd, buffer.data(), buffSize);
+     char *at = buffer.data();
+-- 
+2.36.1
+
