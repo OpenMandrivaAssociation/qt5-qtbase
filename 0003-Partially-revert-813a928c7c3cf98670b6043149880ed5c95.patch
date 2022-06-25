@@ -1,7 +1,7 @@
-From b07ebeaada5d5f2fcfa16c7a2aaa2cb923255acd Mon Sep 17 00:00:00 2001
+From 0dec78874720b77c75853cc6059da51a3eea20fa Mon Sep 17 00:00:00 2001
 From: Ulf Hermann <ulf.hermann@qt.io>
 Date: Wed, 20 Jan 2021 10:42:36 +0100
-Subject: [PATCH 003/144] Partially revert
+Subject: [PATCH 003/165] Partially revert
  813a928c7c3cf98670b6043149880ed5c955efb9
 
 Otherwise ASAN complains about mismatched new/delete.

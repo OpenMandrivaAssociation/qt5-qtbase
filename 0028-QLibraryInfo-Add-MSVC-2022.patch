@@ -1,0 +1,33 @@
+From 5d1b93ed44572b757f7fc9d72a87ee7d7f1e9481 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?M=C3=A5rten=20Nordheim?= <marten.nordheim@qt.io>
+Date: Mon, 2 Aug 2021 14:46:32 +0200
+Subject: [PATCH 028/165] QLibraryInfo: Add MSVC 2022
+
+Pick-to: 6.2 6.1 5.15
+Change-Id: Ie66effde6832152ee2903c467269a2822ded6653
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Oliver Wolff <oliver.wolff@qt.io>
+(cherry picked from commit 11476e5403c0f0ed997f0ecc9e5a82501441a667)
+---
+ src/corelib/global/qlibraryinfo.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/corelib/global/qlibraryinfo.cpp b/src/corelib/global/qlibraryinfo.cpp
+index 8ceb763491..a1558a6abe 100644
+--- a/src/corelib/global/qlibraryinfo.cpp
++++ b/src/corelib/global/qlibraryinfo.cpp
+@@ -333,8 +333,10 @@ QLibraryInfo::buildDate()
+ #    define COMPILER_STRING "MSVC 2015"
+ #  elif _MSC_VER < 1917
+ #    define COMPILER_STRING "MSVC 2017"
+-#  elif _MSC_VER < 2000
++#  elif _MSC_VER < 1930
+ #    define COMPILER_STRING "MSVC 2019"
++#  elif _MSC_VER < 2000
++#    define COMPILER_STRING "MSVC 2022"
+ #  else
+ #    define COMPILER_STRING "MSVC _MSC_VER " QT_STRINGIFY(_MSC_VER)
+ #  endif
+-- 
+2.36.1
+

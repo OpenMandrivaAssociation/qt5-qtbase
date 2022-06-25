@@ -1,0 +1,30 @@
+From be500a5474eb549ea5383c5ab550a3404d335ae1 Mon Sep 17 00:00:00 2001
+From: Milian Wolff <milian.wolff@kdab.com>
+Date: Tue, 13 Jul 2021 10:33:30 +0200
+Subject: [PATCH 026/165] Restore C++11 compatibility of QSharedPointer code
+
+Qt5 still needs to compile with C++11, so we cannot use std::exchange
+which is a C++14 feature. Use qExchange instead, which is a drop-in
+replacement.
+
+Change-Id: I1b4f62f2b67f371cfa9c0e6641656d02f03a6520
+---
+ src/corelib/tools/qsharedpointer_impl.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/tools/qsharedpointer_impl.h b/src/corelib/tools/qsharedpointer_impl.h
+index e334cefe97..8abb57586b 100644
+--- a/src/corelib/tools/qsharedpointer_impl.h
++++ b/src/corelib/tools/qsharedpointer_impl.h
+@@ -1016,7 +1016,7 @@ std::shared_ptr<X> qobject_pointer_cast(std::shared_ptr<T> &&src)
+         // Before C++2a we don't really know if the compiler has support for it.
+         // The move aliasing constructor is the resolution for LWG2996,
+         // which does not impose a feature-testing macro. So: clear src.
+-        return std::shared_ptr<X>(std::exchange(src, nullptr), castResult);
++        return std::shared_ptr<X>(qExchange(src, nullptr), castResult);
+     }
+     return std::shared_ptr<X>();
+ }
+-- 
+2.36.1
+

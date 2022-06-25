@@ -1,0 +1,31 @@
+From 329357e85472ed93980d8f15349481becf239fe2 Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Sat, 1 May 2021 16:58:21 +0200
+Subject: [PATCH 012/165] QRandom: drop a usage of std::is_literal_type
+
+It's deprecated/removed, and indeed doesn't check anything that it's
+not also already being checked by the previous line.
+
+Change-Id: Ic80ca43f390dd989ced69f196efa7313069e7c6d
+Pick-to: 5.15 6.0 6.1
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 6351b5433da083890e47faa62e21fb40fd042c79)
+---
+ src/corelib/global/qrandom.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/corelib/global/qrandom.cpp b/src/corelib/global/qrandom.cpp
+index 10672c1f92..25f87c7e6a 100644
+--- a/src/corelib/global/qrandom.cpp
++++ b/src/corelib/global/qrandom.cpp
+@@ -383,7 +383,6 @@ struct QRandomGenerator::SystemAndGlobalGenerators
+ 
+         constexpr SystemAndGlobalGenerators g = {};
+         Q_UNUSED(g);
+-        Q_STATIC_ASSERT(std::is_literal_type<SystemAndGlobalGenerators>::value);
+ #endif
+     }
+ 
+-- 
+2.36.1
+

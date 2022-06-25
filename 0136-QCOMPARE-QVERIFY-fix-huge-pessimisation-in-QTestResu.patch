@@ -1,0 +1,61 @@
+From 8843861c9ca3e63477e5c759b6e1e36f8f3bb57c Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Thu, 2 Jun 2022 20:37:11 +0200
+Subject: [PATCH 136/165] QCOMPARE/QVERIFY: fix huge pessimisation in
+ QTestResult
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The old code allocated a stack buffer, but asked the runtime to
+zero-initialize it. That's 1KiB of writes to the stack on every
+QCOMPARE and QVERIFY before any actual work is done. Fixing this
+little laissez-faire to just initialize the first character in the
+buffer results in nice little speedups of up to or exceeding 2x.
+
+Amends d946507727b363326d05f48da93c2af04bdda76d.
+
+[ChangeLog][QtTestLib] Optimized successful QCOMPARE and QVERIFY for
+an up to 2x speedup.
+
+This has the potential to meaningfully reduce the load on the CI, so
+picking all the way to 5.15.
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: Ib93d69282ec87cbd26a60e4ac14413e8cef8ff78
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+(cherry picked from commit 474792a751a1201fc8d88d6c00e322fdf35047b1)
+---
+ src/testlib/qtestresult.cpp | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/testlib/qtestresult.cpp b/src/testlib/qtestresult.cpp
+index 88028aac6e..2e89930776 100644
+--- a/src/testlib/qtestresult.cpp
++++ b/src/testlib/qtestresult.cpp
+@@ -251,7 +251,8 @@ bool QTestResult::verify(bool statement, const char *statementStr,
+ {
+     QTEST_ASSERT(statementStr);
+ 
+-    char msg[1024] = {'\0'};
++    char msg[1024];
++    msg[0] = '\0';
+ 
+     if (QTestLog::verboseLevel() >= 2) {
+         qsnprintf(msg, 1024, "QVERIFY(%s)", statementStr);
+@@ -309,7 +310,8 @@ static bool compareHelper(bool success, const char *failureMsg,
+                           bool hasValues = true)
+ {
+     const size_t maxMsgLen = 1024;
+-    char msg[maxMsgLen] = {'\0'};
++    char msg[maxMsgLen];
++    msg[0] = '\0';
+ 
+     QTEST_ASSERT(expected);
+     QTEST_ASSERT(actual);
+-- 
+2.36.1
+

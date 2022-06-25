@@ -1,7 +1,7 @@
-From 1841e0227e527fe446cc822dd89a2a65fe491c29 Mon Sep 17 00:00:00 2001
+From 31c0f565751ca728570519e26a0c00632c69c0d8 Mon Sep 17 00:00:00 2001
 From: Edward Welbourne <edward.welbourne@qt.io>
 Date: Mon, 8 Feb 2021 12:13:13 +0100
-Subject: [PATCH 005/144] Fix handling of surrogates in QBidiAlgorithm
+Subject: [PATCH 005/165] Fix handling of surrogates in QBidiAlgorithm
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -17,11 +17,11 @@ Reviewed-by: Robert Löhning <robert.loehning@qt.io>
 Reviewed-by: Lars Knoll <lars.knoll@qt.io>
 (cherry picked from commit aeeaab1a5ac0b4d91c9f9b542035b8970e4c61dd)
 ---
- src/gui/text/qtextengine.cpp | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ src/gui/text/qtextengine.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/gui/text/qtextengine.cpp b/src/gui/text/qtextengine.cpp
-index 8af64f9cf8..ab5ea3a3d6 100644
+index 3edd8b4cc5..720ab7685a 100644
 --- a/src/gui/text/qtextengine.cpp
 +++ b/src/gui/text/qtextengine.cpp
 @@ -1,6 +1,6 @@
@@ -32,15 +32,6 @@ index 8af64f9cf8..ab5ea3a3d6 100644
  ** Contact: https://www.qt.io/licensing/
  **
  ** This file is part of the QtGui module of the Qt Toolkit.
-@@ -258,7 +258,7 @@ struct QBidiAlgorithm {
-         for (int i = 0; i < length; ++i) {
-             int pos = i;
-             uint uc = text[i].unicode();
--            if (QChar::isHighSurrogate(uc) && i < length - 1) {
-+            if (QChar::isHighSurrogate(uc) && i < length - 1 && text[i + 1].isLowSurrogate()) {
-                 ++i;
-                 analysis[i].bidiDirection = QChar::DirNSM;
-                 uc = QChar::surrogateToUcs4(ushort(uc), text[i].unicode());
 -- 
 2.36.1
 

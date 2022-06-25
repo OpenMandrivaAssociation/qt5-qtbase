@@ -1,0 +1,51 @@
+From 6ee4fb341cd738f9613973f5dfe04385485fcde4 Mon Sep 17 00:00:00 2001
+From: Antonio Rojas <arojas@archlinux.org>
+Date: Wed, 11 Aug 2021 09:27:15 +0200
+Subject: [PATCH 030/165] Remove another usage of mysql_get_client_version()
+
+As of MariaDB 10.6, mysql_get_client_version returns the C library version, which breaks the version comparison.
+
+This is a partial backport of 8ab3b54fb7038477b9f5d366bcdcdb173e01e219, the Qt 6 commit that (among other things) removes this usage.
+Backporting the full commit seems overkill, we backport only the mysql_get_client_version() removal which should be safe according to upstream devs in https://bugreports.qt.io/browse/QTBUG-95071
+---
+ src/plugins/sqldrivers/mysql/qsql_mysql.cpp | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/src/plugins/sqldrivers/mysql/qsql_mysql.cpp b/src/plugins/sqldrivers/mysql/qsql_mysql.cpp
+index 7ca055eea2..4b9b396946 100644
+--- a/src/plugins/sqldrivers/mysql/qsql_mysql.cpp
++++ b/src/plugins/sqldrivers/mysql/qsql_mysql.cpp
+@@ -1369,20 +1369,20 @@ bool QMYSQLDriver::open(const QString& db,
+     }
+ 
+ #if MYSQL_VERSION_ID >= 50007
+-    if (mysql_get_client_version() >= 50503 && mysql_get_server_version(d->mysql) >= 50503) {
+-        // force the communication to be utf8mb4 (only utf8mb4 supports 4-byte characters)
+-        mysql_set_character_set(d->mysql, "utf8mb4");
++    // force the communication to be utf8mb4 (only utf8mb4 supports 4-byte characters)
++    if (mysql_set_character_set(d->mysql, "utf8mb4")) {
++        // this failed, try forcing it to utf (BMP only)
++        if (mysql_set_character_set(d->mysql, "utf8"))
++            qWarning() << "MySQL: Unable to set the client character set to utf8.";
+ #if QT_CONFIG(textcodec)
+-        d->tc = QTextCodec::codecForName("UTF-8");
++        else
++            d->tc = codec(d->mysql);
+ #endif
+-    } else
+-    {
+-        // force the communication to be utf8
+-        mysql_set_character_set(d->mysql, "utf8");
++    }
+ #if QT_CONFIG(textcodec)
+-        d->tc = codec(d->mysql);
++    else
++        d->tc = QTextCodec::codecForName("UTF-8");
+ #endif
+-    }
+ #endif  // MYSQL_VERSION_ID >= 50007
+ 
+     d->preparedQuerysEnabled = checkPreparedQueries(d->mysql);
+-- 
+2.36.1
+

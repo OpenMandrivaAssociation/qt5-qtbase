@@ -1,0 +1,120 @@
+From 0065afb762408cfe9e8568c6f3bba7f1a1e28d2c Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Thu, 23 Sep 2021 10:04:42 +0200
+Subject: [PATCH 045/165] PDF generation: disentangle native pen from
+ transforms
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In the PDF engine, transforms are implented with a global pdf
+transform if and only if the current pen is "simple", that is,
+renderable by a native pdf pen. For non-simple pens, the painted
+objects are transformed by QTransform instead. Hence, the internal
+simplePen flag was used to indicate both a pen state and a transform
+state.
+
+This commit splits these two states into separate flags. No behavior
+is changed, but it prepares for an improved implementation of cosmetic
+pen rendering.
+
+Pick-to: 6.2 5.15
+Task-number: QTBUG-86094
+Change-Id: If02e1dfc021778e3db7c9ff9a1ed35b3d6cbf3f8
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+Reviewed-by: André de la Rocha <andre.rocha@qt.io>
+(cherry picked from commit 2cb42cd849b60e72e2de44ed469c2b743b154b06)
+---
+ src/gui/painting/qpdf.cpp | 21 ++++++++++++++-------
+ src/gui/painting/qpdf_p.h |  1 +
+ 2 files changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/src/gui/painting/qpdf.cpp b/src/gui/painting/qpdf.cpp
+index de9fc13331..d8882d9969 100644
+--- a/src/gui/painting/qpdf.cpp
++++ b/src/gui/painting/qpdf.cpp
+@@ -920,7 +920,8 @@ void QPdfEngine::drawPath (const QPainterPath &p)
+ 
+     if (d->simplePen) {
+         // draw strokes natively in this case for better output
+-        *d->currentPage << QPdf::generatePath(p, QTransform(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
++        *d->currentPage << QPdf::generatePath(p, d->needsTransform ? d->stroker.matrix : QTransform(),
++                                              d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
+     } else {
+         if (d->hasBrush)
+             *d->currentPage << QPdf::generatePath(p, d->stroker.matrix, QPdf::FillPath);
+@@ -967,7 +968,7 @@ void QPdfEngine::drawPixmap (const QRectF &rectangle, const QPixmap &pixmap, con
+ 
+     *d->currentPage
+         << QPdf::generateMatrix(QTransform(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
+-                                           rectangle.x(), rectangle.y()) * (d->simplePen ? QTransform() : d->stroker.matrix));
++                                           rectangle.x(), rectangle.y()) * (!d->needsTransform ? QTransform() : d->stroker.matrix));
+     if (bitmap) {
+         // set current pen as d->brush
+         d->brush = d->pen.brush();
+@@ -1007,7 +1008,7 @@ void QPdfEngine::drawImage(const QRectF &rectangle, const QImage &image, const Q
+ 
+     *d->currentPage
+         << QPdf::generateMatrix(QTransform(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
+-                                           rectangle.x(), rectangle.y()) * (d->simplePen ? QTransform() : d->stroker.matrix));
++                                           rectangle.x(), rectangle.y()) * (!d->needsTransform ? QTransform() : d->stroker.matrix));
+     setBrush();
+     d->currentPage->streamImage(im.width(), im.height(), object);
+     *d->currentPage << "Q\n";
+@@ -1056,7 +1057,7 @@ void QPdfEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
+     }
+ 
+     *d->currentPage << "q\n";
+-    if(!d->simplePen)
++    if (d->needsTransform)
+         *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
+ 
+     bool hp = d->hasPen;
+@@ -1224,8 +1225,13 @@ void QPdfEngine::setupGraphicsState(QPaintEngine::DirtyFlags flags)
+ 
+     if (flags & DirtyTransform) {
+         *d->currentPage << "q\n";
+-        if (d->simplePen && !d->stroker.matrix.isIdentity())
+-            *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
++        d->needsTransform = false;
++        if (!d->stroker.matrix.isIdentity()) {
++            if (d->simplePen)
++                *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
++            else
++                d->needsTransform = true; // I.e. page-wide xf not set, local xf needed
++        }
+     }
+     if (flags & DirtyBrush)
+         setBrush();
+@@ -1480,7 +1486,7 @@ int QPdfEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
+ 
+ QPdfEnginePrivate::QPdfEnginePrivate()
+     : clipEnabled(false), allClipped(false), hasPen(true), hasBrush(false), simplePen(false),
+-      pdfVersion(QPdfEngine::Version_1_4),
++      needsTransform(false), pdfVersion(QPdfEngine::Version_1_4),
+       outDevice(nullptr), ownsDevice(false),
+       embedFonts(true),
+       grayscale(false),
+@@ -1539,6 +1545,7 @@ bool QPdfEngine::begin(QPaintDevice *pdev)
+     d->graphicsState = 0;
+     d->patternColorSpace = 0;
+     d->simplePen = false;
++    d->needsTransform = false;
+ 
+     d->pages.clear();
+     d->imageCache.clear();
+diff --git a/src/gui/painting/qpdf_p.h b/src/gui/painting/qpdf_p.h
+index 4ff540e67b..6964c67d93 100644
+--- a/src/gui/painting/qpdf_p.h
++++ b/src/gui/painting/qpdf_p.h
+@@ -271,6 +271,7 @@ public:
+     bool hasPen;
+     bool hasBrush;
+     bool simplePen;
++    bool needsTransform;
+     qreal opacity;
+     QPdfEngine::PdfVersion pdfVersion;
+ 
+-- 
+2.36.1
+

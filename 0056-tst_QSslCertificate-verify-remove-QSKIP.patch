@@ -1,0 +1,34 @@
+From 652323dce4fc3df9cc6e9d58cda733e6b55c9150 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Fri, 6 Aug 2021 07:47:06 +0200
+Subject: [PATCH 056/165] tst_QSslCertificate::verify - remove QSKIP
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+And re-generate certificates.
+
+Fixes: QTBUG-95429
+Pick-to: 6.2 6.1 5.15 5.12
+Change-Id: Id970a0a9315d146d6dd1e66c9cff9b7d75657e2d
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit e7ab17ade170a8fbc5061fffe5334b26cdc54ed3)
+---
+ tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp b/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp
+index 54137e409b..445e6a2d98 100644
+--- a/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp
++++ b/tests/auto/network/ssl/qsslcertificate/tst_qsslcertificate.cpp
+@@ -1128,7 +1128,6 @@ void tst_QSslCertificate::verify()
+ #if QT_CONFIG(securetransport)
+     QSKIP("Not implemented in SecureTransport");
+ #endif
+-    QSKIP("Expired certificates, regenerate first");
+ 
+     QList<QSslError> errors;
+     QList<QSslCertificate> toVerify;
+-- 
+2.36.1
+

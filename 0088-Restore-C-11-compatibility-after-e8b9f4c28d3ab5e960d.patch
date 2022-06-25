@@ -1,0 +1,40 @@
+From 203fd2e452a4cc4c8df58bf8237f315885988e7e Mon Sep 17 00:00:00 2001
+From: Antonio Rojas <arojas@archlinux.org>
+Date: Tue, 11 Jan 2022 23:18:01 +0000
+Subject: [PATCH 088/165] Restore C++11 compatibility after
+ e8b9f4c28d3ab5e960dc54f2dc0c4b749b0b50e0
+
+---
+ src/corelib/thread/qthread_p.h      | 2 +-
+ src/corelib/thread/qthread_unix.cpp | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/corelib/thread/qthread_p.h b/src/corelib/thread/qthread_p.h
+index 227c3f0e66..c21332dc38 100644
+--- a/src/corelib/thread/qthread_p.h
++++ b/src/corelib/thread/qthread_p.h
+@@ -174,7 +174,7 @@ public:
+     int returnCode;
+ 
+     uint stackSize;
+-    std::underlying_type_t<QThread::Priority> priority;
++    std::underlying_type<QThread::Priority>::type priority;
+ 
+     static QThread *threadForId(int id);
+ 
+diff --git a/src/corelib/thread/qthread_unix.cpp b/src/corelib/thread/qthread_unix.cpp
+index 26bcc7b266..5508b9e585 100644
+--- a/src/corelib/thread/qthread_unix.cpp
++++ b/src/corelib/thread/qthread_unix.cpp
+@@ -671,7 +671,7 @@ void QThread::start(Priority priority)
+                 // could not set scheduling hints, fallback to inheriting them
+                 // we'll try again from inside the thread
+                 pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
+-                d->priority = static_cast<std::underlying_type_t<QThread::Priority>>(priority) | ThreadPriorityResetFlag;
++                d->priority = static_cast<std::underlying_type<QThread::Priority>::type>(priority) | ThreadPriorityResetFlag;
+             }
+             break;
+         }
+-- 
+2.36.1
+

@@ -1,7 +1,7 @@
-From afc7fa164706de8782596012327470663faca90a Mon Sep 17 00:00:00 2001
+From 597e7fc9d4a545734ace8b6d279f2401390d580c Mon Sep 17 00:00:00 2001
 From: ChunLin Wang <wangchunlin@uniontech.com>
 Date: Wed, 31 Mar 2021 17:54:49 +0800
-Subject: [PATCH 004/144] Fix get out of bounds index in
+Subject: [PATCH 004/165] Fix get out of bounds index in
  QSortFilterProxyModel::filterAcceptsRow
 
 Before calling the index function, we need to check the validity of the parameters.
