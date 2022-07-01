@@ -649,7 +649,7 @@ Suggests:	qt5-style-plugins
 %rename %{qtgui}-x11
 Requires:	%{_lib}qt5-output-driver = %{EVRD}
 %if %omvver >= 405000
-Suggests:	%{_lib}qt5-output-driver-default = %{EVRD}
+Requires:	%{_lib}qt5-output-driver-default >= %{EVRD}
 %else
 Provides:	%{_lib}qt5-output-driver-default = %{EVRD}
 %endif
