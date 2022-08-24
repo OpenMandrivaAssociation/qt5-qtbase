@@ -335,6 +335,19 @@ Patch1161:	0162-H2-remove-a-rather-useless-limit-on-the-number-of-st.patch
 Patch1162:	0163-SQLite-driver-fix-crash-when-binding-a-QByteArray-QS.patch
 Patch1163:	0164-Fix-compile-of-tst_qimage-in-Qt5.patch
 Patch1164:	0165-QArrayData-fix-UB-via-reinterpret_cast-crash-with-FO.patch
+Patch1165:	0166-Drop-call-to-setPlatformScreen-in-QHighDpiScaling-se.patch
+Patch1166:	0167-Fix-QDBusInterface-crashing-with-empty-path-on-const.patch
+Patch1167:	0168-qmake-Ignore-stderr-when-determining-the-macOS-SDK-v.patch
+Patch1168:	0169-Add-QXdgDesktopPortalFileDialog-useNativeFileDialog.patch
+Patch1169:	0170-Fallback-to-another-file-dialog-implementation-when-.patch
+Patch1170:	0171-Fix-compile-with-MinGW-W64-9.0.0-Redefinition-of-str.patch
+Patch1171:	0172-Fix-crash-in-QKmsDevice-createScreenForConnector.patch
+Patch1172:	0173-QtConcurrent-ReduceKernel-fix-race-conditions.patch
+Patch1173:	0174-Revert-CUPS-Add-support-for-accessible-IPP-printers.patch
+Patch1174:	0175-xcb-Update-_NET_SUPPORTED-when-the-window-manager-ch.patch
+Patch1175:	0176-Update-bundled-Freetype-to-2.10.4.patch
+Patch1176:	0177-Apply-CVE-2022-27404-27405-27406-qtbase-5.15.diff.patch
+Patch1177:	0178-Don-t-access-QObjectPrivate-declarativeData-unguarde.patch
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
 # just built QtCore. This should be fixed properly in the Makefiles.
