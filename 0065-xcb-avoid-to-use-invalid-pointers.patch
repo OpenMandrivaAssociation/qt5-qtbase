@@ -1,0 +1,56 @@
+From 5c8421aba88dbba8b847422ef1873e9c97566752 Mon Sep 17 00:00:00 2001
+From: Liang Qi <liang.qi@qt.io>
+Date: Thu, 21 Oct 2021 19:38:43 +0200
+Subject: [PATCH 065/163] xcb: avoid to use invalid pointers
+
+Pick-to: 6.2 5.15 5.12
+Task-number: QTBUG-96399
+Change-Id: I33909940b501cb13f78981c43f3aef9fc9d1d52d
+Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
+(cherry picked from commit e0938223c4b5966b94893276ba36c9b0493168c7)
+---
+ src/plugins/platforms/xcb/qxcbconnection.cpp       | 8 +++++++-
+ src/plugins/platforms/xcb/qxcbconnection_basic.cpp | 8 +++++++-
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbconnection.cpp b/src/plugins/platforms/xcb/qxcbconnection.cpp
+index 34fbc0b10b..181d6c791e 100644
+--- a/src/plugins/platforms/xcb/qxcbconnection.cpp
++++ b/src/plugins/platforms/xcb/qxcbconnection.cpp
+@@ -838,7 +838,13 @@ xcb_timestamp_t QXcbConnection::getTimestamp()
+ 
+ xcb_window_t QXcbConnection::getSelectionOwner(xcb_atom_t atom) const
+ {
+-    return Q_XCB_REPLY(xcb_get_selection_owner, xcb_connection(), atom)->owner;
++    auto reply = Q_XCB_REPLY(xcb_get_selection_owner, xcb_connection(), atom);
++    if (!reply) {
++        qCDebug(lcQpaXcb) << "failed to query selection owner";
++        return XCB_NONE;
++    }
++
++    return reply->owner;
+ }
+ 
+ xcb_window_t QXcbConnection::getQtSelectionOwner()
+diff --git a/src/plugins/platforms/xcb/qxcbconnection_basic.cpp b/src/plugins/platforms/xcb/qxcbconnection_basic.cpp
+index 18dee89adb..9dd608cdc0 100644
+--- a/src/plugins/platforms/xcb/qxcbconnection_basic.cpp
++++ b/src/plugins/platforms/xcb/qxcbconnection_basic.cpp
+@@ -179,7 +179,13 @@ xcb_atom_t QXcbBasicConnection::internAtom(const char *name)
+     if (!name || *name == 0)
+         return XCB_NONE;
+ 
+-    return Q_XCB_REPLY(xcb_intern_atom, m_xcbConnection, false, strlen(name), name)->atom;
++    auto reply = Q_XCB_REPLY(xcb_intern_atom, m_xcbConnection, false, strlen(name), name);
++    if (!reply) {
++        qCDebug(lcQpaXcb) << "failed to query intern atom: " << name;
++        return XCB_NONE;
++    }
++
++    return reply->atom;
+ }
+ 
+ QByteArray QXcbBasicConnection::atomName(xcb_atom_t atom)
+-- 
+2.37.2
+

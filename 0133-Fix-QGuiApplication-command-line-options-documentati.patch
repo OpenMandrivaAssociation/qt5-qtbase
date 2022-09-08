@@ -1,0 +1,37 @@
+From 74f40e6f3315269eb274a32b3b42fba69ccc7b72 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Fri, 17 Sep 2021 11:18:44 +0200
+Subject: [PATCH 133/163] Fix QGuiApplication command line options
+ documentation for X11
+
+Fixes: QTBUG-96600
+Pick-to: 6.2 5.15
+Change-Id: Ic3670b952d97270cce4f0a8df8bba79e934e4a6d
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 1b0cb842129616d67ddf279e7e900fcdf433e390)
+---
+ src/gui/kernel/qguiapplication.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/gui/kernel/qguiapplication.cpp b/src/gui/kernel/qguiapplication.cpp
+index 439b1127a2..87643a3a39 100644
+--- a/src/gui/kernel/qguiapplication.cpp
++++ b/src/gui/kernel/qguiapplication.cpp
+@@ -1385,11 +1385,11 @@ void QGuiApplicationPrivate::addQtOptions(QList<QCommandLineOption> *options)
+                          QGuiApplication::tr("ID of the X11 Visual to use."), QStringLiteral("id")));
+          // Not using the "QStringList names" solution for those aliases, because it makes the first column too wide
+          options->append(QCommandLineOption(QStringLiteral("geometry"),
+-                         QGuiApplication::tr("Alias for --windowgeometry."), QStringLiteral("geometry")));
++                         QGuiApplication::tr("Alias for --qwindowgeometry."), QStringLiteral("geometry")));
+          options->append(QCommandLineOption(QStringLiteral("icon"),
+-                         QGuiApplication::tr("Alias for --windowicon."), QStringLiteral("icon")));
++                         QGuiApplication::tr("Alias for --qwindowicon."), QStringLiteral("icon")));
+          options->append(QCommandLineOption(QStringLiteral("title"),
+-                         QGuiApplication::tr("Alias for --windowtitle."), QStringLiteral("title")));
++                         QGuiApplication::tr("Alias for --qwindowtitle."), QStringLiteral("title")));
+     }
+ }
+ #endif // QT_CONFIG(commandlineparser)
+-- 
+2.37.2
+

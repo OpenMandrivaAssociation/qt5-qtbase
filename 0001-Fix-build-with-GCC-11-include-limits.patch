@@ -1,7 +1,7 @@
-From b75790f70d2e3778c96c7ac78f514d17fb6dba61 Mon Sep 17 00:00:00 2001
+From 47532d9c0425b29cfb65952c9b8ef3db486ad358 Mon Sep 17 00:00:00 2001
 From: Thiago Macieira <thiago.macieira@intel.com>
 Date: Mon, 18 Jan 2021 07:40:54 -0800
-Subject: [PATCH 001/165] Fix build with GCC 11: include <limits>
+Subject: [PATCH 001/163] Fix build with GCC 11: include <limits>
 
 Fixes: QTBUG-90395
 Change-Id: Iecc74d2000eb40dfbe7bfffd165b5dd3708b7a40
@@ -27,5 +27,5 @@ index a97776c761..339f53abb6 100644
  **
  ** This file is part of the QtCore module of the Qt Toolkit.
 -- 
-2.36.1
+2.37.2
 

@@ -1,0 +1,32 @@
+From f07a02d6a239f95d309f0cf5c44193f8f4d59af0 Mon Sep 17 00:00:00 2001
+From: Joni Poikelin <joni.poikelin@qt.io>
+Date: Thu, 5 May 2022 13:11:53 +0300
+Subject: [PATCH 110/163] Prevent crashing when FcFontList fails
+
+FcFontList can return null pointer in failure cases which would lead to
+null pointer dereference further down.
+
+Pick-to: 5.15 6.2 6.3
+Change-Id: I6b407cf2f27ead9eb471d3ee7a521468cebf7572
+Reviewed-by: Eskil Abrahamsen Blomfeldt <eskil.abrahamsen-blomfeldt@qt.io>
+(cherry picked from commit 691541023aa11c085186ef7f691507c158e1df75)
+---
+ .../fontdatabases/fontconfig/qfontconfigdatabase.cpp            | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/platformsupport/fontdatabases/fontconfig/qfontconfigdatabase.cpp b/src/platformsupport/fontdatabases/fontconfig/qfontconfigdatabase.cpp
+index 159b490ce0..00aa80cd58 100644
+--- a/src/platformsupport/fontdatabases/fontconfig/qfontconfigdatabase.cpp
++++ b/src/platformsupport/fontdatabases/fontconfig/qfontconfigdatabase.cpp
+@@ -567,6 +567,8 @@ void QFontconfigDatabase::populateFontDatabase()
+         fonts = FcFontList(nullptr, pattern, os);
+         FcObjectSetDestroy(os);
+         FcPatternDestroy(pattern);
++        if (!fonts)
++            return;
+     }
+ 
+     for (int i = 0; i < fonts->nfont; i++)
+-- 
+2.37.2
+

@@ -1,0 +1,86 @@
+From 6bafabf60fc936f0a981e2aa15707cf4daf40399 Mon Sep 17 00:00:00 2001
+From: Ilya Fedin <fedin-ilja2010@ya.ru>
+Date: Mon, 6 Jun 2022 20:57:22 +0400
+Subject: [PATCH 147/163] Add
+ QXdgDesktopPortalFileDialog::useNativeFileDialog()
+
+Task-number: QTBUG-98988
+Pick-to: 6.4 6.3 6.2 5.15
+Change-Id: I39417f089d839a9af009791088bd20058532bd7a
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 6f9f6849c53e057e8b4186db64a1a6b5e1f31eca)
+---
+ .../qxdgdesktopportalfiledialog.cpp            | 18 ++++++++++++++----
+ .../qxdgdesktopportalfiledialog_p.h            |  1 +
+ 2 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
+index fbb2a2284c..8b05d273d2 100644
+--- a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
++++ b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
+@@ -327,7 +327,7 @@ QUrl QXdgDesktopPortalFileDialog::directory() const
+ {
+     Q_D(const QXdgDesktopPortalFileDialog);
+ 
+-    if (d->nativeFileDialog && (options()->fileMode() == QFileDialogOptions::Directory || options()->fileMode() == QFileDialogOptions::DirectoryOnly))
++    if (d->nativeFileDialog && useNativeFileDialog())
+         return d->nativeFileDialog->directory();
+ 
+     return d->directory;
+@@ -349,7 +349,7 @@ QList<QUrl> QXdgDesktopPortalFileDialog::selectedFiles() const
+ {
+     Q_D(const QXdgDesktopPortalFileDialog);
+ 
+-    if (d->nativeFileDialog && (options()->fileMode() == QFileDialogOptions::Directory || options()->fileMode() == QFileDialogOptions::DirectoryOnly))
++    if (d->nativeFileDialog && useNativeFileDialog())
+         return d->nativeFileDialog->selectedFiles();
+ 
+     QList<QUrl> files;
+@@ -404,7 +404,7 @@ void QXdgDesktopPortalFileDialog::exec()
+ {
+     Q_D(QXdgDesktopPortalFileDialog);
+ 
+-    if (d->nativeFileDialog && (options()->fileMode() == QFileDialogOptions::Directory || options()->fileMode() == QFileDialogOptions::DirectoryOnly)) {
++    if (d->nativeFileDialog && useNativeFileDialog()) {
+         d->nativeFileDialog->exec();
+         return;
+     }
+@@ -433,7 +433,7 @@ bool QXdgDesktopPortalFileDialog::show(Qt::WindowFlags windowFlags, Qt::WindowMo
+     d->modal = windowModality != Qt::NonModal;
+     d->winId = parent ? parent->winId() : 0;
+ 
+-    if (d->nativeFileDialog && (options()->fileMode() == QFileDialogOptions::Directory || options()->fileMode() == QFileDialogOptions::DirectoryOnly))
++    if (d->nativeFileDialog && useNativeFileDialog())
+         return d->nativeFileDialog->show(windowFlags, windowModality, parent);
+ 
+     openPortal();
+@@ -466,4 +466,14 @@ void QXdgDesktopPortalFileDialog::gotResponse(uint response, const QVariantMap &
+     }
+ }
+ 
++bool QXdgDesktopPortalFileDialog::useNativeFileDialog() const
++{
++    if (options()->fileMode() == QFileDialogOptions::Directory)
++        return true;
++    else if (options()->fileMode() == QFileDialogOptions::DirectoryOnly)
++        return true;
++
++    return false;
++}
++
+ QT_END_NAMESPACE
+diff --git a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog_p.h b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog_p.h
+index 4f4de96ecf..5c1231bb54 100644
+--- a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog_p.h
++++ b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog_p.h
+@@ -93,6 +93,7 @@ private Q_SLOTS:
+ private:
+     void initializeDialog();
+     void openPortal();
++    bool useNativeFileDialog() const;
+ 
+     QScopedPointer<QXdgDesktopPortalFileDialogPrivate> d_ptr;
+ };
+-- 
+2.37.2
+

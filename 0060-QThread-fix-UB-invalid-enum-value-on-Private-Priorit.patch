@@ -1,0 +1,94 @@
+From 80a4f97cf87229ea7793623abfce2d9207496a61 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Thu, 16 Dec 2021 13:50:21 +0100
+Subject: [PATCH 060/163] QThread: fix UB (invalid enum value) on
+ Private::Priority
+
+The Unix code stores an additional flag, ThreadPriorityResetFlag, in
+the Policy enum, but ubsan does not approve:
+
+  qthread_unix.cpp:303:30: runtime error: load of value 2147483648, which is not a valid value for type 'Priority'
+  qthread_unix.cpp:304:75: runtime error: load of value 2147483648, which is not a valid value for type 'Priority'
+
+Fix by making the variable of std::underlying_type_t<Priority>.
+
+The masking and unmasking code can now be simplified, too.
+
+In the Windows version, replace some switch targets with equivalent
+ones to keep -Wswitch-like warnings, though I hasten to note that both
+switches use a default case, so have anyway implicitly disabled said
+warning.
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: Ie4ea7d05e2928d2755ad12d36535197f85493191
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit 591a35d6fd9fa4f14ca1ac6a568673e2a2da0f60)
+
+asturmlechner 2022-01-04: Resolve conflict in qthread_unix.cpp with
+  dev branch commit cffc667ad9dae10adf415357a606e7253a0c3206
+---
+ src/corelib/thread/qthread_p.h      | 2 +-
+ src/corelib/thread/qthread_unix.cpp | 4 ++--
+ src/corelib/thread/qthread_win.cpp  | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/corelib/thread/qthread_p.h b/src/corelib/thread/qthread_p.h
+index b2d1628e6e..227c3f0e66 100644
+--- a/src/corelib/thread/qthread_p.h
++++ b/src/corelib/thread/qthread_p.h
+@@ -174,7 +174,7 @@ public:
+     int returnCode;
+ 
+     uint stackSize;
+-    QThread::Priority priority;
++    std::underlying_type_t<QThread::Priority> priority;
+ 
+     static QThread *threadForId(int id);
+ 
+diff --git a/src/corelib/thread/qthread_unix.cpp b/src/corelib/thread/qthread_unix.cpp
+index 659d5fb03c..bce6a2be0d 100644
+--- a/src/corelib/thread/qthread_unix.cpp
++++ b/src/corelib/thread/qthread_unix.cpp
+@@ -296,7 +296,7 @@ void *QThreadPrivate::start(void *arg)
+             QMutexLocker locker(&thr->d_func()->mutex);
+ 
+             // do we need to reset the thread priority?
+-            if (int(thr->d_func()->priority) & ThreadPriorityResetFlag) {
++            if (thr->d_func()->priority & ThreadPriorityResetFlag) {
+                 thr->d_func()->setPriority(QThread::Priority(thr->d_func()->priority & ~ThreadPriorityResetFlag));
+             }
+ 
+@@ -667,7 +667,7 @@ void QThread::start(Priority priority)
+                 // could not set scheduling hints, fallback to inheriting them
+                 // we'll try again from inside the thread
+                 pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
+-                d->priority = Priority(priority | ThreadPriorityResetFlag);
++                d->priority = static_cast<std::underlying_type_t<QThread::Priority>>(priority) | ThreadPriorityResetFlag;
+             }
+             break;
+         }
+diff --git a/src/corelib/thread/qthread_win.cpp b/src/corelib/thread/qthread_win.cpp
+index bc70e3178a..9ddc6b3b34 100644
+--- a/src/corelib/thread/qthread_win.cpp
++++ b/src/corelib/thread/qthread_win.cpp
+@@ -548,7 +548,7 @@ void QThread::start(Priority priority)
+ 
+     int prio;
+     d->priority = priority;
+-    switch (d->priority) {
++    switch (priority) {
+     case IdlePriority:
+         prio = THREAD_PRIORITY_IDLE;
+         break;
+@@ -686,7 +686,7 @@ void QThreadPrivate::setPriority(QThread::Priority threadPriority)
+ 
+     int prio;
+     priority = threadPriority;
+-    switch (priority) {
++    switch (threadPriority) {
+     case QThread::IdlePriority:
+         prio = THREAD_PRIORITY_IDLE;
+         break;
+-- 
+2.37.2
+

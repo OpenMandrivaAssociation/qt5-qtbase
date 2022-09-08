@@ -1,0 +1,32 @@
+From 2cb4f65eef1f526df98eb51d85d2d93f7ad12e28 Mon Sep 17 00:00:00 2001
+From: Kai Uwe Broulik <kde@privat.broulik.de>
+Date: Wed, 16 Mar 2022 12:35:20 +0100
+Subject: [PATCH 098/163] QAction: Add NOTIFY changed declaration to priority
+ property
+
+It already emits the signal and was merely missing the declaration.
+
+This fixes warnings about depending on non-NOTIFYable properties
+when binding to the priority property from QML.
+
+(cherry picked from commit e516a7bcf898919a908a0d8e0f389aba6059fb55)
+---
+ src/widgets/kernel/qaction.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/kernel/qaction.h b/src/widgets/kernel/qaction.h
+index 258a1ea0a0..737c1e8285 100644
+--- a/src/widgets/kernel/qaction.h
++++ b/src/widgets/kernel/qaction.h
+@@ -81,7 +81,7 @@ class Q_WIDGETS_EXPORT QAction : public QObject
+     Q_PROPERTY(MenuRole menuRole READ menuRole WRITE setMenuRole NOTIFY changed)
+     Q_PROPERTY(bool iconVisibleInMenu READ isIconVisibleInMenu WRITE setIconVisibleInMenu NOTIFY changed)
+     Q_PROPERTY(bool shortcutVisibleInContextMenu READ isShortcutVisibleInContextMenu WRITE setShortcutVisibleInContextMenu NOTIFY changed)
+-    Q_PROPERTY(Priority priority READ priority WRITE setPriority)
++    Q_PROPERTY(Priority priority READ priority WRITE setPriority NOTIFY changed)
+ 
+ public:
+     // note this is copied into qplatformmenu.h, which must stay in sync
+-- 
+2.37.2
+

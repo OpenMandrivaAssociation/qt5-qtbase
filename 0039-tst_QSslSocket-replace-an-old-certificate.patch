@@ -1,0 +1,208 @@
+From 597b6162be13f7f07d00e13ec72d7f26995ae4a6 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Fri, 6 Aug 2021 17:02:03 +0200
+Subject: [PATCH 039/163] tst_QSslSocket - replace an old certificate
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Helped quite a lot with OpenSSL 3 not accepting some old algorithms.
+
+Pick-to: 6.2 6.1 5.15
+Task-number: QTBUG-95123
+Change-Id: If4894fa86eba7b002465fa661d436ae6ea751989
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 33de5f6502254ffe51960714404b6330dab224d5)
+---
+ .../network/ssl/qsslsocket/certs/fluke.cert   | 105 ++++++------------
+ .../network/ssl/qsslsocket/certs/fluke.key    |  67 ++++++++---
+ 2 files changed, 84 insertions(+), 88 deletions(-)
+
+diff --git a/tests/auto/network/ssl/qsslsocket/certs/fluke.cert b/tests/auto/network/ssl/qsslsocket/certs/fluke.cert
+index 069fa6b341..4cc4d9a5ea 100644
+--- a/tests/auto/network/ssl/qsslsocket/certs/fluke.cert
++++ b/tests/auto/network/ssl/qsslsocket/certs/fluke.cert
+@@ -1,75 +1,34 @@
+-Certificate:
+-    Data:
+-        Version: 3 (0x2)
+-        Serial Number: 0 (0x0)
+-        Signature Algorithm: sha1WithRSAEncryption
+-        Issuer: C=NO, ST=Oslo, L=Nydalen, O=Nokia Corporation and/or its subsidiary(-ies), OU=Development, CN=fluke.troll.no/emailAddress=ahanssen@trolltech.com
+-        Validity
+-            Not Before: Dec  4 01:10:32 2007 GMT
+-            Not After : Apr 21 01:10:32 2035 GMT
+-        Subject: C=NO, ST=Oslo, O=Nokia Corporation and/or its subsidiary(-ies), OU=Development, CN=fluke.troll.no
+-        Subject Public Key Info:
+-            Public Key Algorithm: rsaEncryption
+-            RSA Public Key: (1024 bit)
+-                Modulus (1024 bit):
+-                    00:a7:c8:a0:4a:c4:19:05:1b:66:ba:32:e2:d2:f1:
+-                    1c:6f:17:82:e4:39:2e:01:51:90:db:04:34:32:11:
+-                    21:c2:0d:6f:59:d8:53:90:54:3f:83:8f:a9:d3:b3:
+-                    d5:ee:1a:9b:80:ae:c3:25:c9:5e:a5:af:4b:60:05:
+-                    aa:a0:d1:91:01:1f:ca:04:83:e3:58:1c:99:32:45:
+-                    84:70:72:58:03:98:4a:63:8b:41:f5:08:49:d2:91:
+-                    02:60:6b:e4:64:fe:dd:a0:aa:74:08:e9:34:4c:91:
+-                    5f:12:3d:37:4d:54:2c:ad:7f:5b:98:60:36:02:8c:
+-                    3b:f6:45:f3:27:6a:9b:94:9d
+-                Exponent: 65537 (0x10001)
+-        X509v3 extensions:
+-            X509v3 Basic Constraints: 
+-                CA:FALSE
+-            Netscape Comment: 
+-                OpenSSL Generated Certificate
+-            X509v3 Subject Key Identifier: 
+-                21:85:04:3D:23:01:66:E5:F7:9F:1A:84:24:8A:AF:0A:79:F4:E5:AC
+-            X509v3 Authority Key Identifier: 
+-                DirName:/C=NO/ST=Oslo/L=Nydalen/O=Nokia Corporation and/or its subsidiary(-ies)/OU=Development/CN=fluke.troll.no/emailAddress=ahanssen@trolltech.com
+-                serial:8E:A8:B4:E8:91:B7:54:2E
+-
+-    Signature Algorithm: sha1WithRSAEncryption
+-        6d:57:5f:d1:05:43:f0:62:05:ec:2a:71:a5:dc:19:08:f2:c4:
+-        a6:bd:bb:25:d9:ca:89:01:0e:e4:cf:1f:c1:8c:c8:24:18:35:
+-        53:59:7b:c0:43:b4:32:e6:98:b2:a6:ef:15:05:0b:48:5f:e1:
+-        a0:0c:97:a9:a1:77:d8:35:18:30:bc:a9:8f:d3:b7:54:c7:f1:
+-        a9:9e:5d:e6:19:bf:f6:3c:5b:2b:d8:e4:3e:62:18:88:8b:d3:
+-        24:e1:40:9b:0c:e6:29:16:62:ab:ea:05:24:70:36:aa:55:93:
+-        ef:02:81:1b:23:10:a2:04:eb:56:95:75:fc:f8:94:b1:5d:42:
+-        c5:3f:36:44:85:5d:3a:2e:90:46:8a:a2:b9:6f:87:ae:0c:15:
+-        40:19:31:90:fc:3b:25:bb:ae:f1:66:13:0d:85:90:d9:49:34:
+-        8f:f2:5d:f9:7a:db:4d:5d:27:f6:76:9d:35:8c:06:a6:4c:a3:
+-        b1:b2:b6:6f:1d:d7:a3:00:fd:72:eb:9e:ea:44:a1:af:21:34:
+-        7d:c7:42:e2:49:91:19:8b:c0:ad:ba:82:80:a8:71:70:f4:35:
+-        31:91:63:84:20:95:e9:60:af:64:8b:cc:ff:3d:8a:76:74:3d:
+-        c8:55:6d:e4:8e:c3:2b:1c:e8:42:18:ae:9f:e6:6b:9c:34:06:
+-        ec:6a:f2:c3
+ -----BEGIN CERTIFICATE-----
+-MIIEEzCCAvugAwIBAgIBADANBgkqhkiG9w0BAQUFADCBnDELMAkGA1UEBhMCTk8x
+-DTALBgNVBAgTBE9zbG8xEDAOBgNVBAcTB055ZGFsZW4xFjAUBgNVBAoTDVRyb2xs
+-dGVjaCBBU0ExFDASBgNVBAsTC0RldmVsb3BtZW50MRcwFQYDVQQDEw5mbHVrZS50
+-cm9sbC5ubzElMCMGCSqGSIb3DQEJARYWYWhhbnNzZW5AdHJvbGx0ZWNoLmNvbTAe
+-Fw0wNzEyMDQwMTEwMzJaFw0zNTA0MjEwMTEwMzJaMGMxCzAJBgNVBAYTAk5PMQ0w
+-CwYDVQQIEwRPc2xvMRYwFAYDVQQKEw1Ucm9sbHRlY2ggQVNBMRQwEgYDVQQLEwtE
+-ZXZlbG9wbWVudDEXMBUGA1UEAxMOZmx1a2UudHJvbGwubm8wgZ8wDQYJKoZIhvcN
+-AQEBBQADgY0AMIGJAoGBAKfIoErEGQUbZroy4tLxHG8XguQ5LgFRkNsENDIRIcIN
+-b1nYU5BUP4OPqdOz1e4am4CuwyXJXqWvS2AFqqDRkQEfygSD41gcmTJFhHByWAOY
+-SmOLQfUISdKRAmBr5GT+3aCqdAjpNEyRXxI9N01ULK1/W5hgNgKMO/ZF8ydqm5Sd
+-AgMBAAGjggEaMIIBFjAJBgNVHRMEAjAAMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NM
+-IEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUIYUEPSMBZuX3nxqEJIqv
+-Cnn05awwgbsGA1UdIwSBszCBsKGBoqSBnzCBnDELMAkGA1UEBhMCTk8xDTALBgNV
+-BAgTBE9zbG8xEDAOBgNVBAcTB055ZGFsZW4xFjAUBgNVBAoTDVRyb2xsdGVjaCBB
+-U0ExFDASBgNVBAsTC0RldmVsb3BtZW50MRcwFQYDVQQDEw5mbHVrZS50cm9sbC5u
+-bzElMCMGCSqGSIb3DQEJARYWYWhhbnNzZW5AdHJvbGx0ZWNoLmNvbYIJAI6otOiR
+-t1QuMA0GCSqGSIb3DQEBBQUAA4IBAQBtV1/RBUPwYgXsKnGl3BkI8sSmvbsl2cqJ
+-AQ7kzx/BjMgkGDVTWXvAQ7Qy5piypu8VBQtIX+GgDJepoXfYNRgwvKmP07dUx/Gp
+-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
+ -----END CERTIFICATE-----
+diff --git a/tests/auto/network/ssl/qsslsocket/certs/fluke.key b/tests/auto/network/ssl/qsslsocket/certs/fluke.key
+index 9d1664d609..337ce541a6 100644
+--- a/tests/auto/network/ssl/qsslsocket/certs/fluke.key
++++ b/tests/auto/network/ssl/qsslsocket/certs/fluke.key
+@@ -1,15 +1,52 @@
+------BEGIN RSA PRIVATE KEY-----
+-MIICXAIBAAKBgQCnyKBKxBkFG2a6MuLS8RxvF4LkOS4BUZDbBDQyESHCDW9Z2FOQ
+-VD+Dj6nTs9XuGpuArsMlyV6lr0tgBaqg0ZEBH8oEg+NYHJkyRYRwclgDmEpji0H1
+-CEnSkQJga+Rk/t2gqnQI6TRMkV8SPTdNVCytf1uYYDYCjDv2RfMnapuUnQIDAQAB
+-AoGANFzLkanTeSGNFM0uttBipFT9F4a00dqHz6JnO7zXAT26I5r8sU1pqQBb6uLz
+-/+Qz5Zwk8RUAQcsMRgJetuPQUb0JZjF6Duv24hNazqXBCu7AZzUenjafwmKC/8ri
+-KpX3fTwqzfzi//FKGgbXQ80yykSSliDL3kn/drATxsLCgQECQQDXhEFWLJ0vVZ1s
+-1Ekf+3NITE+DR16X+LQ4W6vyEHAjTbaNWtcTKdAWLA2l6N4WAAPYSi6awm+zMxx4
+-VomVTsjdAkEAx0z+e7natLeFcrrq8pbU+wa6SAP1VfhQWKitxL1e7u/QO90NCpxE
+-oQYKzMkmmpOOFjQwEMAy1dvFMbm4LHlewQJAC/ksDBaUcQHHqjktCtrUb8rVjAyW
+-A8lscckeB2fEYyG5J6dJVaY4ClNOOs5yMDS2Afk1F6H/xKvtQ/5CzInA/QJATDub
+-K+BPU8jO9q+gpuIi3VIZdupssVGmCgObVCHLakG4uO04y9IyPhV9lA9tALtoIf4c
+-VIvv5fWGXBrZ48kZAQJBAJmVCdzQxd9LZI5vxijUCj5EI4e+x5DRqVUvyP8KCZrC
+-AiNyoDP85T+hBZaSXK3aYGpVwelyj3bvo1GrTNwNWLw=
+------END RSA PRIVATE KEY-----
++-----BEGIN PRIVATE KEY-----
++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
++g0veFbyfzlJ0q8qzD/iffqqIa2ZSmQ==
++-----END PRIVATE KEY-----
+-- 
+2.37.2
+

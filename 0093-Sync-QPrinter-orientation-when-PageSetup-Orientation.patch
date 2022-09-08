@@ -1,0 +1,35 @@
+From 45693f19a5a6fa699bc34fe6877d40ef5101c787 Mon Sep 17 00:00:00 2001
+From: Zhang Hao <zhanghao@uniontech.com>
+Date: Thu, 27 Jan 2022 11:20:57 +0800
+Subject: [PATCH 093/163] Sync QPrinter orientation when PageSetup Orientation
+ selected
+
+QPrinter orientation will not effect when PageSetup Orientation selected
+
+Fix this by sync PageSetup orientation property to QPrinter.
+
+Fixes: QTBUG-100261
+Pick-to: 5.15 6.2 6.3
+Change-Id: I264852ea18317308dfcfb58c880f5e8ad8d299bd
+Reviewed-by: Michael Weghorn <m.weghorn@posteo.de>
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit 715ed74c89a7e6c64aa85e36682699d41c195a33)
+---
+ src/printsupport/dialogs/qpagesetupdialog_unix.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/printsupport/dialogs/qpagesetupdialog_unix.cpp b/src/printsupport/dialogs/qpagesetupdialog_unix.cpp
+index 78e5b8d1ef..2a28516719 100644
+--- a/src/printsupport/dialogs/qpagesetupdialog_unix.cpp
++++ b/src/printsupport/dialogs/qpagesetupdialog_unix.cpp
+@@ -532,6 +532,7 @@ void QPageSetupWidget::updateWidget()
+ void QPageSetupWidget::setupPrinter() const
+ {
+     m_printer->setPageLayout(m_pageLayout);
++    m_printer->setPageOrientation(m_pageLayout.orientation());
+ #if QT_CONFIG(cups)
+     QCUPSSupport::PagesPerSheet pagesPerSheet = qvariant_cast<QCUPSSupport::PagesPerSheet>(m_ui.pagesPerSheetCombo->currentData()
+ );
+-- 
+2.37.2
+

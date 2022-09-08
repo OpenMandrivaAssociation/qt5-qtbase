@@ -1,0 +1,54 @@
+From 65263ffac00eb3e6c1e67245356b1edf941b7296 Mon Sep 17 00:00:00 2001
+From: David Faure <david.faure@kdab.com>
+Date: Sat, 12 Mar 2022 01:48:07 +0100
+Subject: [PATCH 096/163] QCompleter: fix crash when setting the same model
+ twice
+
+Found when retesting the testcase completer.zip from QTBUG-54642
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: Id84eefeb3a33dc6d790cfa23755352381cc097a9
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 7382e5735ea734fe5e5777518394963593603c32)
+---
+ src/widgets/util/qcompleter.cpp                        |  2 ++
+ tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp | 10 ++++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/src/widgets/util/qcompleter.cpp b/src/widgets/util/qcompleter.cpp
+index 47fee68538..beef80ef4b 100644
+--- a/src/widgets/util/qcompleter.cpp
++++ b/src/widgets/util/qcompleter.cpp
+@@ -1120,6 +1120,8 @@ void QCompleter::setModel(QAbstractItemModel *model)
+ {
+     Q_D(QCompleter);
+     QAbstractItemModel *oldModel = d->proxy->sourceModel();
++    if (oldModel == model)
++        return;
+ #if QT_CONFIG(filesystemmodel)
+     if (qobject_cast<const QFileSystemModel *>(oldModel))
+         setCompletionRole(Qt::EditRole); // QTBUG-54642, clear FileNameRole set by QFileSystemModel
+diff --git a/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp b/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp
+index 32437050f5..7af60ed757 100644
+--- a/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp
++++ b/tests/auto/widgets/widgets/qcombobox/tst_qcombobox.cpp
+@@ -1682,6 +1682,16 @@ void tst_QComboBox::setModel()
+     QCOMPARE(box.rootModelIndex(), rootModelIndex);
+     box.setModel(box.model());
+     QCOMPARE(box.rootModelIndex(), rootModelIndex);
++
++    // check that setting the same model as the completer's doesn't crash
++    QCompleter *completer = new QCompleter(&box);
++    box.setEditable(true);
++    box.setCompleter(completer);
++    auto *listModel = new QStringListModel({ "one", "two" }, completer);
++    completer->setModel(listModel);
++    QCOMPARE(listModel->rowCount(), 2); // make sure it wasn't deleted
++    box.setModel(listModel);
++    QCOMPARE(listModel->rowCount(), 2); // make sure it wasn't deleted
+ }
+ 
+ void tst_QComboBox::setCustomModelAndView()
+-- 
+2.37.2
+

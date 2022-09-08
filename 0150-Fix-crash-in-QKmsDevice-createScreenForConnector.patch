@@ -1,0 +1,35 @@
+From e2faf0615fe3f176e373eebf9c188be6a2f52a92 Mon Sep 17 00:00:00 2001
+From: Joni Poikelin <joni.poikelin@qt.io>
+Date: Thu, 7 Jul 2022 08:18:40 +0300
+Subject: [PATCH 150/163] Fix crash in QKmsDevice::createScreenForConnector
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes: QTBUG-104809
+Pick-to: 5.15 6.2 6.3 6.4
+Change-Id: Ic71311e5cb674da46a4a1065dae739bc9ac6e285
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+(cherry picked from commit da43c180c84a5b159efc2535c29cf8b8fbff0f61)
+---
+ src/platformsupport/kmsconvenience/qkmsdevice.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/platformsupport/kmsconvenience/qkmsdevice.cpp b/src/platformsupport/kmsconvenience/qkmsdevice.cpp
+index 8cd7f9b368..406f84663f 100644
+--- a/src/platformsupport/kmsconvenience/qkmsdevice.cpp
++++ b/src/platformsupport/kmsconvenience/qkmsdevice.cpp
+@@ -318,7 +318,7 @@ QPlatformScreen *QKmsDevice::createScreenForConnector(drmModeResPtr resources,
+ 
+     if (current < 0 && crtc_mode.clock != 0) {
+         modes << crtc_mode;
+-        current = mode.size() - 1;
++        current = modes.size() - 1;
+     }
+ 
+     if (configuration == OutputConfigCurrent)
+-- 
+2.37.2
+

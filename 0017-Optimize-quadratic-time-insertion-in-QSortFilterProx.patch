@@ -1,0 +1,54 @@
+From f9d15b188545b4c69b06d3d47cb9f9a9cc61226d Mon Sep 17 00:00:00 2001
+From: Igor Kushnir <igorkuo@gmail.com>
+Date: Mon, 29 Mar 2021 18:58:19 +0300
+Subject: [PATCH 017/163] Optimize quadratic-time insertion in
+ QSortFilterProxyModel
+
+Let N = proxy_to_source.size() before the code modified in this commit.
+Let M = (N - proxy_start). Let K = source_items.size(). The algorithmic
+complexity of the removed loop is O(N+K+K*M), assuming the number of
+O(N+K) reallocations is a constant. The complexity of the QList::insert
+and std::copy implementation is O(N+K). This is much faster in practice
+when K and M are of the same order of magnitude as N.
+
+For example, this quadratic complexity issue results in noticeable
+slowdown in the following scenario:
+  * a QSortFilterProxyModel is used only for filtering, not sorting;
+  * first set a filter that matches a single item in the middle of a
+    huge number of items (about one million) - this is reasonably fast
+    (takes about a second);
+  * then clear the filter (i.e. set an empty filter so that no item is
+    filtered out) and watch your application's UI freeze for a minute.
+
+The "Add QSortFilterProxyModel clear-filter benchmark" commit (with
+Change-Id I419a5521dd0be7676fbb09b34b4069d4a76423b1) adds a benchmark
+that runs much faster with this performance fix.
+
+Pick-to: 6.0 6.1
+Change-Id: Ieaec173e6910f5d21eaee49402087f7711abbedf
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+(cherry picked from commit 7d92ef63d7c2d9d017d89905a2ee0d1e9226b15c)
+---
+ src/corelib/itemmodels/qsortfilterproxymodel.cpp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/corelib/itemmodels/qsortfilterproxymodel.cpp b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
+index 6fc4b7d84e..c5e287ee84 100644
+--- a/src/corelib/itemmodels/qsortfilterproxymodel.cpp
++++ b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
+@@ -939,8 +939,9 @@ void QSortFilterProxyModelPrivate::insert_source_items(
+                 q->beginInsertColumns(proxy_parent, proxy_start, proxy_end);
+         }
+ 
+-        for (int i = 0; i < source_items.size(); ++i)
+-            proxy_to_source.insert(proxy_start + i, source_items.at(i));
++        // TODO: use the range QList::insert() overload once it is implemented (QTBUG-58633).
++        proxy_to_source.insert(proxy_start, source_items.size(), 0);
++        std::copy(source_items.cbegin(), source_items.cend(), proxy_to_source.begin() + proxy_start);
+ 
+         build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
+ 
+-- 
+2.37.2
+

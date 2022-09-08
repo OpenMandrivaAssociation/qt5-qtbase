@@ -1,0 +1,41 @@
+From 1589ffff490ea790e0e1912f64e73fb27af2cd23 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Thu, 9 Dec 2021 22:53:48 +0100
+Subject: [PATCH 062/163] QVarLengthArray: assert that the range passed to
+ erase() is valid
+
+We already checked that the two iterators, indvidually, are valid, but
+we didn't check that the range formed by them is valid, namely that
+the end iterator is reachable from the start iterator.
+
+Add an assert, because if the range isn't valid, we run into UB in the
+std::move() algorithm two lines later.
+
+Qt 5.15 uses std::copy() here, which has the same precondition, so the
+assertion would make sense there, too.
+
+Pick-to: 6.2 5.15
+Change-Id: I90b7e846455ff86383a8971bea908036684961d8
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit c38639089f0e17a3da40dca03fecac88f5d89ba9)
+---
+ src/corelib/tools/qvarlengtharray.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/corelib/tools/qvarlengtharray.h b/src/corelib/tools/qvarlengtharray.h
+index f9003c31a2..731f536126 100644
+--- a/src/corelib/tools/qvarlengtharray.h
++++ b/src/corelib/tools/qvarlengtharray.h
+@@ -540,6 +540,9 @@ Q_OUTOFLINE_TEMPLATE typename QVarLengthArray<T, Prealloc>::iterator QVarLengthA
+     int n = l - f;
+     if (n == 0) // avoid UB in std::copy() below
+         return ptr + f;
++
++    Q_ASSERT(n > 0); // aend must be reachable from abegin
++
+     if (QTypeInfo<T>::isComplex) {
+         std::copy(ptr + l, ptr + s, QT_MAKE_CHECKED_ARRAY_ITERATOR(ptr + f, s - f));
+         T *i = ptr + s;
+-- 
+2.37.2
+
