@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	1
+Release:	2
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -333,6 +333,11 @@ Patch1159:	0160-add-color-picking-support-on-wayland-using-the-XDG-d.patch
 Patch1160:	0161-3rdparty-apply-a-fix-to-the-last-zlib-fix.patch
 Patch1161:	0162-Revert-xcb-implement-missing-bits-from-ICCCM-4.1.4-W.patch
 Patch1162:	0163-Fix-possible-undefined-behavior-in-clear_thread_data.patch
+
+# Revert the removal of "dead code" that is actually used by freecad, kate,
+# keepassxc, kstars, leocad, mediaelch, plasma-desktop, qgis, sigil, texworks,
+# tiled, ukui-control-center and possibly more
+Patch1200:	0001-Revert-Remove-the-dead-code-for-blocking-methods-fro.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
