@@ -1,10 +1,14 @@
-From 434ec8f74316952cb023664f107438ada491c9d6 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Bernhard=20Rosenkr=C3=A4nzer?= <bero@lindev.ch>
-Date: Thu, 8 Sep 2022 21:08:03 +0200
-Subject: [PATCH] Revert "Remove the dead code for blocking methods from
- QtConcurrent"
+From eeadc036d77b75bec5b7c41869688c7db9a2e221 Mon Sep 17 00:00:00 2001
+From: Albert Astals Cid <aacid@kde.org>
+Date: Thu, 8 Sep 2022 23:18:46 +0200
+Subject: [PATCH 165/180] Revert "Remove the dead code for blocking methods
+ from QtConcurrent"
 
 This reverts commit 4d6752e8d2ed9d303befe7adf7f6e4b6ba16bbb9.
+
+It's a binary incompatible change
+
+Change-Id: I800f0ddf846a7ab0f1c463b3db8a4cde8b610c29
 ---
  src/concurrent/qtconcurrentthreadengine.cpp   |  33 +++++
  src/concurrent/qtconcurrentthreadengine.h     |  23 ++++

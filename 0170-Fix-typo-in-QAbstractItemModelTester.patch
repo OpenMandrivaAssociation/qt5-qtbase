@@ -1,0 +1,33 @@
+From accb7914166c22bacbf7db82aef3ac135432cb01 Mon Sep 17 00:00:00 2001
+From: Andreas Buhr <andreas.buhr@qt.io>
+Date: Wed, 8 Dec 2021 10:55:18 +0100
+Subject: [PATCH 170/180] Fix typo in QAbstractItemModelTester
+
+When recursively checking children in QAbstractItemModelTester,
+the currentDepth of recursion was incorrectly increased.
+This patch fixes it.
+
+Pick-to: 6.2 5.15
+Change-Id: Ia79508f358e2fcb6b90780a79baec053522e871c
+Reviewed-by: David Faure <david.faure@kdab.com>
+(cherry picked from commit 1f2f61d80860f55638cfd194bbed5d679a588b1f)
+---
+ src/testlib/qabstractitemmodeltester.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/testlib/qabstractitemmodeltester.cpp b/src/testlib/qabstractitemmodeltester.cpp
+index 2c3d6a5586..ce062f66d7 100644
+--- a/src/testlib/qabstractitemmodeltester.cpp
++++ b/src/testlib/qabstractitemmodeltester.cpp
+@@ -570,7 +570,7 @@ void QAbstractItemModelTesterPrivate::checkChildren(const QModelIndex &parent, i
+ 
+             // recursively go down the children
+             if (model->hasChildren(index) && currentDepth < 10)
+-                checkChildren(index, ++currentDepth);
++                checkChildren(index, currentDepth + 1);
+ 
+             // make sure that after testing the children that the index doesn't change.
+             QModelIndex newerIndex = model->index(r, c, parent);
+-- 
+2.37.2
+

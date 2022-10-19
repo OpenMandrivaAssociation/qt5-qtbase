@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	2
+Release:	3
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -333,11 +333,23 @@ Patch1159:	0160-add-color-picking-support-on-wayland-using-the-XDG-d.patch
 Patch1160:	0161-3rdparty-apply-a-fix-to-the-last-zlib-fix.patch
 Patch1161:	0162-Revert-xcb-implement-missing-bits-from-ICCCM-4.1.4-W.patch
 Patch1162:	0163-Fix-possible-undefined-behavior-in-clear_thread_data.patch
-
-# Revert the removal of "dead code" that is actually used by freecad, kate,
-# keepassxc, kstars, leocad, mediaelch, plasma-desktop, qgis, sigil, texworks,
-# tiled, ukui-control-center and possibly more
-Patch1200:	0001-Revert-Remove-the-dead-code-for-blocking-methods-fro.patch
+Patch1163:	0164-QAIV-Reset-double-click-flag-in-mousePressEvent.patch
+Patch1164:	0165-Revert-Remove-the-dead-code-for-blocking-methods-fro.patch
+Patch1165:	0166-Fix-build-without-dbus-support.patch
+Patch1166:	0167-Remove-XCB_EVENT_MASK_RESIZE_REDIRECT-for-Qt-WindowT.patch
+Patch1167:	0168-network-Fix-typos-in-messages.patch
+Patch1168:	0169-sqldrivers-Fix-typo-in-error-message.patch
+Patch1169:	0170-Fix-typo-in-QAbstractItemModelTester.patch
+Patch1170:	0171-Fix-typo-in-code.patch
+Patch1171:	0172-QNetworkReplyFileImpl-Don-t-emit-finished-in-the-cto.patch
+Patch1172:	0173-xcb-fix-the-build-of-native-painting.patch
+Patch1173:	0174-eglfs-Fix-crash-when-painting-the-mouse-cursor-in-a-.patch
+Patch1174:	0175-Assert-validity-in-QStringIterator-s-unchecked-metho.patch
+Patch1175:	0176-QStringIterator-fix-UB-1-2-use-has-Next-Previous-mor.patch
+Patch1176:	0177-QStringIterator-fix-UB-2-2-use-std-less-to-compare-p.patch
+Patch1177:	0178-ANGLE-Fix-compilation-on-GCC-11.patch
+Patch1178:	0179-Send-string-to-Atspi-DBus-interface-on-value-changed.patch
+Patch1179:	0180-Send-string-to-Atspi-DBus-interface-on-name-descript.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the

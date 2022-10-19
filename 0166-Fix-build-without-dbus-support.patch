@@ -1,0 +1,40 @@
+From 368659b1d126d4c9f119f01f4b6cd1c96ab875eb Mon Sep 17 00:00:00 2001
+From: Andreas Sturmlechner <asturm@gentoo.org>
+Date: Fri, 9 Sep 2022 22:12:33 +0200
+Subject: [PATCH 166/180] Fix build without dbus support
+
+Both QWindow and QGuiApplication are used outside of dbus #ifdefs.
+
+Follow-up to 2dc083df009a45c5dacfea27b0affeb85b01f847
+
+Signed-off-by: Andreas Sturmlechner <asturm@gentoo.org>
+---
+ .../services/genericunix/qgenericunixservices.cpp            | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/platformsupport/services/genericunix/qgenericunixservices.cpp b/src/platformsupport/services/genericunix/qgenericunixservices.cpp
+index fa92a0dfa6..210e843e6d 100644
+--- a/src/platformsupport/services/genericunix/qgenericunixservices.cpp
++++ b/src/platformsupport/services/genericunix/qgenericunixservices.cpp
+@@ -51,6 +51,9 @@
+ #include <QtCore/QStandardPaths>
+ #include <QtCore/QUrl>
+ 
++#include <QtGui/QGuiApplication>
++#include <QtGui/QWindow>
++
+ #if QT_CONFIG(dbus)
+ // These QtCore includes are needed for xdg-desktop-portal support
+ #include <QtCore/private/qcore_unix_p.h>
+@@ -59,8 +62,6 @@
+ #include <QtCore/QUrlQuery>
+ 
+ #include <QtGui/QColor>
+-#include <QtGui/QGuiApplication>
+-#include <QtGui/QWindow>
+ 
+ #include <QtDBus/QDBusConnection>
+ #include <QtDBus/QDBusMessage>
+-- 
+2.37.2
+
