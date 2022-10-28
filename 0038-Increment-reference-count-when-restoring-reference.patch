@@ -1,0 +1,32 @@
+From e689d084432200c41f40915282592001eec87168 Mon Sep 17 00:00:00 2001
+From: Allan Sandfeld Jensen <allan.jensen@qt.io>
+Date: Tue, 16 Nov 2021 17:06:21 +0100
+Subject: [PATCH 038/167] Increment reference count when restoring reference
+
+Otherwise the count will be wrong after an out of memory failure in
+reinterpretAsFormat.
+
+Pick-to: 6.2 5.15
+Fixes: QTBUG-98377
+Change-Id: Ice51d47a6db9277126a5c7337e14aaf5ddee3a10
+Reviewed-by: Eirik Aavitsland <eirik.aavitsland@qt.io>
+(cherry picked from commit 1a8b7eb1d4f27e74621ee94c01dbeda3afd302c7)
+---
+ src/gui/image/qimage.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/gui/image/qimage.cpp b/src/gui/image/qimage.cpp
+index 64efc17fe5..7152ac1607 100644
+--- a/src/gui/image/qimage.cpp
++++ b/src/gui/image/qimage.cpp
+@@ -2258,6 +2258,7 @@ bool QImage::reinterpretAsFormat(Format format)
+         // In case detach() ran out of memory
+         if (!d) {
+             d = oldD;
++            d->ref.ref();
+             return false;
+         }
+     }
+-- 
+2.38.1
+

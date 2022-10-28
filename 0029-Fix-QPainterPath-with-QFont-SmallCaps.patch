@@ -1,0 +1,37 @@
+From c4bc22d1a238c1ffd97977015205afa789a95f53 Mon Sep 17 00:00:00 2001
+From: Albert Astals Cid <albert.astals.cid@kdab.com>
+Date: Tue, 28 Sep 2021 17:34:41 +0200
+Subject: [PATCH 029/167] Fix QPainterPath with QFont::SmallCaps
+
+Previous code was getting the QFontEngine from the font+script instead of from
+the QTextEngine.
+
+The font+script is not enough information to know if a given character is
+smallcaps or not, while the QTextEngine actually has access to the information
+needed and returns a properly a scaled fontengine if character is small caps
+
+Pick-to: 6.2
+Fixes: QTBUG-13965
+Change-Id: I9f95bd2f3c3bdff76c3acb94fa2edc99cdeb0a13
+Reviewed-by: Allan Sandfeld Jensen <allan.jensen@qt.io>
+(cherry picked from commit c89c14561671aa2ef2e5f7f35b26d8bce59ad77f)
+---
+ src/gui/painting/qpainterpath.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/painting/qpainterpath.cpp b/src/gui/painting/qpainterpath.cpp
+index f9544a3241..d80fafeaf1 100644
+--- a/src/gui/painting/qpainterpath.cpp
++++ b/src/gui/painting/qpainterpath.cpp
+@@ -1253,7 +1253,7 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
+ 
+         if (si.analysis.flags < QScriptAnalysis::TabOrObject) {
+             QGlyphLayout glyphs = eng->shapedGlyphs(&si);
+-            QFontEngine *fe = f.d->engineForScript(si.analysis.script);
++            QFontEngine *fe = eng->fontEngine(si);
+             Q_ASSERT(fe);
+             fe->addOutlineToPath(x, y, glyphs, this,
+                                  si.analysis.bidiLevel % 2
+-- 
+2.38.1
+

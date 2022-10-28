@@ -1,7 +1,7 @@
-From cbad16a07dae760d484194ba5384dbeafa9518a4 Mon Sep 17 00:00:00 2001
+From 8293be1f760efaecf375c70240f19e4ddc792f4b Mon Sep 17 00:00:00 2001
 From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
 Date: Sat, 1 May 2021 16:58:21 +0200
-Subject: [PATCH 012/163] QRandom: drop a usage of std::is_literal_type
+Subject: [PATCH 012/167] QRandom: drop a usage of std::is_literal_type
 
 It's deprecated/removed, and indeed doesn't check anything that it's
 not also already being checked by the previous line.
@@ -27,5 +27,5 @@ index 10672c1f92..25f87c7e6a 100644
      }
  
 -- 
-2.37.2
+2.38.1
 

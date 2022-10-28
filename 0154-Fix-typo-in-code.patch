@@ -1,0 +1,32 @@
+From 5ce3383cd47169af196c595ce0868b896071f3a0 Mon Sep 17 00:00:00 2001
+From: Duan Ting <duanting@uniontech.com>
+Date: Wed, 22 Jun 2022 14:07:25 +0800
+Subject: [PATCH 154/167] Fix typo in code
+
+Found by codespell
+
+Pick-to: 6.4 6.3 6.2 5.15
+Change-Id: I75f4b14f3eded035a0c904d8a7174cb6f5b7d9ef
+Reviewed-by: Wang Bo <wangbo@uniontech.com>
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit cd268e9e1d57ca2159371f3c4f93a63d3fe66c4e)
+---
+ .../eglfs_kms_support/qeglfskmseventreader.cpp                  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_support/qeglfskmseventreader.cpp b/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_support/qeglfskmseventreader.cpp
+index 645a0ae2e9..3e0e406f1a 100644
+--- a/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_support/qeglfskmseventreader.cpp
++++ b/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_support/qeglfskmseventreader.cpp
+@@ -179,7 +179,7 @@ void QEglFSKmsEventReader::create(QEglFSKmsDevice *device)
+ 
+     m_device = device;
+ 
+-    qCDebug(qLcEglfsKmsDebug, "Initalizing event reader for device %p fd %d",
++    qCDebug(qLcEglfsKmsDebug, "Initializing event reader for device %p fd %d",
+             m_device, m_device->fd());
+ 
+     m_thread = new QEglFSKmsEventReaderThread(m_device->fd());
+-- 
+2.38.1
+

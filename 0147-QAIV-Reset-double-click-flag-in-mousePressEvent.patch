@@ -1,0 +1,103 @@
+From d770eff9b20c5e29e1098fbcbcab738642b94bbd Mon Sep 17 00:00:00 2001
+From: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Date: Wed, 3 Nov 2021 08:56:04 +0100
+Subject: [PATCH 147/167] QAIV: Reset double-click flag in mousePressEvent
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Amends 17c1ebf8bfd254ff75cc55e335d1c1fb01da547f, which introduced logic
+that recognizes double clicks to avoid duplicate clicked() emits. If a
+slot connected to doubleClicked opens a dialog, then the release-event
+will not be seen by the item view, leaving the flag incorrectly set and
+preventing the next clicked signal.
+
+Fixes: QTBUG-97853
+Pick-to: 6.2 5.15
+Change-Id: Iced83e8c66a763672f522265435dc52a745227e4
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+Reviewed-by: Jan Arve Sæther <jan-arve.saether@qt.io>
+(cherry picked from commit e5ebc28764979f00f1ce3aeb8b2d44b5cadb93c5)
+---
+ src/widgets/itemviews/qabstractitemview.cpp   |  1 +
+ .../tst_qabstractitemview.cpp                 | 38 +++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+
+diff --git a/src/widgets/itemviews/qabstractitemview.cpp b/src/widgets/itemviews/qabstractitemview.cpp
+index 1e5a6ccb63..5e65c59796 100644
+--- a/src/widgets/itemviews/qabstractitemview.cpp
++++ b/src/widgets/itemviews/qabstractitemview.cpp
+@@ -1755,6 +1755,7 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
+ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
+ {
+     Q_D(QAbstractItemView);
++    d->releaseFromDoubleClick = false;
+     d->delayedAutoScroll.stop(); //any interaction with the view cancel the auto scrolling
+     QPoint pos = event->pos();
+     QPersistentModelIndex index = indexAt(pos);
+diff --git a/tests/auto/widgets/itemviews/qabstractitemview/tst_qabstractitemview.cpp b/tests/auto/widgets/itemviews/qabstractitemview/tst_qabstractitemview.cpp
+index 29158faf95..5bea5d791f 100644
+--- a/tests/auto/widgets/itemviews/qabstractitemview/tst_qabstractitemview.cpp
++++ b/tests/auto/widgets/itemviews/qabstractitemview/tst_qabstractitemview.cpp
+@@ -47,6 +47,7 @@
+ #include <QStringListModel>
+ #include <QStyledItemDelegate>
+ #include <QTableWidget>
++#include <QTimer>
+ #include <QTreeWidget>
+ #include <QTest>
+ #include <QVBoxLayout>
+@@ -152,6 +153,7 @@ private slots:
+     void dragSelectAfterNewPress();
+     void dragWithSecondClick_data();
+     void dragWithSecondClick();
++    void clickAfterDoubleClick();
+ private:
+     static QAbstractItemView *viewFromString(const QByteArray &viewType, QWidget *parent = nullptr)
+     {
+@@ -2606,5 +2608,41 @@ void tst_QAbstractItemView::dragWithSecondClick()
+     QTest::mouseRelease(view->viewport(), Qt::LeftButton, Qt::NoModifier, dragTo);
+ }
+ 
++void tst_QAbstractItemView::clickAfterDoubleClick()
++{
++    QTableWidget view(5, 5);
++    view.horizontalHeader()->hide();
++    view.verticalHeader()->hide();
++    view.setEditTriggers(QAbstractItemView::NoEditTriggers);
++    view.show();
++    QVERIFY(QTest::qWaitForWindowExposed(&view));
++    const QModelIndex index = view.model()->index(1, 1);
++    QVERIFY(index.isValid());
++    const QPoint clickPoint = view.visualRect(index).center();
++
++    // must use the QWindow overloads so that modality is respected
++    QWindow *window = view.window()->windowHandle();
++    int clickCount = 0;
++
++    connect(&view, &QAbstractItemView::doubleClicked, [&]{
++        QDialog dialog(&view);
++        dialog.setModal(true);
++        QTimer::singleShot(0, [&]{ dialog.close(); });
++        dialog.exec();
++    });
++    connect(&view, &QAbstractItemView::clicked, [&]{
++        ++clickCount;
++    });
++
++    QTest::mouseClick(window, Qt::LeftButton, {}, clickPoint);
++    QCOMPARE(clickCount, 1);
++    // generates a click followed by a double click; double click opens
++    // dialog that eats second release
++    QTest::mouseDClick(window, Qt::LeftButton, {}, clickPoint);
++    QCOMPARE(clickCount, 2);
++    QTest::mouseClick(window, Qt::LeftButton, {}, clickPoint);
++    QCOMPARE(clickCount, 3);
++}
++
+ QTEST_MAIN(tst_QAbstractItemView)
+ #include "tst_qabstractitemview.moc"
+-- 
+2.38.1
+

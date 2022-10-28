@@ -1,0 +1,44 @@
+From 5fd9313fd67bab5ca654afb31006bac053068295 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Fri, 26 Nov 2021 13:00:37 +0100
+Subject: [PATCH 059/167] QVarLengthArray: fix insert() type/alias mismatch
+ between decl and impl
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The declaration of insert(it, n, t) used qsizetype for n, while the
+definition used size_type. That works by chance, because the size_type
+typedef comes only after the insert(it, n, t) declaration. It was
+detected when size_type became a typedef in a base class of
+QVarLengthArray in my local branch.
+
+Just use the same type name in the implementation as in the
+declaration.
+
+In 5.15, the same issue exists (with s/qsizetype/int/).
+
+Pick-to: 6.2 5.15
+Change-Id: I64235eeaeaed3d43f4c070ca536474fae94c1b5d
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit fd1a42490dc14e5cf4fbbd2682722305ce7a27ed)
+---
+ src/corelib/tools/qvarlengtharray.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/tools/qvarlengtharray.h b/src/corelib/tools/qvarlengtharray.h
+index 731f536126..3612afd15c 100644
+--- a/src/corelib/tools/qvarlengtharray.h
++++ b/src/corelib/tools/qvarlengtharray.h
+@@ -501,7 +501,7 @@ Q_OUTOFLINE_TEMPLATE typename QVarLengthArray<T, Prealloc>::iterator QVarLengthA
+ }
+ 
+ template <class T, int Prealloc>
+-Q_OUTOFLINE_TEMPLATE typename QVarLengthArray<T, Prealloc>::iterator QVarLengthArray<T, Prealloc>::insert(const_iterator before, size_type n, const T &t)
++Q_OUTOFLINE_TEMPLATE typename QVarLengthArray<T, Prealloc>::iterator QVarLengthArray<T, Prealloc>::insert(const_iterator before, int n, const T &t)
+ {
+     Q_ASSERT_X(isValidIterator(before), "QVarLengthArray::insert", "The specified const_iterator argument 'before' is invalid");
+ 
+-- 
+2.38.1
+

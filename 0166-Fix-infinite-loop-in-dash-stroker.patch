@@ -1,0 +1,54 @@
+From f76885a755eaa7b452094ee17b5e56d2f259f142 Mon Sep 17 00:00:00 2001
+From: Eskil Abrahamsen Blomfeldt <eskil.abrahamsen-blomfeldt@qt.io>
+Date: Thu, 3 Feb 2022 11:01:33 +0100
+Subject: [PATCH 166/167] Fix infinite loop in dash stroker
+
+When the positions were large enough, we would get precision errors
+with the floating point numbers.
+
+We calculate the relative position:
+  dpos = pos + dashes[istart] - doffset - estart
+and then later
+  pos = dpos + estart
+
+If estart is a huge number (range of 10^18) and dashes[istart] is
+a low number (10^1), then estart + dashes[istart] == estart and
+the loop will never progress, dpos will be 0.
+
+Since the loop should never iterate more than dashCount times
+(since we cut away all full dash sequences before entering it),
+we add a failsafe that exits the loop if it detects the error.
+
+Fixes: QTBUG-99690
+Pick-to: 5.15 6.2 6.3
+Change-Id: Ia6a42f21b6b4c6adf5cdd703b6483750513a88ba
+Reviewed-by: Lars Knoll <lars.knoll@qt.io>
+(cherry picked from commit 26a0638222933fc549f250333c28d0184205b704)
+---
+ src/gui/painting/qstroker.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/gui/painting/qstroker.cpp b/src/gui/painting/qstroker.cpp
+index cb5d395e80..3b6357a893 100644
+--- a/src/gui/painting/qstroker.cpp
++++ b/src/gui/painting/qstroker.cpp
+@@ -1182,6 +1182,7 @@ void QDashStroker::processCurrentSubpath()
+         // Check if the entire line should be clipped away or simplified
+         bool clipIt = clipping && !lineIntersectsRect(prev, e, clip_tl, clip_br);
+         bool skipDashing = elen * invSumLength > repetitionLimit();
++        int maxDashes = dashCount;
+         if (skipDashing || clipIt) {
+             // Cut away full dash sequences.
+             elen -= std::floor(elen * invSumLength) * sumLength;
+@@ -1196,7 +1197,7 @@ void QDashStroker::processCurrentSubpath()
+                     pos = estop; // move pos to next path element
+                     done = true;
+                 } else { // Dash is on this line
+-                    pos = dpos + estart;
++                    pos = --maxDashes > 0 ? dpos + estart : estop;
+                     done = pos >= estop;
+                     if (++idash >= dashCount)
+                         idash = 0;
+-- 
+2.38.1
+

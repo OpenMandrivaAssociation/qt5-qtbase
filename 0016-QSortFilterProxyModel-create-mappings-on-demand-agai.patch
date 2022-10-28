@@ -1,7 +1,7 @@
-From 0f82301286c2e41d8408aef5377c1977712da94e Mon Sep 17 00:00:00 2001
+From aff22d2004647dee434262223fa580447c83a99a Mon Sep 17 00:00:00 2001
 From: David Faure <david.faure@kdab.com>
 Date: Mon, 17 May 2021 18:37:58 +0200
-Subject: [PATCH 016/163] QSortFilterProxyModel: create mappings on demand
+Subject: [PATCH 016/167] QSortFilterProxyModel: create mappings on demand
  again
 
 Calling create_mapping in setSourceModel as introduced by 8455bfee76ed3f1bd3bba8bd3688a7afa94ae0bb
@@ -231,5 +231,5 @@ index 7bf87a86c2..97862e804b 100644
      void changeSourceDataProxyFilterMultipleColumns();
      void resortingDoesNotBreakTreeModels();
 -- 
-2.37.2
+2.38.1
 

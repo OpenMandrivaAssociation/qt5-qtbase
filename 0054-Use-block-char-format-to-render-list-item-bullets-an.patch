@@ -1,0 +1,37 @@
+From 2d28252c44ba72f833cc865058baa8318a964888 Mon Sep 17 00:00:00 2001
+From: Albert Astals Cid <aacid@kde.org>
+Date: Mon, 27 Dec 2021 18:48:31 +0100
+Subject: [PATCH 054/167] Use block char format to render list item bullets and
+ numbers
+
+It needs to be rendered with the format of the block not the format of
+the first letter of the block; otherwise if the first letter is black or
+italics or something, but the rest of the block isn't, the list item
+text looks out of place.
+
+Task-number: QTBUG-3583
+Fixes: QTBUG-99148
+Pick-to: 6.3 6.2 5.15
+Change-Id: I63d8d6d6b7cee6bd9938fe1cf42a5f90da1bc0d3
+Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
+(cherry picked from commit 7e7f5f97832e8bf0b260f21aa912812eefaa5997)
+---
+ src/gui/text/qtextdocumentlayout.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/text/qtextdocumentlayout.cpp b/src/gui/text/qtextdocumentlayout.cpp
+index f3e6ea2100..72267e9380 100644
+--- a/src/gui/text/qtextdocumentlayout.cpp
++++ b/src/gui/text/qtextdocumentlayout.cpp
+@@ -2123,7 +2123,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
+ {
+     Q_Q(const QTextDocumentLayout);
+     const QTextBlockFormat blockFormat = bl.blockFormat();
+-    const QTextCharFormat charFormat = QTextCursor(bl).charFormat();
++    const QTextCharFormat charFormat = bl.charFormat();
+     QFont font(charFormat.font());
+     if (q->paintDevice())
+         font = QFont(font, q->paintDevice());
+-- 
+2.38.1
+

@@ -1,7 +1,7 @@
-From f5669379532507286132e1eab38ed4e52509a8dd Mon Sep 17 00:00:00 2001
+From 23e447328239e79614a71e00cba676d0e1c3197d Mon Sep 17 00:00:00 2001
 From: Andrey Butirsky <butirsky@gmail.com>
 Date: Thu, 18 Mar 2021 17:42:51 +0300
-Subject: [PATCH 014/163] fix Alt+` shortcut on non-US layouts
+Subject: [PATCH 014/167] fix Alt+` shortcut on non-US layouts
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -96,5 +96,5 @@ index 561eae03db..8389bd8f5a 100644
      static bool isKeypad(xkb_keysym_t sym) {
          return sym >= XKB_KEY_KP_Space && sym <= XKB_KEY_KP_9;
 -- 
-2.37.2
+2.38.1
 

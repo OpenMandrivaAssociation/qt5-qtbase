@@ -1,7 +1,7 @@
-From b74de9c4c13e6c4772554459820c1c04034d7b84 Mon Sep 17 00:00:00 2001
+From 1c72114925ed6d45170c6e9a078817863975c6ed Mon Sep 17 00:00:00 2001
 From: David Faure <david.faure@kdab.com>
 Date: Thu, 24 Jun 2021 18:53:15 +0200
-Subject: [PATCH 018/163] Update shared-mime-info to the 2.1 release, adjust
+Subject: [PATCH 018/167] Update shared-mime-info to the 2.1 release, adjust
  implementation
 
 The spec hasn't changed, but I made the same mistake in xdgmime
@@ -40955,5 +40955,5 @@ index 0ea422ecbc..1a3256534b 100644
      QTest::newRow("oasis presentation mimetype") << "application/vnd.oasis.opendocument.presentation" << "*.odp" << "odp";
      QTest::newRow("mimetype with multiple patterns") << "text/plain" << "*.asc;*.txt;*,v" << "txt";
 -- 
-2.37.2
+2.38.1
 
