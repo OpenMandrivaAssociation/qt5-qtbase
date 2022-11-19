@@ -52,7 +52,7 @@
 # Until those are fixed, let's stick with OpenGL
 # Desktop on x86 and use ES on platforms that may
 # not have anything else.
-%ifarch %{arm} %{aarch64}
+%ifarch %{arm}
 %define gltype es2
 %else
 %define gltype desktop
@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	1
+Release:	2
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -337,6 +337,13 @@ Patch1163:	0164-offer-an-opt-out-of-automatic-xdg-desktop-portal-use.patch
 Patch1164:	0165-QProcess-Unix-ensure-we-don-t-accidentally-execute-s.patch
 Patch1165:	0166-Fix-infinite-loop-in-dash-stroker.patch
 Patch1166:	0167-Revert-Android-Place-cursor-correctly-on-screen-when.patch
+Patch1167:	0168-a11y-support-GetAccessibleId-for-at-spi.patch
+Patch1168:	0169-xcb-Replace-qCWarning-by-qCDebug-in-QXcbConnection-p.patch
+Patch1169:	0170-Handle-allocation-failure-in-QImage-rotate-90-180-27.patch
+Patch1170:	0171-Annotate-QMutex-with-TSAN-annotations.patch
+Patch1171:	0172-Openssl-backend-reinsert-a-missing-C-in-qCDebug.patch
+Patch1172:	0173-update-function-argument-of-SSL_CTX_set_options.patch
+Patch1173:	0174-Send-accessible-focus-event-after-list-view-has-focu.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
