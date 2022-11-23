@@ -59,7 +59,7 @@
 %endif
 
 # (tpg) do not pull useless requires
-%global __requires_exclude_from ^%{_qt5_plugindir}/platformthemes/.*$
+%global __requires_exclude_from ^%{_qt_plugindir}/platformthemes/.*$
 
 # qt base components
 %define qtbootstrapd %mklibname qt%{api}bootstrap -d
