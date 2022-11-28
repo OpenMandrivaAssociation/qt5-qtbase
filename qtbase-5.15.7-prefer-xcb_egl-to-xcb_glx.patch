@@ -1,0 +1,12 @@
+diff -up qtbase-everywhere-src-5.15.7/src/plugins/platforms/xcb/qxcbconnection.cpp.omv~ qtbase-everywhere-src-5.15.7/src/plugins/platforms/xcb/qxcbconnection.cpp
+--- qtbase-everywhere-src-5.15.7/src/plugins/platforms/xcb/qxcbconnection.cpp.omv~	2022-11-28 19:50:55.264862912 +0100
++++ qtbase-everywhere-src-5.15.7/src/plugins/platforms/xcb/qxcbconnection.cpp	2022-11-28 19:51:28.738075537 +0100
+@@ -1128,7 +1128,7 @@ QXcbGlIntegration *QXcbConnection::glInt
+         return m_glIntegration;
+ 
+     QStringList glIntegrationNames;
+-    glIntegrationNames << QStringLiteral("xcb_glx") << QStringLiteral("xcb_egl");
++    glIntegrationNames << QStringLiteral("xcb_egl") << QStringLiteral("xcb_glx");
+     QString glIntegrationName = QString::fromLocal8Bit(qgetenv("QT_XCB_GL_INTEGRATION"));
+     if (!glIntegrationName.isEmpty()) {
+         qCDebug(lcQpaGl) << "QT_XCB_GL_INTEGRATION is set to" << glIntegrationName;

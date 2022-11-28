@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	2
+Release:	3
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -160,6 +160,7 @@ Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 Patch5:		qtbase-5.14.1-clang10.patch
 Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
+Patch7:		qtbase-5.15.7-prefer-xcb_egl-to-xcb_glx.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -344,6 +345,8 @@ Patch1170:	0171-Annotate-QMutex-with-TSAN-annotations.patch
 Patch1171:	0172-Openssl-backend-reinsert-a-missing-C-in-qCDebug.patch
 Patch1172:	0173-update-function-argument-of-SSL_CTX_set_options.patch
 Patch1173:	0174-Send-accessible-focus-event-after-list-view-has-focu.patch
+Patch1174:	0175-Scale-BMP-color-samples-with-periodic-bit-expansion.patch
+Patch1175:	0176-QKeySequence-Add-missing-modifier-names.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
