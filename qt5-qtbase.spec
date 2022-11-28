@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	3
+Release:	4
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
