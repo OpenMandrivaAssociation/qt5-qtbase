@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	4
+Release:	5
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -160,7 +160,10 @@ Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
 Patch5:		qtbase-5.14.1-clang10.patch
 Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
-Patch7:		qtbase-5.15.7-prefer-xcb_egl-to-xcb_glx.patch
+# FIXME Applying this patch fixes VA-API in QMPlay2 without
+# the workaround patch, but causes a crash when doing a search
+# in Kicker
+#Patch7:		qtbase-5.15.7-prefer-xcb_egl-to-xcb_glx.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
