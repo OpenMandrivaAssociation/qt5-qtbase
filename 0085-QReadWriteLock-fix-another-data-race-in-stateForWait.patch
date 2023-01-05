@@ -1,0 +1,32 @@
+From 84aee79fb4caf864c75cc174742e70c8b217fea8 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Fri, 13 May 2022 18:21:01 +0200
+Subject: [PATCH 085/157] QReadWriteLock: fix another data race in
+ stateForWaitCondition()
+
+The writerCount member variable is only ever accessed under
+Private::mutex protection, so we need to lock the mutex here, too.
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: I1717e5282eed2ecc14ccdc5090b9fc41174cccc8
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 0ca2cf42e0de422634f13fb6a5e5a9d7560b323b)
+---
+ src/corelib/thread/qreadwritelock.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/corelib/thread/qreadwritelock.cpp b/src/corelib/thread/qreadwritelock.cpp
+index e1052917d7..f030f9fd6c 100644
+--- a/src/corelib/thread/qreadwritelock.cpp
++++ b/src/corelib/thread/qreadwritelock.cpp
+@@ -453,6 +453,7 @@ QReadWriteLock::StateForWaitCondition QReadWriteLock::stateForWaitCondition() co
+ 
+     if (!d)
+         return Unlocked;
++    const auto lock = qt_scoped_lock(d->mutex);
+     if (d->writerCount > 1)
+         return RecursivelyLocked;
+     else if (d->writerCount == 1)
+-- 
+2.38.1
+

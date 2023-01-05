@@ -1,0 +1,30 @@
+From 374fdbdb03a4d9715b7c4aeabacaf2e9e7ffbef6 Mon Sep 17 00:00:00 2001
+From: Milian Wolff <milian.wolff@kdab.com>
+Date: Thu, 21 Apr 2022 12:34:11 +0200
+Subject: [PATCH 078/157] Fix compile with Qt5: Use QString::mid instead of
+ QString::sliced
+
+Sliced is a faster version of mid. In a test it doesn't matter which
+one we use, and this allows us to build Qt5 with tests enabled.
+
+Change-Id: I668580d675224324bf481e7b17358bbbe44741fd
+---
+ tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp b/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp
+index dc42b15a69..6d6d65b791 100644
+--- a/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp
++++ b/tests/auto/sql/kernel/qsqlquery/tst_qsqlquery.cpp
+@@ -2782,7 +2782,7 @@ void tst_QSqlQuery::prematureExec()
+     dbName.truncate(cut);
+     cut = dbName.indexOf(QChar('_'));
+     if (cut >= 0)
+-        dbName = dbName.sliced(cut + 1);
++        dbName = dbName.mid(cut + 1);
+ 
+     auto db = QSqlDatabase::addDatabase(dbName);
+     QSqlQuery q(db);
+-- 
+2.38.1
+

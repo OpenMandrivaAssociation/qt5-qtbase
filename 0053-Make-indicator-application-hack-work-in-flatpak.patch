@@ -1,0 +1,43 @@
+From 9e91aaa2113ada54588fd1e26d1db37205fe16c6 Mon Sep 17 00:00:00 2001
+From: Ilya Fedin <fedin-ilja2010@ya.ru>
+Date: Thu, 10 Feb 2022 02:18:30 +0400
+Subject: [PATCH 053/157] Make indicator-application hack work in flatpak
+
+Flatpak doesn't share $XDG_RUNTIME_DIR with the host making
+QSystemTrayIcon not to work on Xubuntu/Ubuntu MATE/Ubuntu Budgie.
+
+Although, it shares a subfolder, according to
+https://docs.flatpak.org/en/latest/sandbox-permissions.html
+
+Amends 0baa26638d7d14b6609dab191c4ea0cc1d3ff50a
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: I2d0043fc5a4c2c51e8fa1a920f3cada3b07eba6d
+Reviewed-by: Dmitry Shachnev <mitya57@gmail.com>
+Reviewed-by: Aleix Pol Gonzalez <aleixpol@kde.org>
+(cherry picked from commit bc3723d4620718dfe8bd0165e9ef8ba45a3da262)
+---
+ .../themes/genericunix/dbustray/qdbustrayicon.cpp           | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/platformsupport/themes/genericunix/dbustray/qdbustrayicon.cpp b/src/platformsupport/themes/genericunix/dbustray/qdbustrayicon.cpp
+index bede70975a..76bfec5e5a 100644
+--- a/src/platformsupport/themes/genericunix/dbustray/qdbustrayicon.cpp
++++ b/src/platformsupport/themes/genericunix/dbustray/qdbustrayicon.cpp
+@@ -71,8 +71,12 @@ Q_LOGGING_CATEGORY(qLcTray, "qt.qpa.tray")
+ static QString iconTempPath()
+ {
+     QString tempPath = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+-    if (!tempPath.isEmpty())
++    if (!tempPath.isEmpty()) {
++        QString flatpakId = qEnvironmentVariable("FLATPAK_ID");
++        if (!flatpakId.isEmpty() && QFileInfo::exists(QLatin1String("/.flatpak-info")))
++            tempPath += QLatin1String("/app/") + flatpakId;
+         return tempPath;
++    }
+ 
+     tempPath = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation);
+ 
+-- 
+2.38.1
+

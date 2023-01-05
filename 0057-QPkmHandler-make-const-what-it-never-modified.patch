@@ -1,0 +1,32 @@
+From 8f46334badbd6739d6725cb0b7bb027e059d1891 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Fri, 11 Feb 2022 17:16:49 +0100
+Subject: [PATCH 057/157] QPkmHandler: make const what it never modified
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: I0bda0d93ebe60d4923f3e9eb059cddb61192b1b5
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit b5c4d1f50b1e2d44fbb3535ebedc565525ecc64f)
+---
+ src/gui/util/qpkmhandler.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/util/qpkmhandler.cpp b/src/gui/util/qpkmhandler.cpp
+index e0c3b75efe..3414f9d8ba 100644
+--- a/src/gui/util/qpkmhandler.cpp
++++ b/src/gui/util/qpkmhandler.cpp
+@@ -57,7 +57,7 @@ struct PkmType
+     quint32 bytesPerBlock;
+ };
+ 
+-static PkmType typeMap[5] = {
++static constexpr PkmType typeMap[5] = {
+     { 0x8D64,  8 },   // GL_ETC1_RGB8_OES
+     { 0x9274,  8 },   // GL_COMPRESSED_RGB8_ETC2
+     { 0, 0 },         // unused (obsolete)
+-- 
+2.38.1
+

@@ -1,0 +1,34 @@
+From abb375ab1b26da9c9885047c514934f8edd29d38 Mon Sep 17 00:00:00 2001
+From: Noah Davis <noahadvs@gmail.com>
+Date: Thu, 17 Feb 2022 10:20:31 -0500
+Subject: [PATCH 077/157] testlib/qasciikey: Add keypad navigation keys
+
+Needed to prevent qasciikey.cpp from failing an assertion when
+Qt::Key_Select is used in tests.
+
+Change-Id: I56aa517e8f6f332636b3df106d7265677d1b33ee
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit bfcf47ab9dd49475c39fd966f4a80a0fd35c68c5)
+---
+ src/testlib/qasciikey.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/testlib/qasciikey.cpp b/src/testlib/qasciikey.cpp
+index 9a308da2bc..93498b256f 100644
+--- a/src/testlib/qasciikey.cpp
++++ b/src/testlib/qasciikey.cpp
+@@ -498,6 +498,11 @@ char QTest::keyToAscii(Qt::Key key)
+     case Qt::Key_LaunchE : return 0; // = 0x10b0,
+     case Qt::Key_LaunchF : return 0; // = 0x10b1,
+ 
++    // Keypad navigation keys
++    case Qt::Key_Select : return 0; // = 0x01010000
++    case Qt::Key_Yes : return 0; // = 0x01010001
++    case Qt::Key_No : return 0; // = 0x01010002
++
+     default: QTEST_ASSERT(false); return 0;
+     }
+ }
+-- 
+2.38.1
+

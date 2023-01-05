@@ -1,0 +1,84 @@
+From 51b74b74f4950d1b1decb13d8d02beb0a24c71d7 Mon Sep 17 00:00:00 2001
+From: ChunLin Wang <wangchunlin@uniontech.com>
+Date: Wed, 31 Mar 2021 17:54:49 +0800
+Subject: [PATCH 003/157] Fix get out of bounds index in
+ QSortFilterProxyModel::filterAcceptsRow
+
+Before calling the index function, we need to check the validity of the parameters.
+
+Fixes: QTBUG-91878
+Change-Id: I9ec7265fff3f81b8a288c4ba8fae606a2ec808a6
+Reviewed-by: David Faure <david.faure@kdab.com>
+(cherry picked from commit b8802071ed00689373da5817fc4824a30b5fcf86)
+(cherry picked from commit 0a5326a6c292df9cda313e0dcbe75f69f2f7072d)
+---
+ .../itemmodels/qsortfilterproxymodel.cpp        |  8 +++++---
+ .../tst_qconcatenatetablesproxymodel.cpp        | 17 +++++++++++++++++
+ 2 files changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/src/corelib/itemmodels/qsortfilterproxymodel.cpp b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
+index dc6379d9fb..6fc4b7d84e 100644
+--- a/src/corelib/itemmodels/qsortfilterproxymodel.cpp
++++ b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
+@@ -3123,8 +3123,9 @@ bool QSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &
+ 
+     if (d->filter_data.isEmpty())
+         return true;
++
++    int column_count = d->model->columnCount(source_parent);
+     if (d->filter_column == -1) {
+-        int column_count = d->model->columnCount(source_parent);
+         for (int column = 0; column < column_count; ++column) {
+             QModelIndex source_index = d->model->index(source_row, column, source_parent);
+             QString key = d->model->data(source_index, d->filter_role).toString();
+@@ -3133,9 +3134,10 @@ bool QSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &
+         }
+         return false;
+     }
+-    QModelIndex source_index = d->model->index(source_row, d->filter_column, source_parent);
+-    if (!source_index.isValid()) // the column may not exist
++
++    if (d->filter_column >= column_count) // the column may not exist
+         return true;
++    QModelIndex source_index = d->model->index(source_row, d->filter_column, source_parent);
+     QString key = d->model->data(source_index, d->filter_role).toString();
+     return d->filter_data.hasMatch(key);
+ }
+diff --git a/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp b/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp
+index e1ea7a4552..90972caa57 100644
+--- a/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp
++++ b/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp
+@@ -117,6 +117,7 @@ private Q_SLOTS:
+     void shouldPropagateDropAfterLastRow_data();
+     void shouldPropagateDropAfterLastRow();
+     void qtbug91788();
++    void qtbug91878();
+ 
+ private:
+     QStandardItemModel mod;
+@@ -843,6 +844,22 @@ void tst_QConcatenateTablesProxyModel::qtbug91788()
+     QCOMPARE(proxyConcat.columnCount(), 0);
+ }
+ 
++void tst_QConcatenateTablesProxyModel::qtbug91878()
++{
++    QStandardItemModel m;
++    m.setRowCount(4);
++    m.setColumnCount(4);
++
++    QConcatenateTablesProxyModel pm;
++    QSortFilterProxyModel proxyFilter;
++    proxyFilter.setSourceModel(&pm);
++    proxyFilter.setFilterFixedString("something");
++    pm.addSourceModel(&m);  // This should not assert
++
++    QCOMPARE(pm.columnCount(), 4);
++    QCOMPARE(pm.rowCount(), 4);
++}
++
+ QTEST_GUILESS_MAIN(tst_QConcatenateTablesProxyModel)
+ 
+ #include "tst_qconcatenatetablesproxymodel.moc"
+-- 
+2.38.1
+

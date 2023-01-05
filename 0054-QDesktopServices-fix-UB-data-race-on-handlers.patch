@@ -1,0 +1,59 @@
+From 8387998fa004c632a0799a9378a7228503e64ec7 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Fri, 11 Feb 2022 09:12:49 +0100
+Subject: [PATCH 054/157] QDesktopServices: fix UB (data race on handlers)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The handlerDestroyed() function is connected to the handler QObject's
+destroyed() signal and removes all entries from the registry for which
+the destroyed object was listed as the handler.
+
+While handlerDestroyed() is always executed in the context of the
+thread owning QOpenUrlHandlerRegistry-as-a-QObject, the documentation
+explicitly states that "the handler will always be called from within
+the same thread that calls QDesktopServices::openUrl()", implying that
+calling openUrl() from a non-GUI thread is supported. The presence of
+the mutex also indicates that this should work.
+
+But then the unprotected access to the handlers variable in
+handlerDestroyed() is a data race, because nothing prevents a handler
+object from being destroyed concurrent to an openUrl() call.
+
+Fix by locking the mutex.
+
+Fixes: QTBUG-100777
+Pick-to: 6.3 6.2 5.15
+Change-Id: I9ef857efa609b4d16ee21063ccccd316e119576b
+Reviewed-by: Sona Kurazyan <sona.kurazyan@qt.io>
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 42e13b7c61693ca95e119106d4f6dbd2bcf2308d)
+---
+ src/gui/util/qdesktopservices.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/gui/util/qdesktopservices.cpp b/src/gui/util/qdesktopservices.cpp
+index fbb63a9408..1ed2178913 100644
+--- a/src/gui/util/qdesktopservices.cpp
++++ b/src/gui/util/qdesktopservices.cpp
+@@ -54,6 +54,8 @@
+ #include <qpa/qplatformintegration.h>
+ #include <qdir.h>
+ 
++#include <QtCore/private/qlocking_p.h>
++
+ QT_BEGIN_NAMESPACE
+ 
+ class QOpenUrlHandlerRegistry : public QObject
+@@ -81,6 +83,7 @@ Q_GLOBAL_STATIC(QOpenUrlHandlerRegistry, handlerRegistry)
+ 
+ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
+ {
++    const auto lock = qt_scoped_lock(mutex);
+     HandlerHash::Iterator it = handlers.begin();
+     while (it != handlers.end()) {
+         if (it->receiver == handler) {
+-- 
+2.38.1
+

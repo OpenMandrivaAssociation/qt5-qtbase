@@ -1,0 +1,39 @@
+From 7db3d896fa6d6c5ce7c6f3ee29549a1920e174b8 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Fri, 6 May 2022 01:08:19 +0200
+Subject: [PATCH 100/157] =?UTF-8?q?QXmlStreamReader:=20fix=20integer=20tru?=
+ =?UTF-8?q?ncation=20(qint64=20=E2=86=92=20int)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+We don't care about the actual type of oldLineNumber here, we just
+need it to be of the same type as lineNumber, to avoid truncation, so
+we use auto.
+
+This was already broken in 5.15 (lineNumber was already a qint64).
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: I68d7e6e91c8122bf426c9c10e8cc91ff55c61a20
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 389fdd6d8d1f51c026b82a3cb4e2379c3d9debf1)
+---
+ src/corelib/serialization/qxmlstream.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/serialization/qxmlstream.cpp b/src/corelib/serialization/qxmlstream.cpp
+index b2f846544d..7cd457ba3a 100644
+--- a/src/corelib/serialization/qxmlstream.cpp
++++ b/src/corelib/serialization/qxmlstream.cpp
+@@ -980,7 +980,7 @@ inline uint QXmlStreamReaderPrivate::peekChar()
+ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
+ {
+     int pos = textBuffer.size();
+-    int oldLineNumber = lineNumber;
++    const auto oldLineNumber = lineNumber;
+ 
+     uint c;
+     while ((c = getChar()) != StreamEOF) {
+-- 
+2.38.1
+

@@ -1,0 +1,74 @@
+From 9cf586d629a04040c9414c4f9e17abbc65c644eb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Antti=20M=C3=A4=C3=A4tt=C3=A4?= <antti.maatta@qt.io>
+Date: Tue, 10 May 2022 08:51:52 +0300
+Subject: [PATCH 157/157] Widgets: Use effect region bounds when drawing with
+ repaint manager
+
+When drawing widgets with graphics effect using repaint manager,
+if we do not combine the effect region some child widgets are not
+affected by the graphics effect since they are not included in the dirty
+region. However always using region bounds breaks the referenced bug use case.
+
+Fixes: QTBUG-102374
+Pick-to: 6.3 6.2 5.15
+Change-Id: Iaf4eaba34db863500a0600b344e5062f2b36b9bf
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit a382134a40792068df56eec78f60be4c9acd0221)
+---
+ src/widgets/kernel/qwidget.cpp               | 3 ++-
+ src/widgets/kernel/qwidget_p.h               | 3 ++-
+ src/widgets/kernel/qwidgetrepaintmanager.cpp | 3 ++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/src/widgets/kernel/qwidget.cpp b/src/widgets/kernel/qwidget.cpp
+index 9eba1e001e..26f6d27e18 100644
+--- a/src/widgets/kernel/qwidget.cpp
++++ b/src/widgets/kernel/qwidget.cpp
+@@ -5296,7 +5296,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
+         QWidgetEffectSourcePrivate *sourced = static_cast<QWidgetEffectSourcePrivate *>
+                                                          (source->d_func());
+         if (!sourced->context) {
+-            const QRegion effectRgn(rgn.boundingRect());
++            const QRegion effectRgn((flags & UseEffectRegionBounds) ? rgn.boundingRect() : rgn);
+             QWidgetPaintContext context(pdev, effectRgn, offset, flags, sharedPainter, repaintManager);
+             sourced->context = &context;
+             if (!sharedPainter) {
+@@ -5328,6 +5328,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
+         }
+     }
+ #endif // QT_CONFIG(graphicseffect)
++    flags = flags & ~UseEffectRegionBounds;
+ 
+     const bool alsoOnScreen = flags & DrawPaintOnScreen;
+     const bool recursive = flags & DrawRecursive;
+diff --git a/src/widgets/kernel/qwidget_p.h b/src/widgets/kernel/qwidget_p.h
+index eef6b8fa2c..c432f4b5d5 100644
+--- a/src/widgets/kernel/qwidget_p.h
++++ b/src/widgets/kernel/qwidget_p.h
+@@ -229,7 +229,8 @@ public:
+         DontSubtractOpaqueChildren = 0x10,
+         DontDrawOpaqueChildren = 0x20,
+         DontDrawNativeChildren = 0x40,
+-        DontSetCompositionMode = 0x80
++        DontSetCompositionMode = 0x80,
++        UseEffectRegionBounds = 0x100
+     };
+     Q_DECLARE_FLAGS(DrawWidgetFlags, DrawWidgetFlag)
+     Q_FLAG(DrawWidgetFlags)
+diff --git a/src/widgets/kernel/qwidgetrepaintmanager.cpp b/src/widgets/kernel/qwidgetrepaintmanager.cpp
+index 02880b34da..0d44e1326d 100644
+--- a/src/widgets/kernel/qwidgetrepaintmanager.cpp
++++ b/src/widgets/kernel/qwidgetrepaintmanager.cpp
+@@ -1018,7 +1018,8 @@ void QWidgetRepaintManager::paintAndFlush()
+ 
+     // Paint the rest with composition.
+     if (repaintAllWidgets || !dirtyCopy.isEmpty()) {
+-        QWidgetPrivate::DrawWidgetFlags flags = QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawRecursive;
++        QWidgetPrivate::DrawWidgetFlags flags = QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawRecursive
++                | QWidgetPrivate::UseEffectRegionBounds;
+         tlw->d_func()->drawWidget(store->paintDevice(), dirtyCopy, QPoint(), flags, nullptr, this);
+     }
+ 
+-- 
+2.38.1
+

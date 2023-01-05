@@ -1,0 +1,48 @@
+From 5af9249855d59c22a35d471c10e49ba73a5229ca Mon Sep 17 00:00:00 2001
+From: Luca Beldi <v.ronin@yahoo.it>
+Date: Fri, 23 Apr 2021 15:35:29 +0100
+Subject: [PATCH 007/157] Fix QAbstractItemModelTester false positive
+
+When inserting rows to a branch with no columns
+the tester should not complain about indexes being invalid
+
+Pick-to: 6.1 6.0 5.15
+Change-Id: I466f4e5140b10f6dcf65a71f109c2d3be7336507
+Reviewed-by: David Faure <david.faure@kdab.com>
+(cherry picked from commit fcea8e7aa8a65de9e80136c2d603478831b246d0)
+---
+ src/testlib/qabstractitemmodeltester.cpp                      | 2 +-
+ .../qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/testlib/qabstractitemmodeltester.cpp b/src/testlib/qabstractitemmodeltester.cpp
+index 8efb9c53d4..ce062f66d7 100644
+--- a/src/testlib/qabstractitemmodeltester.cpp
++++ b/src/testlib/qabstractitemmodeltester.cpp
+@@ -454,7 +454,7 @@ void QAbstractItemModelTesterPrivate::parent()
+ 
+     // Common error test #2, make sure that a second level index has a parent
+     // that is the first level index.
+-    if (model->rowCount(topIndex) > 0) {
++    if (model->rowCount(topIndex) > 0 && model->columnCount(topIndex) > 0) {
+         QModelIndex childIndex = model->index(0, 0, topIndex);
+         MODELTESTER_VERIFY(childIndex.isValid());
+         MODELTESTER_COMPARE(model->parent(childIndex), topIndex);
+diff --git a/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp b/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
+index 4aa3f8d60b..d2050a61aa 100644
+--- a/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
++++ b/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
+@@ -115,6 +115,10 @@ void tst_QAbstractItemModelTester::standardItemModelZeroColumns()
+     // QTBUG-92886
+     model.insertRows(0, 5);
+     model.removeRows(1, 2);
++
++    const QModelIndex parentIndex = model.index(0, 0);
++    model.insertRows(0, 5, parentIndex);
++    model.removeRows(1, 2, parentIndex);
+ }
+ 
+ void tst_QAbstractItemModelTester::testInsertThroughProxy()
+-- 
+2.38.1
+

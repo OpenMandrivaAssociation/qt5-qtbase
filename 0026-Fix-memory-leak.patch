@@ -1,0 +1,51 @@
+From 116e9977f1385f580ed777b4a53fc3412413608f Mon Sep 17 00:00:00 2001
+From: JiDe Zhang <zhangjide@uniontech.com>
+Date: Tue, 28 Sep 2021 17:46:16 +0800
+Subject: [PATCH 026/157] Fix memory leak
+
+Destroy the QDBusPendingCallWatcher object when received
+the QDBusPendingCallWatcher::finished signal later.
+
+Pick-to: 5.15 6.2
+Change-Id: I1ec67bf7c286f38200c374ad92df2a1579588a8a
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+
+
+(cherry picked from commit 71ba53e3a7b63da1ac8755dba8b9311774d46103)
+---
+ .../xdgdesktopportal/qxdgdesktopportalfiledialog.cpp             | 1 +
+ .../platformthemes/xdgdesktopportal/qxdgdesktopportaltheme.cpp   | 1 +
+ tests/manual/rhi/cubemap_render/buildshader.bat                  | 0
+ 3 files changed, 2 insertions(+)
+ mode change 100755 => 100644 tests/manual/rhi/cubemap_render/buildshader.bat
+
+diff --git a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
+index 0048bbc1e6..81b63a67fd 100644
+--- a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
++++ b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
+@@ -302,6 +302,7 @@ void QXdgDesktopPortalFileDialog::openPortal()
+                                                   this,
+                                                   SLOT(gotResponse(uint,QVariantMap)));
+         }
++        watcher->deleteLater();
+     });
+ }
+ 
+diff --git a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportaltheme.cpp b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportaltheme.cpp
+index fb324afbd8..2fc3167fd5 100644
+--- a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportaltheme.cpp
++++ b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportaltheme.cpp
+@@ -111,6 +111,7 @@ QXdgDesktopPortalTheme::QXdgDesktopPortalTheme()
+         if (reply.isValid()) {
+             d->fileChooserPortalVersion = reply.value().toUInt();
+         }
++        watcher->deleteLater();
+     });
+ }
+ 
+diff --git a/tests/manual/rhi/cubemap_render/buildshader.bat b/tests/manual/rhi/cubemap_render/buildshader.bat
+old mode 100755
+new mode 100644
+-- 
+2.38.1
+

@@ -1,0 +1,45 @@
+From 51710a07cab59956585bbf5a260ce98c077dbe65 Mon Sep 17 00:00:00 2001
+From: Elias Rudberg <mail@eliasrudberg.se>
+Date: Sun, 29 May 2022 11:57:55 +0200
+Subject: [PATCH 093/157] Initialize m_exclusive in QGtk3MenuItem constructor
+
+Problem detected while investigating a crash of a program using
+QT, valgrind was used to detect errors and valgrind reported
+"Conditional jump or move depends on uninitialised value(s)"
+due to m_exclusive being uninitialized.
+
+Not sure to what extent this fix matters in practice, the crash
+turned out to be caused by something else outside QT. But anyway
+it seems good to initialize m_exclusive like other things, in the
+constructor, and it helps avoiding such warnings from valgrind,
+that will make it easier to detect other problems using valgrind
+or similar tools.
+
+Amends ac8a1787eb74d374a346ae5982d0ea361747729e where it looks
+like initialization of this member was simply forgotten.
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: I3d1637a00b7899eded61c2e4f5f9a1c5041e4f45
+Reviewed-by: Marc Mutz <marc.mutz@qt.io>
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Reviewed-by: Elias Rudberg <mail@eliasrudberg.se>
+(cherry picked from commit 0c59723e58521d72ddd1501e231120798ad3e6f8)
+---
+ src/plugins/platformthemes/gtk3/qgtk3menu.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/plugins/platformthemes/gtk3/qgtk3menu.cpp b/src/plugins/platformthemes/gtk3/qgtk3menu.cpp
+index d9d117faeb..640b49daa0 100644
+--- a/src/plugins/platformthemes/gtk3/qgtk3menu.cpp
++++ b/src/plugins/platformthemes/gtk3/qgtk3menu.cpp
+@@ -85,6 +85,7 @@ QGtk3MenuItem::QGtk3MenuItem()
+       m_checkable(false),
+       m_checked(false),
+       m_enabled(true),
++      m_exclusive(false),
+       m_underline(false),
+       m_invalid(true),
+       m_menu(nullptr),
+-- 
+2.38.1
+

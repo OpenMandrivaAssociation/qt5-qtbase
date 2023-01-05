@@ -1,0 +1,37 @@
+From 30f209e9651784e34276a8876453c5b312d4bb89 Mon Sep 17 00:00:00 2001
+From: Alexander Volkov <avolkov@astralinux.ru>
+Date: Tue, 7 Dec 2021 17:59:19 +0300
+Subject: [PATCH 097/157] Unix: Correctly update options pane for PDF printer
+
+Update printer and m_currentPrintDevice before calling
+QPrintDialogPrivate::selectPrinter() to show values for
+PDF printer instead of the previously selected printer.
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: Iacc34ca4460ec4de0b4b373cd875628733df01bd
+Reviewed-by: Albert Astals Cid <albert.astals.cid@kdab.com>
+(cherry picked from commit e494b39b337b26c44e4474cfde78f20d721ce83b)
+---
+ src/printsupport/dialogs/qprintdialog_unix.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/printsupport/dialogs/qprintdialog_unix.cpp b/src/printsupport/dialogs/qprintdialog_unix.cpp
+index 236e9b4980..5a5ba1d0a8 100644
+--- a/src/printsupport/dialogs/qprintdialog_unix.cpp
++++ b/src/printsupport/dialogs/qprintdialog_unix.cpp
+@@ -1243,10 +1243,10 @@ void QUnixPrintWidgetPrivate::_q_printerChanged(int index)
+             QString filename = widget.filename->text();
+             widget.filename->setText(filename);
+             widget.lOutput->setEnabled(true);
+-            if (optionsPane)
+-                optionsPane->selectPrinter(QPrinter::PdfFormat);
+             printer->setOutputFormat(QPrinter::PdfFormat);
+             m_currentPrintDevice = QPrintDevice();
++            if (optionsPane)
++                optionsPane->selectPrinter(QPrinter::PdfFormat);
+             return;
+         }
+     }
+-- 
+2.38.1
+
