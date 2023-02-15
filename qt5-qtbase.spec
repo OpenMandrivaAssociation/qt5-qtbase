@@ -713,6 +713,7 @@ Requires:	pkgconfig(gl)
 Requires:	pkgconfig(egl)
 Requires:	pkgconfig(glesv2)
 Requires:	vulkan-devel
+Requires:	pkgconfig(xkbcommon)
 
 %description -n %{qtguid}
 Development files for version 5 of the QtGui library.
