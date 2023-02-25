@@ -1,0 +1,32 @@
+From 7a7d174af2dcd2920eac68039f99048f393616b6 Mon Sep 17 00:00:00 2001
+From: Jonas Kvinge <jonas@jkvinge.net>
+Date: Mon, 11 Oct 2021 20:56:14 +0200
+Subject: [PATCH 168/181] qxcbscreen: Fix typo in documentation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Pick-to: 5.15 6.2
+Change-Id: I92f7d707a1395594ad6d1fe841fa77d21ae7c8b1
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit 35385dcbe6f50e0b1344c4398616d6b1a385f8f6)
+---
+ src/plugins/platforms/xcb/qxcbscreen.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbscreen.cpp b/src/plugins/platforms/xcb/qxcbscreen.cpp
+index 464d038671..9edba7257e 100644
+--- a/src/plugins/platforms/xcb/qxcbscreen.cpp
++++ b/src/plugins/platforms/xcb/qxcbscreen.cpp
+@@ -271,7 +271,7 @@ void QXcbVirtualDesktop::handleScreenChange(xcb_randr_screen_change_notify_event
+     _NET_WORKAREA means with multiple attached monitors. This gets worse when monitors have
+     different dimensions and/or screens are not virtually aligned. In Qt we want the available
+     geometry per monitor (QScreen), not desktop (represented by _NET_WORKAREA). WM specification
+-    does not have an atom for this. Thus, QScreen is limted by the lack of support from the
++    does not have an atom for this. Thus, QScreen is limited by the lack of support from the
+     underlying system.
+ 
+     One option could be that Qt does WM's job of calculating this by subtracting geometries of
+-- 
+2.40.0.rc0
+

@@ -1,0 +1,29 @@
+From 1e2847da1e6d97467c45f564d196e376f3e556d5 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Mon, 4 Apr 2022 14:27:58 +0200
+Subject: [PATCH 171/181] [doc] Fix typo in QBuffer::setBuffer() description
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: I0afb0f114ddf7ceb5e99cb1bca3db99fd6e29223
+Reviewed-by: Fabian Kosmale <fabian.kosmale@qt.io>
+(cherry picked from commit ade96f461df0f126a843e65c2b7d368b89f42a13)
+---
+ src/corelib/io/qbuffer.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/io/qbuffer.cpp b/src/corelib/io/qbuffer.cpp
+index 032c0ddd4b..5c562623e2 100644
+--- a/src/corelib/io/qbuffer.cpp
++++ b/src/corelib/io/qbuffer.cpp
+@@ -214,7 +214,7 @@ QBuffer::~QBuffer()
+ }
+ 
+ /*!
+-    Makes QBuffer uses the QByteArray pointed to by \a
++    Makes QBuffer use the QByteArray pointed to by \a
+     byteArray as its internal buffer. The caller is responsible for
+     ensuring that \a byteArray remains valid until the QBuffer is
+     destroyed, or until setBuffer() is called to change the buffer.
+-- 
+2.40.0.rc0
+

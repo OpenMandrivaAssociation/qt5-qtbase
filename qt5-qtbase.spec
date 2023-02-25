@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	1
+Release:	2
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -164,6 +164,7 @@ Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
 # the workaround patch, but causes a crash when doing a search
 # in Kicker
 #Patch7:		qtbase-5.15.7-prefer-xcb_egl-to-xcb_glx.patch
+Patch8:		qt-5.15.8-lld-16.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -331,6 +332,30 @@ Patch1153:	0154-forkfd-linux-add-support-for-LoongArch.patch
 Patch1154:	0155-Revert-xcb-implement-missing-bits-from-ICCCM-4.1.4-W.patch
 Patch1155:	0156-Revert-xcb-stablilize-xkb-state-when-keymap-updated.patch
 Patch1156:	0157-Widgets-Use-effect-region-bounds-when-drawing-with-r.patch
+Patch1157:	0158-TLS-backend-SecureTransport-properly-clear-SSLContex.patch
+Patch1158:	0159-Fix-potential-corruption-with-image-format-conversio.patch
+Patch1159:	0160-Set-geometry-property-in-QXcbWindow-after-checking-m.patch
+Patch1160:	0161-ibus-add-SetCursorLocationRelative-in-InputContext.x.patch
+Patch1161:	0162-xcb-correctly-disconnect-xsettings-callbacks.patch
+Patch1162:	0163-QSysInfo-prettyProductName-add-missing-macOS-product.patch
+Patch1163:	0164-QSysInfo-prettyProductName-Add-macOS-Ventura-product.patch
+Patch1164:	0165-QToolButton-reimplement-the-fix-for-QTBUG-95255.patch
+Patch1165:	0166-qxcbwindow.cpp-Fix-sign-compare-and-another-warnings.patch
+Patch1166:	0167-Fix-typos-in-SQL-driver-documentation.patch
+Patch1167:	0168-qxcbscreen-Fix-typo-in-documentation.patch
+Patch1168:	0169-openglblacklists-Fix-typo-in-description.patch
+Patch1169:	0170-qwindowsdrag-Fix-typo-in-documentation.patch
+Patch1170:	0171-doc-Fix-typo-in-QBuffer-setBuffer-description.patch
+Patch1171:	0172-Doc-Link-to-page-documenting-Qt-trademarks-in-the-co.patch
+Patch1172:	0173-Doc-Fix-typo-in-the-online-documentation-template.patch
+Patch1173:	0174-QNetworkReply-Fix-typos-in-the-documentation.patch
+Patch1174:	0175-Fix-deletion-order-in-QImageReader-Writer-destructor.patch
+Patch1175:	0176-Fix-deletion-order-also-for-QImageReader-Writer-setD.patch
+Patch1176:	0177-Do-not-set-Qt-ToolTip-flag-for-QShapedPixmapWindow.patch
+Patch1177:	0178-correctly-set-up-ref-counting-in-QThreadPool-tryStar.patch
+Patch1178:	0179-QToolButton-Elide-text-when-constraints-prevent-from.patch
+Patch1179:	0180-QXcbConnection-getTimestamp-do-not-return-stale-time.patch
+Patch1180:	0181-Apply-CVE-2023-24607-qtbase-5.15.diff.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the

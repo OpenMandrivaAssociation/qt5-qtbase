@@ -1,0 +1,36 @@
+From 815963e6d2c9b947a926549de2579485b1ca6a3d Mon Sep 17 00:00:00 2001
+From: Christian Ehrlicher <ch.ehrlicher@gmx.de>
+Date: Fri, 27 Jan 2023 16:22:22 +0100
+Subject: [PATCH 179/181] QToolButton: Elide text when constraints prevent from
+ showing whole text
+
+Follow-up of b2a282d7c7b8f49819bbc86ed705980438ecb04b - elide the text
+also when the QToolButton has no icon (=text only)
+
+Pick-to: 6.5 6.4 6.2 5.15
+Fixes: QTBUG-64132
+Change-Id: If4d3758452f37df411931a6628846988a3418d8e
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit 021906f6c985b838461d28c7f121d4c3bc7e6499)
+---
+ src/widgets/styles/qcommonstyle.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/widgets/styles/qcommonstyle.cpp b/src/widgets/styles/qcommonstyle.cpp
+index 502a527901..a79c33005c 100644
+--- a/src/widgets/styles/qcommonstyle.cpp
++++ b/src/widgets/styles/qcommonstyle.cpp
+@@ -1708,8 +1708,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
+                     alignment |= Qt::TextHideMnemonic;
+                 rect.translate(shiftX, shiftY);
+                 p->setFont(toolbutton->font);
++                const QString text = d->toolButtonElideText(toolbutton, rect, alignment);
+                 proxy()->drawItemText(p, rect, alignment, toolbutton->palette,
+-                             opt->state & State_Enabled, toolbutton->text,
++                             opt->state & State_Enabled, text,
+                              QPalette::ButtonText);
+             } else {
+                 QPixmap pm;
+-- 
+2.40.0.rc0
+
