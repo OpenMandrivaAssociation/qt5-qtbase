@@ -356,6 +356,8 @@ Patch1177:	0178-correctly-set-up-ref-counting-in-QThreadPool-tryStar.patch
 Patch1178:	0179-QToolButton-Elide-text-when-constraints-prevent-from.patch
 Patch1179:	0180-QXcbConnection-getTimestamp-do-not-return-stale-time.patch
 Patch1180:	0181-Apply-CVE-2023-24607-qtbase-5.15.diff.patch
+Patch1181:	0182-QAbstractItemView-don-t-access-invalid-indexes-on-co.patch
+Patch1182:	0183-Add-nullptr-guard-in-QStyleSheetStyle-drawPrimitive-.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
