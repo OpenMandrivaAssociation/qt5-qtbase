@@ -1,0 +1,32 @@
+From 7c44f8a0eb93c6176bffa68410a40bb09f981e45 Mon Sep 17 00:00:00 2001
+From: Jonas Kvinge <jonas@jkvinge.net>
+Date: Mon, 11 Oct 2021 20:46:50 +0200
+Subject: [PATCH 135/150] qwindowsdrag: Fix typo in documentation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Pick-to: 5.15 6.2
+Change-Id: I4bd8ff5b4ddeee1760b012bd603b014d535534ed
+Reviewed-by: André de la Rocha <andre.rocha@qt.io>
+(cherry picked from commit cf81ccd1cdb1db7ab9eff6bf9dcf4e110101704e)
+---
+ src/plugins/platforms/windows/qwindowsdrag.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/plugins/platforms/windows/qwindowsdrag.cpp b/src/plugins/platforms/windows/qwindowsdrag.cpp
+index ba049cf359..612e8cd90f 100644
+--- a/src/plugins/platforms/windows/qwindowsdrag.cpp
++++ b/src/plugins/platforms/windows/qwindowsdrag.cpp
+@@ -420,7 +420,7 @@ QWindowsOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
+ }
+ 
+ /*!
+-    \brief Give feedback: Change cursor accoding to action.
++    \brief Give feedback: Change cursor according to action.
+ */
+ 
+ QT_ENSURE_STACK_ALIGNED_FOR_SSE STDMETHODIMP
+-- 
+2.40.0.rc2
+

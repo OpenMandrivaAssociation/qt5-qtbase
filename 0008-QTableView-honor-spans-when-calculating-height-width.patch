@@ -1,7 +1,7 @@
-From 4582433fd06b466a00c1d2275b1d399566ca9b55 Mon Sep 17 00:00:00 2001
+From 3ad94e46514d2d92c7e4225f9c0fb98593cf0162 Mon Sep 17 00:00:00 2001
 From: Christian Ehrlicher <ch.ehrlicher@gmx.de>
 Date: Fri, 4 Dec 2020 23:13:15 +0100
-Subject: [PATCH 008/157] QTableView: honor spans when calculating height/width
+Subject: [PATCH 008/150] QTableView: honor spans when calculating height/width
  hint
 
 QTableViewPrivate::heightHintForIndex()/widthHintForIndex() did not
@@ -143,5 +143,5 @@ index 761357b252..06bb706074 100644
  extern bool Q_WIDGETS_EXPORT qt_tab_all_widgets(); // qapplication.cpp
  QT_END_NAMESPACE
 -- 
-2.38.1
+2.40.0.rc2
 

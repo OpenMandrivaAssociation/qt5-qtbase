@@ -1,0 +1,107 @@
+From f1c6badcc7ab2cea944599c30023db44d83d9805 Mon Sep 17 00:00:00 2001
+From: Michael Saxl <michael.saxl@troyer.it>
+Date: Wed, 20 Jul 2022 08:52:02 +0200
+Subject: [PATCH 114/150] update function argument of SSL_CTX_set_options
+
+openssl3 uses uint64_t for the options argument in SSL_CTX_set_options,
+older ones used long.
+sizeof(long) is not the same on any platform as sizeof(uint64_t)
+
+Fixes: QTBUG-105041
+Change-Id: If148ffd883f50b58bc284c6f2609337d80fb5c58
+Pick-to: 5.15 6.2 6.3 6.4
+Reviewed-by: Dmitry Shachnev <mitya57@gmail.com>
+Reviewed-by: Timur Pocheptsov <timur.pocheptsov@qt.io>
+(cherry picked from commit e995bfc0ea783c15bb173f060099ca24f277c763)
+---
+ src/network/ssl/qsslcontext_openssl.cpp        | 2 +-
+ src/network/ssl/qsslsocket_openssl.cpp         | 4 ++--
+ src/network/ssl/qsslsocket_openssl_p.h         | 8 +++++++-
+ src/network/ssl/qsslsocket_openssl_symbols.cpp | 2 +-
+ src/network/ssl/qsslsocket_openssl_symbols_p.h | 2 +-
+ 5 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/src/network/ssl/qsslcontext_openssl.cpp b/src/network/ssl/qsslcontext_openssl.cpp
+index d0a428c2d2..c992da9d8e 100644
+--- a/src/network/ssl/qsslcontext_openssl.cpp
++++ b/src/network/ssl/qsslcontext_openssl.cpp
+@@ -455,7 +455,7 @@ init_context:
+     }
+ 
+     // Enable bug workarounds.
+-    long options = QSslSocketBackendPrivate::setupOpenSslOptions(configuration.protocol(), configuration.d->sslOptions);
++    qssloptions options = QSslSocketBackendPrivate::setupOpenSslOptions(configuration.protocol(), configuration.d->sslOptions);
+     q_SSL_CTX_set_options(sslContext->ctx, options);
+ 
+     // Tell OpenSSL to release memory early
+diff --git a/src/network/ssl/qsslsocket_openssl.cpp b/src/network/ssl/qsslsocket_openssl.cpp
+index 37fad2a68f..8f6858c867 100644
+--- a/src/network/ssl/qsslsocket_openssl.cpp
++++ b/src/network/ssl/qsslsocket_openssl.cpp
+@@ -550,9 +550,9 @@ static void q_loadCiphersForConnection(SSL *connection, QList<QSslCipher> &ciphe
+ // Defined in qsslsocket.cpp
+ void q_setDefaultDtlsCiphers(const QList<QSslCipher> &ciphers);
+ 
+-long QSslSocketBackendPrivate::setupOpenSslOptions(QSsl::SslProtocol protocol, QSsl::SslOptions sslOptions)
++qssloptions QSslSocketBackendPrivate::setupOpenSslOptions(QSsl::SslProtocol protocol, QSsl::SslOptions sslOptions)
+ {
+-    long options;
++    qssloptions options;
+     if (protocol == QSsl::TlsV1SslV3)
+         options = SSL_OP_ALL|SSL_OP_NO_SSLv2|SSL_OP_NO_SSLv3;
+     else if (protocol == QSsl::SecureProtocols)
+diff --git a/src/network/ssl/qsslsocket_openssl_p.h b/src/network/ssl/qsslsocket_openssl_p.h
+index 4103de23e8..5547589256 100644
+--- a/src/network/ssl/qsslsocket_openssl_p.h
++++ b/src/network/ssl/qsslsocket_openssl_p.h
+@@ -107,6 +107,12 @@
+ 
+ QT_BEGIN_NAMESPACE
+ 
++#if defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3
++typedef uint64_t qssloptions;
++#else
++typedef unsigned long qssloptions;
++#endif
++
+ struct QSslErrorEntry {
+     int code;
+     int depth;
+@@ -171,7 +177,7 @@ public:
+     QVector<QSslError> ocspErrors;
+     QByteArray ocspResponseDer;
+ 
+-    Q_AUTOTEST_EXPORT static long setupOpenSslOptions(QSsl::SslProtocol protocol, QSsl::SslOptions sslOptions);
++    Q_AUTOTEST_EXPORT static qssloptions setupOpenSslOptions(QSsl::SslProtocol protocol, QSsl::SslOptions sslOptions);
+     static QSslCipher QSslCipher_from_SSL_CIPHER(const SSL_CIPHER *cipher);
+     static QList<QSslCertificate> STACKOFX509_to_QSslCertificates(STACK_OF(X509) *x509);
+     static QList<QSslError> verify(const QList<QSslCertificate> &certificateChain, const QString &hostName);
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+index 68a766c0de..459ccd0b19 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
++++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
+@@ -157,7 +157,7 @@ DEFINEFUNC2(void, OPENSSL_sk_push, OPENSSL_STACK *a, a, void *b, b, return, DUMM
+ DEFINEFUNC(void, OPENSSL_sk_free, OPENSSL_STACK *a, a, return, DUMMYARG)
+ DEFINEFUNC2(void *, OPENSSL_sk_value, OPENSSL_STACK *a, a, int b, b, return nullptr, return)
+ DEFINEFUNC(int, SSL_session_reused, SSL *a, a, return 0, return)
+-DEFINEFUNC2(unsigned long, SSL_CTX_set_options, SSL_CTX *ctx, ctx, unsigned long op, op, return 0, return)
++DEFINEFUNC2(qssloptions, SSL_CTX_set_options, SSL_CTX *ctx, ctx, qssloptions op, op, return 0, return)
+ DEFINEFUNC(int, SSL_CTX_get_security_level, const SSL_CTX *ctx, ctx, return -1, return)
+ DEFINEFUNC2(void, SSL_CTX_set_security_level, SSL_CTX *ctx, ctx, int level, level, return, return)
+ #ifdef TLS1_3_VERSION
+diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+index 71961775e2..27aeffa18a 100644
+--- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
++++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
+@@ -245,7 +245,7 @@ Q_AUTOTEST_EXPORT void q_OPENSSL_sk_push(OPENSSL_STACK *st, void *data);
+ Q_AUTOTEST_EXPORT void q_OPENSSL_sk_free(OPENSSL_STACK *a);
+ Q_AUTOTEST_EXPORT void * q_OPENSSL_sk_value(OPENSSL_STACK *a, int b);
+ int q_SSL_session_reused(SSL *a);
+-unsigned long q_SSL_CTX_set_options(SSL_CTX *ctx, unsigned long op);
++qssloptions q_SSL_CTX_set_options(SSL_CTX *ctx, qssloptions op);
+ int q_OPENSSL_init_ssl(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings);
+ size_t q_SSL_get_client_random(SSL *a, unsigned char *out, size_t outlen);
+ size_t q_SSL_SESSION_get_master_key(const SSL_SESSION *session, unsigned char *out, size_t outlen);
+-- 
+2.40.0.rc2
+

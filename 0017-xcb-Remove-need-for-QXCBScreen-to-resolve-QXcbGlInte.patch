@@ -1,7 +1,7 @@
-From 2d5a938cd41cc0b9ad88a24e45687d071084b980 Mon Sep 17 00:00:00 2001
+From 41875c90d5d03ca7761249c3a69c8be1c648f7d6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
 Date: Thu, 18 Jun 2020 17:03:03 +0200
-Subject: [PATCH 017/157] xcb: Remove need for QXCBScreen to resolve
+Subject: [PATCH 017/150] xcb: Remove need for QXCBScreen to resolve
  QXcbGlIntegration
 
 Change-Id: I9de4f47bfdf88c92959f210e05c1fc1e8a459cde
@@ -26,5 +26,5 @@ index 76869ced60..02d2eebb56 100644
          qWarning("QXcbIntegration: Cannot create platform OpenGL context, neither GLX nor EGL are enabled");
          return nullptr;
 -- 
-2.38.1
+2.40.0.rc2
 

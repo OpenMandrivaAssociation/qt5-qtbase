@@ -1,7 +1,7 @@
-From 1c16376d09760eb663a0e7faef87d9dbd7bcf5d8 Mon Sep 17 00:00:00 2001
+From 27fd69a8bcd62a317fdec29b68cdd45512a4d21a Mon Sep 17 00:00:00 2001
 From: Albert Astals Cid <aacid@kde.org>
 Date: Tue, 12 Oct 2021 16:27:15 +0200
-Subject: [PATCH 031/157] Revert "Fix highdpi conversion of QTabletEvent
+Subject: [PATCH 031/150] Revert "Fix highdpi conversion of QTabletEvent
  coordinates on xcb"
 
 It does not compile
@@ -12,7 +12,7 @@ This reverts commit 03ad5f3c0ddf8105c76a753a10b52cad05e9e936.
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp b/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
-index f34485c91f..27a2526df1 100644
+index db5db67216..5a36cfa0d3 100644
 --- a/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
 +++ b/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
 @@ -1251,14 +1251,16 @@ void QXcbConnection::xi2ReportTabletEvent(const void *event, TabletData *tabletD
@@ -35,5 +35,5 @@ index f34485c91f..27a2526df1 100644
              break;
          case QXcbAtom::AbsPressure:
 -- 
-2.38.1
+2.40.0.rc2
 

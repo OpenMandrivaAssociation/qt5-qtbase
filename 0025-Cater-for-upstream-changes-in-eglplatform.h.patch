@@ -1,7 +1,7 @@
-From 7a44796c813ab9661a68d42a67c18759d0a3f9ed Mon Sep 17 00:00:00 2001
+From f3b4fa10282da7664e5ea5b68584a68f2d5a4743 Mon Sep 17 00:00:00 2001
 From: Laszlo Agocs <laszlo.agocs@qt.io>
 Date: Mon, 20 Sep 2021 11:16:09 +0200
-Subject: [PATCH 025/157] Cater for upstream changes in eglplatform.h
+Subject: [PATCH 025/150] Cater for upstream changes in eglplatform.h
 
 EGL_NO_X11 has been replaced with USE_X11, thus breaking all existing
 code out there, including Qt:
@@ -51,5 +51,5 @@ index bf37d07fd8..dbd42fb799 100644
  #ifdef QT_EGL_WAYLAND
  # define WAYLAND // NV
 -- 
-2.38.1
+2.40.0.rc2
 

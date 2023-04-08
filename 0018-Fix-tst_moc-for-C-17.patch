@@ -1,7 +1,7 @@
-From 261ffbfb8263e18d077f6fccd732611021cc3cfc Mon Sep 17 00:00:00 2001
+From 669d75e1777b3c4fd8cf2a8294d123b0c994dfb8 Mon Sep 17 00:00:00 2001
 From: Olivier Goffart <ogoffart@woboq.com>
 Date: Thu, 5 Dec 2019 14:05:11 +0100
-Subject: [PATCH 018/157] Fix tst_moc for C++17
+Subject: [PATCH 018/150] Fix tst_moc for C++17
 
 The throw() specification is no longer accepted in C++17 mode, so remove that.
 
@@ -231,5 +231,5 @@ index c716aead21..15dd9e41e5 100644
      QVERIFY(proc.waitForStarted());
      proc.write(mocOut);
 -- 
-2.38.1
+2.40.0.rc2
 

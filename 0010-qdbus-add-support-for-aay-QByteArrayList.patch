@@ -1,7 +1,7 @@
-From 9447a434614f760e38b326e6e6df579af8f3f177 Mon Sep 17 00:00:00 2001
+From 6b9a9f3bc04420a44fa81a317c86e51b956a6406 Mon Sep 17 00:00:00 2001
 From: David Faure <david.faure@kdab.com>
 Date: Sun, 2 May 2021 00:59:49 +0200
-Subject: [PATCH 010/157] qdbus: add support for "aay" (QByteArrayList)
+Subject: [PATCH 010/150] qdbus: add support for "aay" (QByteArrayList)
 
 (I wish these common mappings were centralized though, so that
 annotations in the XML file wouldn't be needed)
@@ -29,5 +29,5 @@ index 5265568f42..7e9f0f1acc 100644
              result.name = "{D-Bus type \"" + signature + "\"}";
              type = registerComplexDBusType(result.name);
 -- 
-2.38.1
+2.40.0.rc2
 

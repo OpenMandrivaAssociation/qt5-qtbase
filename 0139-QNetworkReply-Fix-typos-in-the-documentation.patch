@@ -1,0 +1,42 @@
+From 1a8df41360a2cbbf8428185cc845cc5d57a2574e Mon Sep 17 00:00:00 2001
+From: Ievgenii Meshcheriakov <ievgenii.meshcheriakov@qt.io>
+Date: Tue, 18 Oct 2022 11:23:24 +0200
+Subject: [PATCH 139/150] QNetworkReply: Fix typos in the documentation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes: QTBUG-107719
+Pick-to: 5.15 6.2 6.4
+Change-Id: Ic5bbc59aebeb44595cfde000bfd1cfb28991d311
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit dd0eb89d2e3b196343cbf322b0f35ea0b54f0814)
+---
+ src/network/access/qnetworkreply.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/network/access/qnetworkreply.cpp b/src/network/access/qnetworkreply.cpp
+index 30e4e290ea..dadea58080 100644
+--- a/src/network/access/qnetworkreply.cpp
++++ b/src/network/access/qnetworkreply.cpp
+@@ -76,7 +76,7 @@ QNetworkReplyPrivate::QNetworkReplyPrivate()
+     itself.
+ 
+     QNetworkReply is a sequential-access QIODevice, which means that
+-    once data is read from the object, it no longer kept by the
++    once data is read from the object, it is no longer kept by the
+     device. It is therefore the application's responsibility to keep
+     this data if it needs to. Whenever more data is received from the
+     network and processed, the readyRead() signal is emitted.
+@@ -344,7 +344,7 @@ QNetworkReplyPrivate::QNetworkReplyPrivate()
+     processing. After this signal is emitted, there will be no more
+     updates to the reply's data or metadata.
+ 
+-    Unless close() or abort() have been called, the reply will be still be opened
++    Unless close() or abort() have been called, the reply will still be opened
+     for reading, so the data can be retrieved by calls to read() or
+     readAll(). In particular, if no calls to read() were made as a
+     result of readyRead(), a call to readAll() will retrieve the full
+-- 
+2.40.0.rc2
+

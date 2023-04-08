@@ -1,7 +1,7 @@
-From 9c1d1e28dc452148f6c71fab94e6f64d45733747 Mon Sep 17 00:00:00 2001
+From a3cdd6dfffc16d3e4e27bd2c03e74ee7b7a12efb Mon Sep 17 00:00:00 2001
 From: Milian Wolff <milian.wolff@kdab.com>
 Date: Thu, 1 Jul 2021 11:01:48 +0200
-Subject: [PATCH 019/157] Fix memory leak of QOffscreenScreen in
+Subject: [PATCH 019/150] Fix memory leak of QOffscreenScreen in
  QOffscreenIntegration
 
 Call handleScreenRemoved when the QOffscreenIntegration is getting
@@ -64,5 +64,5 @@ index 0ea90f6c2f..fe00fde07c 100644
  };
  
 -- 
-2.38.1
+2.40.0.rc2
 

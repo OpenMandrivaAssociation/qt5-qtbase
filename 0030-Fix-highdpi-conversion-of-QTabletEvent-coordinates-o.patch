@@ -1,7 +1,7 @@
-From 12e88a9cf947d67cac18aca2dcba79b5859ed77d Mon Sep 17 00:00:00 2001
+From 2ed71b33c589fde74efaf049fe4789ed59eb408f Mon Sep 17 00:00:00 2001
 From: Shawn Rutledge <shawn.rutledge@qt.io>
 Date: Fri, 4 Dec 2020 10:28:26 +0100
-Subject: [PATCH 030/157] Fix highdpi conversion of QTabletEvent coordinates on
+Subject: [PATCH 030/150] Fix highdpi conversion of QTabletEvent coordinates on
  xcb
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -25,7 +25,7 @@ Reviewed-by: Morten Johan Sørvig <morten.sorvig@qt.io>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp b/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
-index 27a2526df1..f34485c91f 100644
+index 5a36cfa0d3..db5db67216 100644
 --- a/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
 +++ b/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
 @@ -1251,16 +1251,14 @@ void QXcbConnection::xi2ReportTabletEvent(const void *event, TabletData *tabletD
@@ -48,5 +48,5 @@ index 27a2526df1..f34485c91f 100644
              break;
          case QXcbAtom::AbsPressure:
 -- 
-2.38.1
+2.40.0.rc2
 

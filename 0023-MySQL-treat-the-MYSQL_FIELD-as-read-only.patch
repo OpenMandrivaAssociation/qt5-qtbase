@@ -1,7 +1,7 @@
-From 8df3b05921b566441f2540a4b1d534b09a6c5586 Mon Sep 17 00:00:00 2001
+From 379b907916f16585d0298ed7f58cce84b184e8dc Mon Sep 17 00:00:00 2001
 From: Thiago Macieira <thiago.macieira@intel.com>
 Date: Fri, 13 Aug 2021 15:19:55 -0700
-Subject: [PATCH 023/157] MySQL: treat the MYSQL_FIELD as read-only
+Subject: [PATCH 023/150] MySQL: treat the MYSQL_FIELD as read-only
 
 The MariaDB-connector-c version 3.2 and MariaDB server version 10.6
 cooperate to avoid re-transferring the query metadata, so the fact that
@@ -94,5 +94,5 @@ index 4b9b396946..ceee4a3a59 100644
          ++i;
      }
 -- 
-2.38.1
+2.40.0.rc2
 

@@ -1,0 +1,61 @@
+From 452b2fec75a18e0bf134346d3f38fb24d4e1f19e Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Tue, 10 Jan 2023 14:15:26 +0100
+Subject: [PATCH 141/150] Fix deletion order also for
+ QImageReader/Writer::setDevice()
+
+Avoid dangling or incorrect device pointer during handler
+destruction. This was recently fixed in the destructors, fixed here
+also for the setDevice() functions.
+
+Pick-to: 6.5 6.4 6.2 5.15
+Change-Id: I85b64726cd88d2c8e63eee59d5b4f2ae488df61b
+Reviewed-by: Paul Olav Tvete <paul.tvete@qt.io>
+(cherry picked from commit 5633cb69f68ca3d3b82476f9025d863f804e76c1)
+---
+ src/gui/image/qimagereader.cpp | 4 ++--
+ src/gui/image/qimagewriter.cpp | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/gui/image/qimagereader.cpp b/src/gui/image/qimagereader.cpp
+index 2e6b364a98..1274622d53 100644
+--- a/src/gui/image/qimagereader.cpp
++++ b/src/gui/image/qimagereader.cpp
+@@ -774,12 +774,12 @@ bool QImageReader::decideFormatFromContent() const
+ */
+ void QImageReader::setDevice(QIODevice *device)
+ {
++    delete d->handler;
++    d->handler = nullptr;
+     if (d->device && d->deleteDevice)
+         delete d->device;
+     d->device = device;
+     d->deleteDevice = false;
+-    delete d->handler;
+-    d->handler = nullptr;
+     d->text.clear();
+ }
+ 
+diff --git a/src/gui/image/qimagewriter.cpp b/src/gui/image/qimagewriter.cpp
+index c4654d18e8..a679f25757 100644
+--- a/src/gui/image/qimagewriter.cpp
++++ b/src/gui/image/qimagewriter.cpp
+@@ -396,13 +396,13 @@ QByteArray QImageWriter::format() const
+ */
+ void QImageWriter::setDevice(QIODevice *device)
+ {
++    delete d->handler;
++    d->handler = nullptr;
+     if (d->device && d->deleteDevice)
+         delete d->device;
+ 
+     d->device = device;
+     d->deleteDevice = false;
+-    delete d->handler;
+-    d->handler = nullptr;
+ }
+ 
+ /*!
+-- 
+2.40.0.rc2
+

@@ -1,0 +1,41 @@
+From 889fcb228b1868b8c5549078eec42b7eca3af293 Mon Sep 17 00:00:00 2001
+From: Liang Qi <liang.qi@qt.io>
+Date: Fri, 26 Aug 2022 19:59:42 +0200
+Subject: [PATCH 088/150] widgets: avoid setting X11BypassWindowManagerHint in
+ QToolBar
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+when restoring state
+
+With X11BypassWindowManagerHint, the floating tool bar was created
+without control from window manager, which causes it stays on top
+at all virtual desktops.
+
+Pick-to: 6.4 6.3 6.2 5.15
+Fixes: QTBUG-105591
+Change-Id: I1868f4e75e1b84f9e81c05d2e927a183a0c635ee
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+(cherry picked from commit c3c4d4dda942cab92a8fdcd47a5973f5ecf59d40)
+---
+ src/widgets/widgets/qtoolbararealayout.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/widgets/qtoolbararealayout.cpp b/src/widgets/widgets/qtoolbararealayout.cpp
+index 493c094cc1..d5f4b59017 100644
+--- a/src/widgets/widgets/qtoolbararealayout.cpp
++++ b/src/widgets/widgets/qtoolbararealayout.cpp
+@@ -1367,7 +1367,7 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
+                 item.widgetItem = new QWidgetItemV2(toolBar);
+                 toolBar->setOrientation(floating ? ((shown & 2) ? Qt::Vertical : Qt::Horizontal) : dock.o);
+                 toolBar->setVisible(shown & 1);
+-                toolBar->d_func()->setWindowState(floating, true, rect);
++                toolBar->d_func()->setWindowState(floating, false, rect);
+ 
+                 item.preferredSize = item.size;
+                 line.toolBarItems.append(item);
+-- 
+2.40.0.rc2
+

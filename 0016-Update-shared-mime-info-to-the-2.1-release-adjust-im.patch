@@ -1,7 +1,7 @@
-From 2725c101d201fc8ce7b80f50dce87b6a4ef00945 Mon Sep 17 00:00:00 2001
+From e6979b00efbc2178ee9e6ea05df9fefddb187a74 Mon Sep 17 00:00:00 2001
 From: David Faure <david.faure@kdab.com>
 Date: Thu, 24 Jun 2021 18:53:15 +0200
-Subject: [PATCH 016/157] Update shared-mime-info to the 2.1 release, adjust
+Subject: [PATCH 016/150] Update shared-mime-info to the 2.1 release, adjust
  implementation
 
 The spec hasn't changed, but I made the same mistake in xdgmime
@@ -40852,7 +40852,7 @@ index 9de22cef33..ff868a3268 100644
      }
  
 diff --git a/src/corelib/mimetypes/qmimeglobpattern.cpp b/src/corelib/mimetypes/qmimeglobpattern.cpp
-index a81112d227..3ab5bd4cb4 100644
+index b1de8907b2..fa8f4c545d 100644
 --- a/src/corelib/mimetypes/qmimeglobpattern.cpp
 +++ b/src/corelib/mimetypes/qmimeglobpattern.cpp
 @@ -83,7 +83,10 @@ void QMimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const Q
@@ -40955,5 +40955,5 @@ index 0ea422ecbc..1a3256534b 100644
      QTest::newRow("oasis presentation mimetype") << "application/vnd.oasis.opendocument.presentation" << "*.odp" << "odp";
      QTest::newRow("mimetype with multiple patterns") << "text/plain" << "*.asc;*.txt;*,v" << "txt";
 -- 
-2.38.1
+2.40.0.rc2
 

@@ -1,7 +1,7 @@
-From 4c89372e3896d4cef842cc6c7df18b94a57cb0d8 Mon Sep 17 00:00:00 2001
+From ee0ca14f4d4d8ba6dd2d27a502a8843d8e52bfeb Mon Sep 17 00:00:00 2001
 From: Gong Heng <gongheng@uniontech.com>
 Date: Thu, 18 Mar 2021 16:53:11 +0800
-Subject: [PATCH 012/157] =?UTF-8?q?fix:=20Optimize=20the=20performance=20o?=
+Subject: [PATCH 012/150] =?UTF-8?q?fix:=20Optimize=20the=20performance=20o?=
  =?UTF-8?q?f=20the=20inotify=20file=20system=20monitoring=20program?=
  =?UTF-8?q?=E3=80=82?=
 MIME-Version: 1.0
@@ -40,5 +40,5 @@ index 94d9d06bcb..27e0b13b0b 100644
      buffSize = read(inotifyFd, buffer.data(), buffSize);
      char *at = buffer.data();
 -- 
-2.38.1
+2.40.0.rc2
 

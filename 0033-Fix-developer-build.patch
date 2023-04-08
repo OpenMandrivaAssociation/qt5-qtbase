@@ -1,7 +1,7 @@
-From 2396eae8537529a49211dc2286bcd31ce2fc18a0 Mon Sep 17 00:00:00 2001
+From 855a7ebf2a48af2a9020ce8081f2931157241b06 Mon Sep 17 00:00:00 2001
 From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
 Date: Wed, 10 Nov 2021 15:18:18 +0100
-Subject: [PATCH 033/157] Fix developer build
+Subject: [PATCH 033/150] Fix developer build
 
 Some incomplete refactoring from upstream left an unused variable
 which makes a -developer-build fail (as it enables -Werror).
@@ -26,5 +26,5 @@ index ceee4a3a59..6bc9d46755 100644
  
      if (!meta)
 -- 
-2.38.1
+2.40.0.rc2
 

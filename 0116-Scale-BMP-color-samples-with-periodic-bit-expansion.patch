@@ -1,0 +1,154 @@
+From 0a8861f72ad7a8a16b6f34bb7502d615c99cfc39 Mon Sep 17 00:00:00 2001
+From: Martin Walch <walch.martin@web.de>
+Date: Sat, 1 Oct 2022 15:48:42 +0200
+Subject: [PATCH 116/150] Scale BMP color samples with periodic bit expansion
+
+Scale samples up by periodically repeating the bit pattern of each value to fill
+up the lower bits instead of padding them with 0.
+
+Vice versa truncate samples that exceed the bit depth of QRgb.
+
+Change-Id: I777519e359932f52e54a33073a1ff297a76f620c
+Reviewed-by: Eirik Aavitsland <eirik.aavitsland@qt.io>
+(cherry picked from commit 1fee7adccf82c5e9e15dec3affd6007fe7cdb935)
+---
+ src/gui/image/qbmphandler.cpp | 74 +++++++++++++++++++++++------------
+ 1 file changed, 49 insertions(+), 25 deletions(-)
+
+diff --git a/src/gui/image/qbmphandler.cpp b/src/gui/image/qbmphandler.cpp
+index 96f1e8cb1d..0e73bbbdb0 100644
+--- a/src/gui/image/qbmphandler.cpp
++++ b/src/gui/image/qbmphandler.cpp
+@@ -150,16 +150,42 @@ static QDataStream &operator<<(QDataStream &s, const BMP_INFOHDR &bi)
+     return s;
+ }
+ 
+-static int calc_shift(uint mask)
++static uint calc_shift(uint mask)
+ {
+-    int result = 0;
+-    while (mask && !(mask & 1)) {
++    uint result = 0;
++    while ((mask >= 0x100) || (!(mask & 1) && mask)) {
+         result++;
+         mask >>= 1;
+     }
+     return result;
+ }
+ 
++static uint calc_scale(uint low_mask)
++{
++    uint result = 8;
++    while (low_mask && result) {
++        result--;
++        low_mask >>= 1;
++    }
++    return result;
++}
++
++static inline uint apply_scale(uint value, uint scale)
++{
++    if (!(scale & 0x07)) // return immediately if scale == 8 or 0
++        return value;
++
++    uint filled = 8 - scale;
++    uint result = value << scale;
++
++    do {
++        result |= result >> filled;
++        filled <<= 1;
++    } while (filled < 8);
++
++    return result;
++}
++
+ static bool read_dib_fileheader(QDataStream &s, BMP_FILEHDR &bf)
+ {
+     // read BMP file header
+@@ -222,14 +248,14 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, qint64 offset,
+     uint green_mask = 0;
+     uint blue_mask = 0;
+     uint alpha_mask = 0;
+-    int red_shift = 0;
+-    int green_shift = 0;
+-    int blue_shift = 0;
+-    int alpha_shift = 0;
+-    int red_scale = 0;
+-    int green_scale = 0;
+-    int blue_scale = 0;
+-    int alpha_scale = 0;
++    uint red_shift = 0;
++    uint green_shift = 0;
++    uint blue_shift = 0;
++    uint alpha_shift = 0;
++    uint red_scale = 0;
++    uint green_scale = 0;
++    uint blue_scale = 0;
++    uint alpha_scale = 0;
+ 
+     if (!d->isSequential())
+         d->seek(startpos + BMP_FILEHDR_SIZE + bi.biSize); // goto start of colormap or masks
+@@ -308,19 +334,19 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, qint64 offset,
+         red_shift = calc_shift(red_mask);
+         if (((red_mask >> red_shift) + 1) == 0)
+             return false;
+-        red_scale = 256 / ((red_mask >> red_shift) + 1);
++        red_scale = calc_scale(red_mask >> red_shift);
+         green_shift = calc_shift(green_mask);
+         if (((green_mask >> green_shift) + 1) == 0)
+             return false;
+-        green_scale = 256 / ((green_mask >> green_shift) + 1);
++        green_scale = calc_scale(green_mask >> green_shift);
+         blue_shift = calc_shift(blue_mask);
+         if (((blue_mask >> blue_shift) + 1) == 0)
+             return false;
+-        blue_scale = 256 / ((blue_mask >> blue_shift) + 1);
++        blue_scale = calc_scale(blue_mask >> blue_shift);
+         alpha_shift = calc_shift(alpha_mask);
+         if (((alpha_mask >> alpha_shift) + 1) == 0)
+             return false;
+-        alpha_scale = 256 / ((alpha_mask >> alpha_shift) + 1);
++        alpha_scale = calc_scale(alpha_mask >> alpha_shift);
+     } else if (comp == BMP_RGB && (nbits == 24 || nbits == 32)) {
+         blue_mask = 0x000000ff;
+         green_mask = 0x0000ff00;
+@@ -328,17 +354,15 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, qint64 offset,
+         blue_shift = 0;
+         green_shift = 8;
+         red_shift = 16;
+-        blue_scale = green_scale = red_scale = 1;
++        blue_scale = green_scale = red_scale = 0;
+     } else if (comp == BMP_RGB && nbits == 16) {
+         blue_mask = 0x001f;
+         green_mask = 0x03e0;
+         red_mask = 0x7c00;
+         blue_shift = 0;
+-        green_shift = 2;
+-        red_shift = 7;
+-        red_scale = 1;
+-        green_scale = 1;
+-        blue_scale = 8;
++        green_shift = 5;
++        red_shift = 10;
++        blue_scale = green_scale = red_scale = 3;
+     }
+ 
+ #if 0
+@@ -544,10 +568,10 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, qint64 offset,
+                     c |= *(uchar*)(b+2)<<16;
+                 if (nbits > 24)
+                     c |= *(uchar*)(b+3)<<24;
+-                *p++ = qRgba(((c & red_mask) >> red_shift) * red_scale,
+-                                        ((c & green_mask) >> green_shift) * green_scale,
+-                                        ((c & blue_mask) >> blue_shift) * blue_scale,
+-                                        transp ? ((c & alpha_mask) >> alpha_shift) * alpha_scale : 0xff);
++                *p++ = qRgba(apply_scale((c & red_mask) >> red_shift, red_scale),
++                             apply_scale((c & green_mask) >> green_shift, green_scale),
++                             apply_scale((c & blue_mask) >> blue_shift, blue_scale),
++                             transp ? apply_scale((c & alpha_mask) >> alpha_shift, alpha_scale) : 0xff);
+                 b += nbits/8;
+             }
+         }
+-- 
+2.40.0.rc2
+

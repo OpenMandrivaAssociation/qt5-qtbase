@@ -1,7 +1,7 @@
-From 5af9249855d59c22a35d471c10e49ba73a5229ca Mon Sep 17 00:00:00 2001
+From 69e344484b697a06587b38335a2f08e428659b95 Mon Sep 17 00:00:00 2001
 From: Luca Beldi <v.ronin@yahoo.it>
 Date: Fri, 23 Apr 2021 15:35:29 +0100
-Subject: [PATCH 007/157] Fix QAbstractItemModelTester false positive
+Subject: [PATCH 007/150] Fix QAbstractItemModelTester false positive
 
 When inserting rows to a branch with no columns
 the tester should not complain about indexes being invalid
@@ -44,5 +44,5 @@ index 4aa3f8d60b..d2050a61aa 100644
  
  void tst_QAbstractItemModelTester::testInsertThroughProxy()
 -- 
-2.38.1
+2.40.0.rc2
 

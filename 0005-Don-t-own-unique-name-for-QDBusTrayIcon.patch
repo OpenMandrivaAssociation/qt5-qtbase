@@ -1,7 +1,7 @@
-From 4685b51362b21de5a0fa82f6aef8fdd3e128b3e6 Mon Sep 17 00:00:00 2001
+From 13395058385662f13273913e9e97b850e069900e Mon Sep 17 00:00:00 2001
 From: Ilya Fedin <fedin-ilja2010@ya.ru>
 Date: Mon, 12 Apr 2021 12:09:59 +0400
-Subject: [PATCH 005/157] Don't own unique name for QDBusTrayIcon
+Subject: [PATCH 005/150] Don't own unique name for QDBusTrayIcon
 
 Flatpak doesn't allow to own random name with PID. Even after adding
 such a permission into manifest, all flatpaked apps have PID 2, so only
@@ -82,5 +82,5 @@ index f484795fbb..11c7e56534 100644
  
  Q_SIGNALS:
 -- 
-2.38.1
+2.40.0.rc2
 

@@ -1,0 +1,38 @@
+From 025b4eb18f8a91760c612769a8abd339d2f520fe Mon Sep 17 00:00:00 2001
+From: Jonas Kvinge <jonas@jkvinge.net>
+Date: Sat, 9 Oct 2021 03:15:53 +0200
+Subject: [PATCH 132/150] Fix typos in SQL driver documentation
+
+Pick-to: 5.15 6.2
+Change-Id: I871f6eff908926485c371121113d4853064f808f
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 3a68f49c48422ca1142ed06c52628068cbc6b8de)
+---
+ src/sql/doc/src/sql-driver.qdoc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/sql/doc/src/sql-driver.qdoc b/src/sql/doc/src/sql-driver.qdoc
+index 38de3f11f0..a3f145b64c 100644
+--- a/src/sql/doc/src/sql-driver.qdoc
++++ b/src/sql/doc/src/sql-driver.qdoc
+@@ -479,7 +479,7 @@
+     database connections, or if we execute query2 after the while loop.
+ 
+     \note Some methods of QSqlDatabase like tables(), primaryIndex()
+-    implicity execute SQL queries, so these also cannot be used while
++    implicitly execute SQL queries, so these also cannot be used while
+     navigating the results of forward-only query.
+ 
+     \note QPSQL will print the following warning if it detects a loss of
+@@ -758,7 +758,7 @@
+ 
+     You should always use client libraries that have been compiled with
+     the same compiler as you are using for your project. If you cannot get
+-    a source distibution to compile the client libraries yourself, you
++    a source distribution to compile the client libraries yourself, you
+     must make sure that the pre-compiled library is compatible with
+     your compiler, otherwise you will get a lot of "undefined symbols"
+     errors. Some compilers have tools to convert libraries, e.g. Borland
+-- 
+2.40.0.rc2
+

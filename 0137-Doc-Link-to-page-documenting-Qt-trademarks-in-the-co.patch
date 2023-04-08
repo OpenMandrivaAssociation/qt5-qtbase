@@ -1,0 +1,54 @@
+From 3159a8ac34cb664ef7863c0a2ddd70075bdc1f7e Mon Sep 17 00:00:00 2001
+From: Topi Reinio <topi.reinio@qt.io>
+Date: Thu, 28 Apr 2022 15:44:40 +0200
+Subject: [PATCH 137/150] Doc: Link to page documenting Qt trademarks in the
+ copyright footer
+
+Use an unversioned link to the online documentation, ensuring we
+link to the latest version of this page.
+
+Pick-to: 6.3 6.2 5.15
+Task-number: QTBUG-102787
+Change-Id: I285356687a3873fb861a54d003185f2b751c1b72
+Reviewed-by: Kai Koehne <kai.koehne@qt.io>
+(cherry picked from commit 7ecbac21ff7cef1d2885443fcdb1c0b3464f8442)
+---
+ doc/global/html-footer.qdocconf               | 6 +++---
+ doc/global/qt-module-defaults-online.qdocconf | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/doc/global/html-footer.qdocconf b/doc/global/html-footer.qdocconf
+index 673e500291..f799534c58 100644
+--- a/doc/global/html-footer.qdocconf
++++ b/doc/global/html-footer.qdocconf
+@@ -14,7 +14,7 @@ HTML.footer = \
+     "   The documentation provided herein is licensed under the terms of the" \
+     "   <a href=\"http://www.gnu.org/licenses/fdl.html\">GNU Free Documentation" \
+     "   License version 1.3</a> as published by the Free Software Foundation.<br/>" \
+-    "   Qt and respective logos are trademarks of The Qt Company Ltd. " \
+-    "   in Finland and/or other countries worldwide. All other trademarks are property\n" \
+-    "   of their respective owners. </p>\n" \
++    "   Qt and respective logos are <a href=\"https://doc.qt.io/qt/trademarks.html\">" \
++    "   trademarks</a> of The Qt Company Ltd. in Finland and/or other countries\n" \
++    "   worldwide. All other trademarks are property of their respective owners. </p>\n" \
+     "</div>\n" \
+diff --git a/doc/global/qt-module-defaults-online.qdocconf b/doc/global/qt-module-defaults-online.qdocconf
+index 635caf0b94..0e13784479 100644
+--- a/doc/global/qt-module-defaults-online.qdocconf
++++ b/doc/global/qt-module-defaults-online.qdocconf
+@@ -11,9 +11,9 @@ HTML.footer = \
+     "   The documentation provided herein is licensed under the terms of the" \
+     "   <a href=\"http://www.gnu.org/licenses/fdl.html\">GNU Free Documentation" \
+     "   License version 1.3</a> as published by the Free Software Foundation. " \
+-    "   Qt and respective logos are trademarks of The Qt Company Ltd. " \
+-    "   in Finland and/or other countries worldwide. All other trademarks are property\n" \
+-    "   of their respective owners. </p>\n"
++    "   Qt and respective logos are <a href=\"https://doc.qt.io/qt/trademarks.html\">" \
++    "   trademarks</a> of The Qt Company Ltd. in Finland and/or other countries\n"
++    "   worldwide. All other trademarks are property of their respective owners. </p>\n"
+ 
+ #include standard set of macros and C++ defines and ignores
+ include(macros.qdocconf)
+-- 
+2.40.0.rc2
+

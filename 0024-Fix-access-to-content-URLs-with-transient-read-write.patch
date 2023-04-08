@@ -1,7 +1,7 @@
-From 190d33aa34988640aaa8d7beb41e0c723c88b2c9 Mon Sep 17 00:00:00 2001
+From b4bbcd320525faded4736eba3cf79bc8257c189c Mon Sep 17 00:00:00 2001
 From: Volker Krause <vkrause@kde.org>
 Date: Sun, 12 Sep 2021 10:02:09 +0200
-Subject: [PATCH 024/157] Fix access to content: URLs with transient read/write
+Subject: [PATCH 024/150] Fix access to content: URLs with transient read/write
  permissions
 
 The current code assumed that the lack of persistent permissions means
@@ -23,10 +23,10 @@ Reviewed-by: Assam Boudjelthia <assam.boudjelthia@qt.io>
  1 file changed, 21 insertions(+), 17 deletions(-)
 
 diff --git a/src/android/jar/src/org/qtproject/qt5/android/QtNative.java b/src/android/jar/src/org/qtproject/qt5/android/QtNative.java
-index 5792b5b2f5..2f74750fcf 100644
+index b077014b81..c0d6c900ae 100644
 --- a/src/android/jar/src/org/qtproject/qt5/android/QtNative.java
 +++ b/src/android/jar/src/org/qtproject/qt5/android/QtNative.java
-@@ -116,6 +116,7 @@ public class QtNative
+@@ -117,6 +117,7 @@ public class QtNative
      public static QtThread m_qtThread = new QtThread();
      private static HashMap<String, Uri> m_cachedUris = new HashMap<String, Uri>();
      private static ArrayList<String> m_knownDirs = new ArrayList<String>();
@@ -34,7 +34,7 @@ index 5792b5b2f5..2f74750fcf 100644
  
      private static final Runnable runPendingCppRunnablesRunnable = new Runnable() {
          @Override
-@@ -193,11 +194,10 @@ public class QtNative
+@@ -194,11 +195,10 @@ public class QtNative
                      return iterUri;
              }
  
@@ -50,7 +50,7 @@ index 5792b5b2f5..2f74750fcf 100644
          } catch (SecurityException e) {
              e.printStackTrace();
              return null;
-@@ -244,7 +244,7 @@ public class QtNative
+@@ -245,7 +245,7 @@ public class QtNative
          int error = -1;
  
          if (uri == null) {
@@ -59,7 +59,7 @@ index 5792b5b2f5..2f74750fcf 100644
              return error;
          }
  
-@@ -254,12 +254,13 @@ public class QtNative
+@@ -255,12 +255,13 @@ public class QtNative
              return fdDesc.detachFd();
          } catch (FileNotFoundException e) {
              e.printStackTrace();
@@ -75,7 +75,7 @@ index 5792b5b2f5..2f74750fcf 100644
      }
  
      public static long getSize(Context context, String contentUrl)
-@@ -270,7 +271,7 @@ public class QtNative
+@@ -271,7 +272,7 @@ public class QtNative
              uri = getUriWithValidPermission(context, contentUrl, "r");
  
          if (uri == null) {
@@ -84,7 +84,7 @@ index 5792b5b2f5..2f74750fcf 100644
              return size;
          } else if (!m_cachedUris.containsKey(contentUrl)) {
              m_cachedUris.put(contentUrl, uri);
-@@ -288,12 +289,13 @@ public class QtNative
+@@ -289,12 +290,13 @@ public class QtNative
          } catch (IllegalArgumentException e) {
              Log.e(QtTAG, "getSize(): Invalid Uri");
              e.printStackTrace();
@@ -100,7 +100,7 @@ index 5792b5b2f5..2f74750fcf 100644
      }
  
      public static boolean checkFileExists(Context context, String contentUrl)
-@@ -303,7 +305,7 @@ public class QtNative
+@@ -304,7 +306,7 @@ public class QtNative
          if (uri == null)
              uri = getUriWithValidPermission(context, contentUrl, "r");
          if (uri == null) {
@@ -109,7 +109,7 @@ index 5792b5b2f5..2f74750fcf 100644
              return exists;
          } else {
              if (!m_cachedUris.containsKey(contentUrl))
-@@ -321,12 +323,13 @@ public class QtNative
+@@ -322,12 +324,13 @@ public class QtNative
          } catch (IllegalArgumentException e) {
              Log.e(QtTAG, "checkFileExists(): Invalid Uri");
              e.printStackTrace();
@@ -125,7 +125,7 @@ index 5792b5b2f5..2f74750fcf 100644
      }
  
      public static boolean checkIfWritable(Context context, String contentUrl)
-@@ -344,7 +347,7 @@ public class QtNative
+@@ -345,7 +348,7 @@ public class QtNative
              uri = getUriWithValidPermission(context, contentUrl, "r");
          }
          if (uri == null) {
@@ -134,7 +134,7 @@ index 5792b5b2f5..2f74750fcf 100644
              return isDir;
          } else {
              if (!m_cachedUris.containsKey(contentUrl))
-@@ -374,12 +377,13 @@ public class QtNative
+@@ -375,12 +378,13 @@ public class QtNative
          } catch (IllegalArgumentException e) {
              Log.e(QtTAG, "checkIfDir(): Invalid Uri");
              e.printStackTrace();
@@ -151,5 +151,5 @@ index 5792b5b2f5..2f74750fcf 100644
      public static String[] listContentsFromTreeUri(Context context, String contentUrl)
      {
 -- 
-2.38.1
+2.40.0.rc2
 

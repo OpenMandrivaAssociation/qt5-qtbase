@@ -1,7 +1,7 @@
-From 91cc6b0b2b4d684b44b2e13851c878a7996105fd Mon Sep 17 00:00:00 2001
+From 18454fabb36106e80d972afa9a71c99dc2364db0 Mon Sep 17 00:00:00 2001
 From: Lars Knoll <lars.knoll@qt.io>
 Date: Fri, 4 Sep 2020 10:40:29 +0200
-Subject: [PATCH 006/157] Deprecate QMutex in recursive mode
+Subject: [PATCH 006/150] Deprecate QMutex in recursive mode
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -93,5 +93,5 @@ index 88b058f410..0f1da4dc9b 100644
          return false;
      }
 -- 
-2.38.1
+2.40.0.rc2
 

@@ -1,7 +1,7 @@
-From 909d4a867482c14123588626c1234b714d2c9349 Mon Sep 17 00:00:00 2001
+From 9b4da4faf017a0bc840f27ea2fdbe79ccc6591a4 Mon Sep 17 00:00:00 2001
 From: Timur Pocheptsov <timur.pocheptsov@qt.io>
 Date: Mon, 12 Jul 2021 12:38:14 +0200
-Subject: [PATCH 037/157] Don't use a deprecated function if built/linked with
+Subject: [PATCH 037/150] Don't use a deprecated function if built/linked with
  OpenSSL v3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,5 +80,5 @@ index 32f48b8d9e..d89b9425f8 100644
  
  #endif
 -- 
-2.38.1
+2.40.0.rc2
 

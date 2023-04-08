@@ -1,0 +1,40 @@
+From 278c2b2c4f33b71aa5354ad7fdac9f1dfa51881b Mon Sep 17 00:00:00 2001
+From: Joerg Bornemann <joerg.bornemann@qt.io>
+Date: Mon, 28 Mar 2022 11:01:54 +0200
+Subject: [PATCH 078/150] qmake: Ignore stderr when determining the macOS SDK
+ version
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+If xcrun prints warnings or errors to stderr while determining the SDK
+version, they become part of the SDK version string.  This then leads to
+a qmake error.
+
+Intentionally ignore stderr so that it is not treated as part of the SDK
+version.
+
+Pick-to: 5.15 6.2 6.3
+Fixes: QTBUG-102066
+Change-Id: I023296b430aac1407c970412c5cf1010bd81589b
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit 845d28cafbe56df3092f3c0fc5a28805e9cfe530)
+---
+ mkspecs/features/mac/sdk.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mkspecs/features/mac/sdk.mk b/mkspecs/features/mac/sdk.mk
+index f30b5830b4..a32ceacb6c 100644
+--- a/mkspecs/features/mac/sdk.mk
++++ b/mkspecs/features/mac/sdk.mk
+@@ -1,6 +1,6 @@
+ 
+ ifeq ($(QT_MAC_SDK_NO_VERSION_CHECK),)
+-    CHECK_SDK_COMMAND = /usr/bin/xcrun --sdk $(EXPORT_QMAKE_MAC_SDK) -show-sdk-version 2>&1
++    CHECK_SDK_COMMAND = /usr/bin/xcrun --sdk $(EXPORT_QMAKE_MAC_SDK) -show-sdk-version 2>/dev/null
+     CURRENT_MAC_SDK_VERSION := $(shell DEVELOPER_DIR=$(EXPORT_QMAKE_XCODE_DEVELOPER_PATH) $(CHECK_SDK_COMMAND))
+     ifneq ($(CURRENT_MAC_SDK_VERSION),$(EXPORT_QMAKE_MAC_SDK_VERSION))
+         # We don't want to complain about out of date SDK unless the target needs to be remade.
+-- 
+2.40.0.rc2
+

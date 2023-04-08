@@ -1,7 +1,7 @@
-From 62e1e081a3e8112f12bfefef1ffe9622f42a3fa7 Mon Sep 17 00:00:00 2001
+From 45276440f267887e53217f7dc9656ea16dc1780c Mon Sep 17 00:00:00 2001
 From: Antonio Rojas <arojas@archlinux.org>
 Date: Wed, 11 Aug 2021 09:27:15 +0200
-Subject: [PATCH 020/157] Remove another usage of mysql_get_client_version()
+Subject: [PATCH 020/150] Remove another usage of mysql_get_client_version()
 
 As of MariaDB 10.6, mysql_get_client_version returns the C library version, which breaks the version comparison.
 
@@ -47,5 +47,5 @@ index 7ca055eea2..4b9b396946 100644
  
      d->preparedQuerysEnabled = checkPreparedQueries(d->mysql);
 -- 
-2.38.1
+2.40.0.rc2
 

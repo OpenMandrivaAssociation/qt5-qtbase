@@ -1,7 +1,7 @@
-From 1ad01325a1319cd397c44e6bd5658e0fcf76b888 Mon Sep 17 00:00:00 2001
+From 83b1241ade5ca061a69aeb654f49228cf31eb74b Mon Sep 17 00:00:00 2001
 From: Timur Pocheptsov <timur.pocheptsov@qt.io>
 Date: Fri, 6 Aug 2021 17:02:03 +0200
-Subject: [PATCH 032/157] tst_QSslSocket - replace an old certificate
+Subject: [PATCH 032/150] tst_QSslSocket - replace an old certificate
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -204,5 +204,5 @@ index 9d1664d609..337ce541a6 100644
 +g0veFbyfzlJ0q8qzD/iffqqIa2ZSmQ==
 +-----END PRIVATE KEY-----
 -- 
-2.38.1
+2.40.0.rc2
 
