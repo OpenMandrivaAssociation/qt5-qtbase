@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	1
+Release:	2
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -158,6 +158,16 @@ Patch1:		https://src.fedoraproject.org/rpms/qt5-qtbase/raw/rawhide/f/qt5-qtbase-
 # https://codereview.qt-project.org/#/c/151459/
 Patch3:		qt-5.5.1-barf-on-clang-PIE.patch
 Patch4:		qt-5.8.0-no-isystem-usr-include.patch
+# FIXME This patch is completely meaningless in the context of C++.
+# It is a workaround for a pyside2 build failure with Qt 5.15.9,
+# pyside2 5.15.9, clang 16.0.1 -- the generated code thinks a
+# not otherwise specified "Type" is in fact a
+# QFlags<QOpenGLShader::ShaderTypeBit>, causing many functions
+# looking for a QEvent::Type to be bogus.
+# Since there are no side effects to superfluously specifying
+# QEvent::Type instead of plain "Type" in a QEvent derived class,
+# this workaround is acceptable, if not nice.
+Patch5:		qtbase-5.15.9-work-around-pyside2-brokenness.patch
 Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
 # FIXME Applying this patch fixes VA-API in QMPlay2 without
 # the workaround patch, but causes a crash when doing a search
