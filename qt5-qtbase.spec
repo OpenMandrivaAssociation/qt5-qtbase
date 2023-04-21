@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	2
+Release:	3
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -335,6 +335,7 @@ Patch1147:	0147-QAbstractItemView-don-t-access-invalid-indexes-on-co.patch
 Patch1148:	0148-Add-nullptr-guard-in-QStyleSheetStyle-drawPrimitive-.patch
 Patch1149:	0149-Add-QImage-null-check-when-QOpenGLTexture-converts.patch
 Patch1150:	0150-QFSFileEngine-fix-overflow-bug-when-using-lseek64.patch
+Patch1151:	0151-QCborValue-fix-incorrect-to-Array-Map-when-the-value.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
