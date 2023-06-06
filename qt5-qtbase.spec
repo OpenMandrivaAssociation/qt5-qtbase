@@ -139,7 +139,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	3
+Release:	4
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -336,6 +336,10 @@ Patch1148:	0148-Add-nullptr-guard-in-QStyleSheetStyle-drawPrimitive-.patch
 Patch1149:	0149-Add-QImage-null-check-when-QOpenGLTexture-converts.patch
 Patch1150:	0150-QFSFileEngine-fix-overflow-bug-when-using-lseek64.patch
 Patch1151:	0151-QCborValue-fix-incorrect-to-Array-Map-when-the-value.patch
+Patch1152:	0152-QDnsLookup-Unix-make-sure-we-don-t-overflow-the-buff.patch
+Patch1153:	0153-Fix-specific-overflow-in-qtextlayout-CVE-2023-32763.patch
+Patch1154:	0154-Hsts-match-header-names-case-insensitively-CVE-2023-.patch
+Patch1155:	0155-Use-pkgconfig-in-order-to-find-libproxy-configuratio.patch
 
 # FIXME this is broken -- but currently required because QtGui
 # and friends prefer linking to system QtCore over linking to the
@@ -2112,33 +2116,3 @@ popd
 install -p -m755 -D %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xsetup.d/10-qt5-check-opengl.xsetup
 %endif
 install -m644 -p -D %{SOURCE3} %{buildroot}%{_qt_datadir}/qtlogging.ini
-
-# (tpg) strip LTO from "LLVM IR bitcode" files
-check_convert_bitcode() {
-    printf '%s\n' "Checking for LLVM IR bitcode"
-    llvm_file_name=$(realpath ${1})
-    llvm_file_type=$(file ${llvm_file_name})
-
-    if printf '%s\n' "${llvm_file_type}" | grep -q "LLVM IR bitcode"; then
-# recompile without LTO
-    clang %{optflags} -fno-lto -Wno-unused-command-line-argument -x ir ${llvm_file_name} -c -o ${llvm_file_name}
-    elif printf '%s\n' "${llvm_file_type}" | grep -q "current ar archive"; then
-    printf '%s\n' "Unpacking ar archive ${llvm_file_name} to check for LLVM bitcode components."
-# create archive stage for objects
-    archive_stage=$(mktemp -d)
-    archive=${llvm_file_name}
-    cd ${archive_stage}
-    ar x ${archive}
-    for archived_file in $(find -not -type d); do
-        check_convert_bitcode ${archived_file}
-        printf '%s\n' "Repacking ${archived_file} into ${archive}."
-        ar r ${archive} ${archived_file}
-    done
-    ranlib ${archive}
-    cd ..
-    fi
-}
-
-for i in $(find %{buildroot} -type f -name "*.[ao]"); do
-    check_convert_bitcode ${i}
-done
