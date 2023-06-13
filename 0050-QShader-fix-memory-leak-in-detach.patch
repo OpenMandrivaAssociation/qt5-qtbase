@@ -1,0 +1,85 @@
+From c5f9eb4ce4759d7bb4e7962d5488431e37ebbdc1 Mon Sep 17 00:00:00 2001
+From: David Faure <david.faure@kdab.com>
+Date: Sun, 13 Mar 2022 15:21:19 +0100
+Subject: [PATCH 050/129] QShader: fix memory leak in detach()
+
+qAtomicDetach() does   d = new T(*d);  which calls the copy constructor.
+Since there was no copy constructor declared for QShaderPrivate,
+the compiler generated one which copied the refcount over, instead of
+setting it to 1 in the detached instance. As a result, the destructor
+didn't delete the QShaderPrivate.
+
+Nothing was calling this constructor that takes a pointer, so clearly
+this was a typo for a copy constructor.
+
+Detected in an ASAN build, the qsb tool exited in error.
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: Idbe659b52d2600ac7c11b09142a6aa5b25310df9
+Reviewed-by: Laszlo Agocs <laszlo.agocs@qt.io>
+(cherry picked from commit fd4672d02023d8c38d8a80da300e135e98b90164)
+
+* asturmlechner 2022-06-09: Fix conflict with dev branch commit
+    04cdde30d64ed55adc8174dc379f131fb2aeba98
+---
+ src/gui/rhi/qshader_p_p.h            | 12 ++++++------
+ src/gui/rhi/qshaderdescription_p_p.h | 18 +++++++++---------
+ 2 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/src/gui/rhi/qshader_p_p.h b/src/gui/rhi/qshader_p_p.h
+index ec9d25971f..4a5a7a6d51 100644
+--- a/src/gui/rhi/qshader_p_p.h
++++ b/src/gui/rhi/qshader_p_p.h
+@@ -68,13 +68,13 @@ struct Q_GUI_EXPORT QShaderPrivate
+     {
+     }
+ 
+-    QShaderPrivate(const QShaderPrivate *other)
++    QShaderPrivate(const QShaderPrivate &other)
+         : ref(1),
+-          qsbVersion(other->qsbVersion),
+-          stage(other->stage),
+-          desc(other->desc),
+-          shaders(other->shaders),
+-          bindings(other->bindings)
++          qsbVersion(other.qsbVersion),
++          stage(other.stage),
++          desc(other.desc),
++          shaders(other.shaders),
++          bindings(other.bindings)
+     {
+     }
+ 
+diff --git a/src/gui/rhi/qshaderdescription_p_p.h b/src/gui/rhi/qshaderdescription_p_p.h
+index ec2b0b6b4c..3da33a8a2b 100644
+--- a/src/gui/rhi/qshaderdescription_p_p.h
++++ b/src/gui/rhi/qshaderdescription_p_p.h
+@@ -63,16 +63,16 @@ struct Q_GUI_EXPORT QShaderDescriptionPrivate
+         localSize[0] = localSize[1] = localSize[2] = 0;
+     }
+ 
+-    QShaderDescriptionPrivate(const QShaderDescriptionPrivate *other)
++    QShaderDescriptionPrivate(const QShaderDescriptionPrivate &other)
+         : ref(1),
+-          inVars(other->inVars),
+-          outVars(other->outVars),
+-          uniformBlocks(other->uniformBlocks),
+-          pushConstantBlocks(other->pushConstantBlocks),
+-          storageBlocks(other->storageBlocks),
+-          combinedImageSamplers(other->combinedImageSamplers),
+-          storageImages(other->storageImages),
+-          localSize(other->localSize)
++          inVars(other.inVars),
++          outVars(other.outVars),
++          uniformBlocks(other.uniformBlocks),
++          pushConstantBlocks(other.pushConstantBlocks),
++          storageBlocks(other.storageBlocks),
++          combinedImageSamplers(other.combinedImageSamplers),
++          storageImages(other.storageImages),
++          localSize(other.localSize)
+     {
+     }
+ 
+-- 
+2.41.0.rc2
+

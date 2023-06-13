@@ -1,0 +1,119 @@
+From b1018dc992da8bcd8650da414b26cafd5571910c Mon Sep 17 00:00:00 2001
+From: Harald Sitter <sitter@kde.org>
+Date: Wed, 10 Aug 2022 13:20:33 +0200
+Subject: [PATCH 087/129] a11y: support GetAccessibleId for at-spi
+
+This introduces a new helper function accessibleIdForAccessible
+(inspired by Windows' automationIdForAccessible) to synthesize an id out
+of the objectNames of the accessible parent chain. The id is then
+exposed via the GetAccessibleId D-Bus function for consumption in a11y
+tools.
+
+Change-Id: If72b86c5864c43f4ca842aa11423dd8aea0dde4a
+Reviewed-by: Aleix Pol Gonzalez <aleixpol@kde.org>
+(cherry picked from commit 75e8754875350d53fa62b2c5964c0e0ea8cd69f6)
+---
+ .../linuxaccessibility/atspiadaptor.cpp       | 26 +++++++++++++++++++
+ .../tst_qaccessibilitylinux.cpp               | 11 ++++++++
+ 2 files changed, 37 insertions(+)
+
+diff --git a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+index c8c717ba6b..255ea5e33e 100644
+--- a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
++++ b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+@@ -194,6 +194,9 @@ QString AtSpiAdaptor::introspect(const QString &path) const
+                 "      <arg direction=\"out\" type=\"(so)\"/>\n"
+                 "      <annotation value=\"QSpiObjectReference\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
+                 "    </method>\n"
++                "    <method name=\"GetAccessibleId\">\n"
++                "      <arg direction=\"out\" type=\"s\"/>\n"
++                "    </method>\n"
+                 "  </interface>\n"
+                 );
+ 
+@@ -1378,6 +1381,26 @@ void AtSpiAdaptor::registerApplication()
+     delete registry;
+ }
+ 
++namespace {
++QString accessibleIdForAccessible(QAccessibleInterface *accessible)
++{
++    QString result;
++    while (accessible) {
++        if (!result.isEmpty())
++            result.prepend(QLatin1Char('.'));
++        if (auto obj = accessible->object()) {
++            const QString name = obj->objectName();
++            if (!name.isEmpty())
++                result.prepend(name);
++            else
++                result.prepend(QString::fromUtf8(obj->metaObject()->className()));
++        }
++        accessible = accessible->parent();
++    }
++    return result;
++}
++} // namespace
++
+ // Accessible
+ bool AtSpiAdaptor::accessibleInterface(QAccessibleInterface *interface, const QString &function, const QDBusMessage &message, const QDBusConnection &connection)
+ {
+@@ -1461,6 +1484,9 @@ bool AtSpiAdaptor::accessibleInterface(QAccessibleInterface *interface, const QS
+             children << ref;
+         }
+         connection.send(message.createReply(QVariant::fromValue(children)));
++    } else if (function == QLatin1String("GetAccessibleId")) {
++        sendReply(connection, message,
++                  QVariant::fromValue(QDBusVariant(accessibleIdForAccessible(interface))));
+     } else {
+         qCDebug(lcAccessibilityAtspi) << "WARNING: AtSpiAdaptor::accessibleInterface does not implement " << function << message.path();
+         return false;
+diff --git a/tests/auto/other/qaccessibilitylinux/tst_qaccessibilitylinux.cpp b/tests/auto/other/qaccessibilitylinux/tst_qaccessibilitylinux.cpp
+index 7ba3715e13..752aa122f6 100644
+--- a/tests/auto/other/qaccessibilitylinux/tst_qaccessibilitylinux.cpp
++++ b/tests/auto/other/qaccessibilitylinux/tst_qaccessibilitylinux.cpp
+@@ -179,6 +179,7 @@ void tst_QAccessibilityLinux::initTestCase()
+     QVERIFY(!address.isEmpty());
+ 
+     m_window = new AccessibleTestWindow();
++    m_window->setObjectName("mainWindow"_L1);
+     m_window->show();
+ 
+     QVERIFY(QTest::qWaitForWindowExposed(m_window));
+@@ -236,8 +237,11 @@ bool hasState(QDBusInterface *interface, AtspiStateType state)
+ void tst_QAccessibilityLinux::testLabel()
+ {
+     QLabel *l = new QLabel(m_window);
++    l->setObjectName("theObjectName"_L1);
+     l->setText("Hello A11y");
+     m_window->addWidget(l);
++    auto a11yEmpty = new QLabel(m_window);
++    m_window->addWidget(l);
+ 
+     // Application
+     QCOMPARE(getParent(mainWindow), QLatin1String(ATSPI_DBUS_PATH_ROOT));
+@@ -249,6 +253,8 @@ void tst_QAccessibilityLinux::testLabel()
+     QCOMPARE(getChildren(labelInterface).count(), 0);
+     QCOMPARE(labelInterface->call(QDBus::Block, "GetRoleName").arguments().first().toString(), QLatin1String("label"));
+     QCOMPARE(labelInterface->call(QDBus::Block, "GetRole").arguments().first().toUInt(), 29u);
++    QCOMPARE(labelInterface->call(QDBus::Block, "GetAccessibleId").arguments().first().toString(),
++             QLatin1String("mainWindow.theObjectName"));
+     QCOMPARE(getParent(labelInterface), mainWindow->path());
+     QVERIFY(!hasState(labelInterface, ATSPI_STATE_EDITABLE));
+     QVERIFY(hasState(labelInterface, ATSPI_STATE_READ_ONLY));
+@@ -256,7 +262,12 @@ void tst_QAccessibilityLinux::testLabel()
+     l->setText("New text");
+     QCOMPARE(labelInterface->property("Name").toString(), l->text());
+ 
++    auto *a11yEmptyInterface = getInterface(children.at(1), "org.a11y.atspi.Accessible");
++    QCOMPARE(a11yEmptyInterface->call(QDBus::Block, "GetAccessibleId").arguments().first().toString(),
++             QLatin1String("mainWindow.QLabel"));
++
+     m_window->clearChildren();
++    delete a11yEmptyInterface;
+     delete labelInterface;
+ }
+ 
+-- 
+2.41.0.rc2
+

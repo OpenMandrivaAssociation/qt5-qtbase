@@ -1,0 +1,85 @@
+From 3f207b3b1bc448f4f62077f733413737b105d768 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Wed, 20 Jul 2022 16:22:13 +0200
+Subject: [PATCH 081/129] QStringIterator: fix UB [1/2]: use
+ has{Next,Previous}() more
+
+Replace
+
+- pos > i with hasPrevious()
+- pos < e with hasNext()
+
+Everything is inline, so there's no difference in assembly, but less
+source code lines to fix later.
+
+Pick-to: 6.4 6.3 6.2 5.15
+Change-Id: I3f9cf2716c96b811b29b75fa20f88cc3b461771a
+Reviewed-by: Mate Barany <mate.barany@qt.io>
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+(cherry picked from commit 34800d1f09447e921203561c0e4804c4f095136f)
+---
+ src/corelib/text/qstringiterator_p.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/corelib/text/qstringiterator_p.h b/src/corelib/text/qstringiterator_p.h
+index c6cf61d488..5d892f8805 100644
+--- a/src/corelib/text/qstringiterator_p.h
++++ b/src/corelib/text/qstringiterator_p.h
+@@ -121,7 +121,7 @@ public:
+         Q_ASSERT_X(hasNext(), Q_FUNC_INFO, "iterator hasn't a next item");
+ 
+         if (Q_UNLIKELY((pos++)->isHighSurrogate())) {
+-            Q_ASSERT(pos < e && pos->isLowSurrogate());
++            Q_ASSERT(hasNext() && pos->isLowSurrogate());
+             ++pos;
+         }
+     }
+@@ -160,7 +160,7 @@ public:
+ 
+         const QChar cur = *pos++;
+         if (Q_UNLIKELY(cur.isHighSurrogate())) {
+-            Q_ASSERT(pos < e && pos->isLowSurrogate());
++            Q_ASSERT(hasNext() && pos->isLowSurrogate());
+             return QChar::surrogateToUcs4(cur, *pos++);
+         }
+         return cur.unicode();
+@@ -172,7 +172,7 @@ public:
+ 
+         const QChar uc = *pos++;
+         if (Q_UNLIKELY(uc.isSurrogate())) {
+-            if (Q_LIKELY(uc.isHighSurrogate() && pos < e && pos->isLowSurrogate()))
++            if (Q_LIKELY(uc.isHighSurrogate() && hasNext() && pos->isLowSurrogate()))
+                 return QChar::surrogateToUcs4(uc, *pos++);
+             return invalidAs;
+         }
+@@ -203,7 +203,7 @@ public:
+         Q_ASSERT_X(hasPrevious(), Q_FUNC_INFO, "iterator hasn't a previous item");
+ 
+         if (Q_UNLIKELY((--pos)->isLowSurrogate())) {
+-            Q_ASSERT(pos > i && pos[-1].isHighSurrogate());
++            Q_ASSERT(hasPrevious() && pos[-1].isHighSurrogate());
+             --pos;
+         }
+     }
+@@ -241,7 +241,7 @@ public:
+ 
+         const QChar cur = *--pos;
+         if (Q_UNLIKELY(cur.isLowSurrogate())) {
+-            Q_ASSERT(pos > i && pos[-1].isHighSurrogate());
++            Q_ASSERT(hasPrevious() && pos[-1].isHighSurrogate());
+             return QChar::surrogateToUcs4(*--pos, cur);
+         }
+         return cur.unicode();
+@@ -253,7 +253,7 @@ public:
+ 
+         const QChar uc = *--pos;
+         if (Q_UNLIKELY(uc.isSurrogate())) {
+-            if (Q_LIKELY(uc.isLowSurrogate() && pos > i && pos[-1].isHighSurrogate()))
++            if (Q_LIKELY(uc.isLowSurrogate() && hasPrevious() && pos[-1].isHighSurrogate()))
+                 return QChar::surrogateToUcs4(*--pos, uc);
+             return invalidAs;
+         }
+-- 
+2.41.0.rc2
+

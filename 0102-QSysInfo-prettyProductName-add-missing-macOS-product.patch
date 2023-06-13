@@ -1,0 +1,76 @@
+From 4343d80656939ad43b56e6b8ef060286fe83b664 Mon Sep 17 00:00:00 2001
+From: Yuhang Zhao <2546789017@qq.com>
+Date: Tue, 24 May 2022 14:05:10 +0800
+Subject: [PATCH 102/129] QSysInfo::prettyProductName(): add missing macOS
+ product names
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Pick-to: 6.2 6.3 6.4 5.15
+Change-Id: I9163917187b7a4cbf48e443303313b25473b229f
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit 870cfa4e17c42698b77504cfc19728acfbf7d659)
+---
+ src/corelib/global/qglobal.cpp | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/src/corelib/global/qglobal.cpp b/src/corelib/global/qglobal.cpp
+index ac2e85c51e..8d4dab45fd 100644
+--- a/src/corelib/global/qglobal.cpp
++++ b/src/corelib/global/qglobal.cpp
+@@ -97,6 +97,10 @@
+ #  include <private/qcore_mac_p.h>
+ #endif
+ 
++#if defined(Q_OS_MACOS)
++#include <QtCore/qversionnumber.h>
++#endif
++
+ #ifdef Q_OS_UNIX
+ #include <sys/utsname.h>
+ #include <private/qcore_unix_p.h>
+@@ -2133,6 +2137,13 @@ QT_WARNING_POP
+ static const char *osVer_helper(QOperatingSystemVersion version = QOperatingSystemVersion::current())
+ {
+ #ifdef Q_OS_MACOS
++    if (version.majorVersion() == 12)
++        return "Monterey";
++    // Compare against predefined constant to handle 10.16/11.0
++    if (QVersionNumber(QOperatingSystemVersion::MacOSBigSur.majorVersion(),
++            QOperatingSystemVersion::MacOSBigSur.minorVersion(), QOperatingSystemVersion::MacOSBigSur.microVersion()).isPrefixOf(
++                QVersionNumber(version.majorVersion(), version.minorVersion(), version.microVersion())))
++        return "Big Sur";
+     if (version.majorVersion() == 10) {
+         switch (version.minorVersion()) {
+         case 9:
+@@ -2147,13 +2158,15 @@ static const char *osVer_helper(QOperatingSystemVersion version = QOperatingSyst
+             return "High Sierra";
+         case 14:
+             return "Mojave";
++        case 15:
++            return "Catalina";
+         }
+     }
+     // unknown, future version
+ #else
+     Q_UNUSED(version);
+ #endif
+-    return 0;
++    return nullptr;
+ }
+ #endif
+ 
+@@ -2278,7 +2291,7 @@ static const char *osVer_helper(QOperatingSystemVersion version = QOperatingSyst
+     }
+ #undef Q_WINVER
+     // unknown, future version
+-    return 0;
++    return nullptr;
+ }
+ 
+ #endif
+-- 
+2.41.0.rc2
+

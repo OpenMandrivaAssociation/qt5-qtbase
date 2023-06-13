@@ -1,0 +1,54 @@
+From 377d8f469981b0ef6a1d706fe8e761a24f9bfe5f Mon Sep 17 00:00:00 2001
+From: Liang Qi <liang.qi@qt.io>
+Date: Wed, 11 Jan 2023 10:06:44 +0100
+Subject: [PATCH 124/129] qxcbwindow.cpp: Fix sign-compare and another warnings
+
+qsizetype(int32 on 32bit, int64 on 64bit) vs uint32.
+
+qxcbwindow.cpp: In member function 'virtual void QXcbWindow::setWindowIcon(const QIcon&)':
+qxcbwindow.cpp:1300:30: warning: comparison of integer expressions of different signedness: 'qsizetype' {aka 'int'} and 'uint32_t' {aka 'unsigned int'} [-Wsign-compare]
+ 1300 |         if (icon_data.size() > xcb_get_maximum_request_length(xcb_connection())) {
+      |             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+qxcbwindow.cpp:1301:53: warning: format '%llu' expects argument of type 'long long unsigned int', but argument 3 has type 'qsizetype' {aka 'int'} [-Wformat=]
+ 1301 |             qWarning("Ignoring window icon: Size %llu exceeds maximum xcb request length %u.",
+      |                                                  ~~~^
+      |                                                     |
+      |                                                     long long unsigned int
+      |                                                  %u
+ 1302 |                      icon_data.size(), xcb_get_maximum_request_length(xcb_connection()));
+      |                      ~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    qsizetype {aka int}
+
+This amends ebdaf8ef9cea6f3669fc73bc3395acf2e497f7fc.
+
+Fixes: QTBUG-109610
+Pick-to: 6.5 6.4 6.2 5.15
+Change-Id: I2c9b5ad27881658463dd0870639c42d3ea8e7aba
+Reviewed-by: Axel Spoerl <axel.spoerl@qt.io>
+(cherry picked from commit ec787ce14363c843f9c1149bad8045ff6acbcf1c)
+---
+ src/plugins/platforms/xcb/qxcbwindow.cpp | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbwindow.cpp b/src/plugins/platforms/xcb/qxcbwindow.cpp
+index 45bac8ee85..c67ffa9dd7 100644
+--- a/src/plugins/platforms/xcb/qxcbwindow.cpp
++++ b/src/plugins/platforms/xcb/qxcbwindow.cpp
+@@ -1345,9 +1345,10 @@ void QXcbWindow::setWindowIcon(const QIcon &icon)
+ 
+     if (!icon_data.isEmpty()) {
+         // Ignore icon exceeding maximum xcb request length
+-        if (size_t(icon_data.size()) > xcb_get_maximum_request_length(xcb_connection())) {
+-            qWarning("Ignoring window icon: Size %d exceeds maximum xcb request length %u.",
+-                     icon_data.size(), xcb_get_maximum_request_length(xcb_connection()));
++        if (quint64(icon_data.size()) > quint64(xcb_get_maximum_request_length(xcb_connection()))) {
++            qWarning() << "Ignoring window icon" << icon_data.size()
++                       << "exceeds maximum xcb request length"
++                       << xcb_get_maximum_request_length(xcb_connection());
+             return;
+         }
+         xcb_change_property(xcb_connection(),
+-- 
+2.41.0.rc2
+

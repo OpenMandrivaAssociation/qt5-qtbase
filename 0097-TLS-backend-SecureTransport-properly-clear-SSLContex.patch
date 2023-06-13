@@ -1,0 +1,36 @@
+From d0a0669456c324cb277c21273f6cfec17f19e7d6 Mon Sep 17 00:00:00 2001
+From: Timur Pocheptsov <timur.pocheptsov@qt.io>
+Date: Wed, 21 Dec 2022 14:11:19 +0100
+Subject: [PATCH 097/129] TLS backend SecureTransport: properly clear
+ SSLContextRef
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Simply calling SSLClose on context is not enough. Properly clear
+the context by calling 'reset' member-function.
+
+Pick-to: 6.5 6.4 6.2 5.15
+Change-Id: Ic6a32f6e4193bb19809d1cce184651b78d6273a7
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+(cherry picked from commit 6128a92e07c0c66c29445c2d79c3b6bdbf8efcda)
+---
+ src/network/ssl/qsslsocket_mac.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/network/ssl/qsslsocket_mac.cpp b/src/network/ssl/qsslsocket_mac.cpp
+index 77e847e972..e38a5e75de 100644
+--- a/src/network/ssl/qsslsocket_mac.cpp
++++ b/src/network/ssl/qsslsocket_mac.cpp
+@@ -468,6 +468,7 @@ void QSslSocketBackendPrivate::disconnectFromHost()
+     if (context) {
+         if (!shutdown) {
+             SSLClose(context);
++            context.reset(nullptr);
+             shutdown = true;
+         }
+     }
+-- 
+2.41.0.rc2
+

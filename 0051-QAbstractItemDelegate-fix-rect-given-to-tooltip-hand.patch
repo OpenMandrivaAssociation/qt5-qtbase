@@ -1,0 +1,48 @@
+From 85e07c54d9df5b648bfa8c0d6033ccc030509c8d Mon Sep 17 00:00:00 2001
+From: David Faure <david.faure@kdab.com>
+Date: Tue, 2 Mar 2021 00:05:00 +0100
+Subject: [PATCH 051/129] QAbstractItemDelegate: fix rect given to tooltip
+ handing
+
+* The rect passed to QToolTip::showText() is in view coordinates,
+not in global coordinates.
+
+* Determining this rect in the first place doesn't need calling view->visualRect(index)
+The view already did this before calling this method, and stored it in
+option.rect, so just use that.
+
+* The widget passed to QToolTip::showText() should be the viewport,
+that's what option.rect is relative to (thanks Giuseppe!).
+
+Found these issues when implementing my own tooltip handing (for a subrect
+of a delegate) by looking at this code.
+
+Pick-to: 6.3 6.2 5.15
+Change-Id: I852e5409def28da98137cd0c4c996083e5e45706
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit 741afd67529ccc51b2686f59f897b6136e041719)
+---
+ src/widgets/itemviews/qabstractitemdelegate.cpp | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/src/widgets/itemviews/qabstractitemdelegate.cpp b/src/widgets/itemviews/qabstractitemdelegate.cpp
+index e120817edc..8ea36b5427 100644
+--- a/src/widgets/itemviews/qabstractitemdelegate.cpp
++++ b/src/widgets/itemviews/qabstractitemdelegate.cpp
+@@ -400,12 +400,7 @@ bool QAbstractItemDelegate::helpEvent(QHelpEvent *event,
+         const QString tooltip = index.isValid() ?
+               d->textForRole(Qt::ToolTipRole, index.data(Qt::ToolTipRole), option.locale, precision) :
+               QString();
+-        QRect rect;
+-        if (index.isValid()) {
+-            const QRect r = view->visualRect(index);
+-            rect = QRect(view->mapToGlobal(r.topLeft()), r.size());
+-        }
+-        QToolTip::showText(he->globalPos(), tooltip, view, rect);
++        QToolTip::showText(he->globalPos(), tooltip, view->viewport(), option.rect);
+         event->setAccepted(!tooltip.isEmpty());
+         break;
+         }
+-- 
+2.41.0.rc2
+

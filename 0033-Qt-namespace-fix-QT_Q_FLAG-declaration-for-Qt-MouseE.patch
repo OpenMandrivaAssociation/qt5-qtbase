@@ -1,0 +1,36 @@
+From 2466f405056958252c39c218c387268a0e159067 Mon Sep 17 00:00:00 2001
+From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Date: Tue, 1 Mar 2022 16:03:44 +0100
+Subject: [PATCH 033/129] Qt namespace: fix QT_Q_FLAG declaration for
+ Qt::MouseEventFlags
+
+The declaration was accidentally declaring the enumeration as
+a flag type, not the actual flag type.
+
+Change-Id: I515478b1628a6d72626da6d7e0061f1ea3d10c89
+Pick-to: 6.3 6.2 5.15
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 52e523c33f44d4a17653b5f5b134b9615bd07346)
+
+* asturmlechner 2022-03-03: Fix conflict with dev branch,
+  change git summary accordingly (s/Q_FLAG_NS/QT_Q_FLAG/)
+---
+ src/corelib/global/qnamespace.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/global/qnamespace.h b/src/corelib/global/qnamespace.h
+index ad4150b317..bf19b1627b 100644
+--- a/src/corelib/global/qnamespace.h
++++ b/src/corelib/global/qnamespace.h
+@@ -1864,7 +1864,7 @@ public:
+     QT_Q_ENUM(TimerType)
+     QT_Q_ENUM(ScrollPhase)
+     QT_Q_ENUM(MouseEventSource)
+-    QT_Q_FLAG(MouseEventFlag)
++    QT_Q_FLAG(MouseEventFlags)
+     QT_Q_ENUM(ChecksumType)
+     QT_Q_ENUM(HighDpiScaleFactorRoundingPolicy)
+     QT_Q_ENUM(TabFocusBehavior)
+-- 
+2.41.0.rc2
+
