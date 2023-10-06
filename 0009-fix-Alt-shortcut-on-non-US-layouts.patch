@@ -1,7 +1,7 @@
-From 85083edbb55f9f593bcca07df01af688563cd4e1 Mon Sep 17 00:00:00 2001
+From 2ec13c3348c0c360e38ad86b06e1f256901b28ec Mon Sep 17 00:00:00 2001
 From: Andrey Butirsky <butirsky@gmail.com>
 Date: Thu, 18 Mar 2021 17:42:51 +0300
-Subject: [PATCH 009/129] fix Alt+` shortcut on non-US layouts
+Subject: [PATCH 009/134] fix Alt+` shortcut on non-US layouts
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -23,7 +23,7 @@ Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
  2 files changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/src/platformsupport/input/xkbcommon/qxkbcommon.cpp b/src/platformsupport/input/xkbcommon/qxkbcommon.cpp
-index e4d3bc3acc..7cb9a8c79a 100644
+index d8f11eb730..4d5336e1b3 100644
 --- a/src/platformsupport/input/xkbcommon/qxkbcommon.cpp
 +++ b/src/platformsupport/input/xkbcommon/qxkbcommon.cpp
 @@ -472,7 +472,7 @@ QVector<xkb_keysym_t> QXkbCommon::toKeysym(QKeyEvent *event)
@@ -96,5 +96,5 @@ index 561eae03db..8389bd8f5a 100644
      static bool isKeypad(xkb_keysym_t sym) {
          return sym >= XKB_KEY_KP_Space && sym <= XKB_KEY_KP_9;
 -- 
-2.41.0.rc2
+2.42.0
 

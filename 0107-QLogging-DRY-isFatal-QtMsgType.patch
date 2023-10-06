@@ -1,0 +1,64 @@
+From 98eca5d6657e6fdfcff40fccb196f775e1835156 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Wed, 5 Jul 2023 07:42:19 +0200
+Subject: [PATCH 107/134] QLogging: DRY isFatal(QtMsgType)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Extract Method on the count-down algorithm of fatalCriticals and
+fatalWarnings, so we don't have the repeat the calculation and the
+comment.
+
+Task-number: QTBUG-115062
+Pick-to: 6.6 6.5 6.2 5.15
+Change-Id: I4bcbc2f5a21b999e7f301085581677b437a889e9
+Reviewed-by: David Faure <david.faure@kdab.com>
+Reviewed-by: Kai Köhne <kai.koehne@qt.io>
+(cherry picked from commit 3ffc1f9775cde1369ebdfcfa91ec18c393c24260)
+---
+ src/corelib/global/qlogging.cpp | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/src/corelib/global/qlogging.cpp b/src/corelib/global/qlogging.cpp
+index 292116cc47..8510cf3a26 100644
+--- a/src/corelib/global/qlogging.cpp
++++ b/src/corelib/global/qlogging.cpp
+@@ -189,6 +189,13 @@ static int checked_var_value(const char *varname)
+     return ok ? value : 1;
+ }
+ 
++static bool is_fatal_count_down(QAtomicInt &n)
++{
++    // it's fatal if the current value is exactly 1,
++    // otherwise decrement if it's non-zero
++    return n.loadRelaxed() && n.fetchAndAddRelaxed(-1) == 1;
++}
++
+ static bool isFatal(QtMsgType msgType)
+ {
+     if (msgType == QtFatalMsg)
+@@ -196,18 +203,12 @@ static bool isFatal(QtMsgType msgType)
+ 
+     if (msgType == QtCriticalMsg) {
+         static QAtomicInt fatalCriticals = checked_var_value("QT_FATAL_CRITICALS");
+-
+-        // it's fatal if the current value is exactly 1,
+-        // otherwise decrement if it's non-zero
+-        return fatalCriticals.loadRelaxed() && fatalCriticals.fetchAndAddRelaxed(-1) == 1;
++        return is_fatal_count_down(fatalCriticals);
+     }
+ 
+     if (msgType == QtWarningMsg || msgType == QtCriticalMsg) {
+         static QAtomicInt fatalWarnings = checked_var_value("QT_FATAL_WARNINGS");
+-
+-        // it's fatal if the current value is exactly 1,
+-        // otherwise decrement if it's non-zero
+-        return fatalWarnings.loadRelaxed() && fatalWarnings.fetchAndAddRelaxed(-1) == 1;
++        return is_fatal_count_down(fatalWarnings);
+     }
+ 
+     return false;
+-- 
+2.42.0
+

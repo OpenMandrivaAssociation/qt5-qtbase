@@ -1,0 +1,41 @@
+From 16426218e6465c4740cb52033a8738a9f4f5863e Mon Sep 17 00:00:00 2001
+From: Edward Welbourne <edward.welbourne@qt.io>
+Date: Thu, 10 Aug 2023 11:48:05 +0200
+Subject: [PATCH 119/134] Clear the _X version of alongside the enum deprecator
+
+When QT_NO_DEPRECATED_WARNINGS is defined, we undefine
+Q_DECL_ENUMERATOR_DEPRECATED as it's used raw (rather than via an
+intermediary or version-variant). The same is true of its _X()
+variant, so do the same for this - which involves redefining it to a
+still function-like macro, so that its parameter gets ignored.
+
+This amends commit 59b03992ab332a320ac7cff7c5b099b2c30e14b2 (and shall
+get conflicts on older branches, before the defines in question moved
+to qtdeprecationmarkers.h in 6.5).
+
+Pick-to: 5.15 6.2 6.5 6.6
+Change-Id: If85c135cddbb33e93cb90f400af123c74e0298ac
+Reviewed-by: Ivan Solovev <ivan.solovev@qt.io>
+(cherry picked from commit ffaa1281d492d9ab1b0301944c12301dacff55cb)
+
+* asturmlechner 2023-08-14: Change applied in qglobal.h instead.
+---
+ src/corelib/global/qglobal.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/corelib/global/qglobal.h b/src/corelib/global/qglobal.h
+index 450c1e586a..ff7167d9cc 100644
+--- a/src/corelib/global/qglobal.h
++++ b/src/corelib/global/qglobal.h
+@@ -307,6 +307,8 @@ typedef double qreal;
+ #  define QT_DEPRECATED_CONSTRUCTOR
+ #  undef Q_DECL_ENUMERATOR_DEPRECATED
+ #  define Q_DECL_ENUMERATOR_DEPRECATED
++#  undef Q_DECL_ENUMERATOR_DEPRECATED_X
++#  define Q_DECL_ENUMERATOR_DEPRECATED_X(ignored)
+ #endif
+ 
+ #ifndef QT_DEPRECATED_WARNINGS_SINCE
+-- 
+2.42.0
+

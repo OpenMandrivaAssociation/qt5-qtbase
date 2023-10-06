@@ -1,0 +1,28 @@
+From 7572278a0cfc62f7e1dcf5d3c5768cb2c79773f5 Mon Sep 17 00:00:00 2001
+From: Noah Davis <noahadvs@gmail.com>
+Date: Thu, 17 Feb 2022 05:07:29 -0500
+Subject: [PATCH 034/134] QGnomeTheme: remove unneeded Q_D
+
+Change-Id: I3fcb1de9487bfdfab16bae5603fed09ef72e01ba
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+Reviewed-by: Andreas Buhr <andreas.buhr@qt.io>
+(cherry picked from commit a792df2ace357e79c7ef765065564267c86d612d)
+---
+ src/platformsupport/themes/genericunix/qgenericunixthemes.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp b/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
+index dafa3ec4da..6e01af052c 100644
+--- a/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
++++ b/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
+@@ -731,7 +731,6 @@ QGnomeTheme::QGnomeTheme()
+ 
+ QVariant QGnomeTheme::themeHint(QPlatformTheme::ThemeHint hint) const
+ {
+-    Q_D(const QGnomeTheme);
+     switch (hint) {
+     case QPlatformTheme::DialogButtonBoxButtonsHaveIcons:
+         return QVariant(true);
+-- 
+2.42.0
+

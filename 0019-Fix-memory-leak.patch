@@ -1,7 +1,7 @@
-From b9879010747c7ddb25fcbeeee2e2ea3aac3da62a Mon Sep 17 00:00:00 2001
+From 88a318b0184daa76a956228da6ed5c2880a87844 Mon Sep 17 00:00:00 2001
 From: JiDe Zhang <zhangjide@uniontech.com>
 Date: Tue, 28 Sep 2021 17:46:16 +0800
-Subject: [PATCH 019/129] Fix memory leak
+Subject: [PATCH 019/134] Fix memory leak
 
 Destroy the QDBusPendingCallWatcher object when received
 the QDBusPendingCallWatcher::finished signal later.
@@ -21,5 +21,5 @@ diff --git a/tests/manual/rhi/cubemap_render/buildshader.bat b/tests/manual/rhi/
 old mode 100755
 new mode 100644
 -- 
-2.41.0.rc2
+2.42.0
 

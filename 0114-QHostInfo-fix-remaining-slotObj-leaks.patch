@@ -1,0 +1,55 @@
+From 5f4432846cef1fb39eb4a344246289f19e4bda2f Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Fri, 21 Jul 2023 11:12:50 +0200
+Subject: [PATCH 114/134] QHostInfo: fix remaining slotObj leaks
+
+We failed to delete the slot object when lookUpHost() was called in
+these (exceptional) circumstances:
+
+- on a thread with no event dispatcher
+
+- after application shut-down, when the QHostInfoLookupManager
+  Q_APPLICATION_STATIC was destroyed already
+
+Fix by adding the missing destroyIfLastRef() calls into these code
+paths, too.
+
+Amends ad5eb297e179a164e297a7c2eb3b9674a1196605.
+
+This would be so much easier if we had SlotObjUniquePtr...
+
+Pick-to: 6.6 6.5 6.2 5.15
+Task-number: QTBUG-115263
+Change-Id: Ief8bf125bc196742c0ce59c1fd87ab93242fc0da
+Reviewed-by: Ivan Solovev <ivan.solovev@qt.io>
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+(cherry picked from commit 693c9e6b1b2f160862a7490af78072a244fa5b9f)
+---
+ src/network/kernel/qhostinfo.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/network/kernel/qhostinfo.cpp b/src/network/kernel/qhostinfo.cpp
+index 2d8adc8154..015963686c 100644
+--- a/src/network/kernel/qhostinfo.cpp
++++ b/src/network/kernel/qhostinfo.cpp
+@@ -800,6 +800,8 @@ int QHostInfoPrivate::lookupHostImpl(const QString &name,
+ 
+     if (!QAbstractEventDispatcher::instance(QThread::currentThread())) {
+         qWarning("QHostInfo::lookupHost() called with no event dispatcher");
++        if (slotObj)
++            slotObj->destroyIfLastRef();
+         return -1;
+     }
+ 
+@@ -846,6 +848,8 @@ int QHostInfoPrivate::lookupHostImpl(const QString &name,
+             QObject::connect(&runnable->resultEmitter, SIGNAL(resultsReady(QHostInfo)),
+                                 receiver, member, Qt::QueuedConnection);
+         manager->scheduleLookup(runnable);
++    } else if (slotObj) {
++        slotObj->destroyIfLastRef();
+     }
+     return id;
+ }
+-- 
+2.42.0
+

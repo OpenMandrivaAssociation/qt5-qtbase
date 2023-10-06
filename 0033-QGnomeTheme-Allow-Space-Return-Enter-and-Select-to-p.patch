@@ -1,0 +1,46 @@
+From bddec53e38e2cb1a762fb2198a4cc9a322afc9a8 Mon Sep 17 00:00:00 2001
+From: Noah Davis <noahadvs@gmail.com>
+Date: Wed, 16 Feb 2022 08:50:08 -0500
+Subject: [PATCH 033/134] QGnomeTheme: Allow Space, Return, Enter and Select to
+ press buttons
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+GTK buttons can be pressed with Space, Return and Enter, so this should
+be considered native behavior for GTK based desktop environments.
+Qt::Key_Select is also included here because QAbstractButton has been
+pressable with Qt::Key_Select for a long time.
+
+Change-Id: I2c279ad05d1a10e5968a18996b8b40a83d2251fa
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit 43caaca740dd217c13764658d4c286c0d83381e4)
+---
+ src/platformsupport/themes/genericunix/qgenericunixthemes.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp b/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
+index cb1b39db64..dafa3ec4da 100644
+--- a/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
++++ b/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
+@@ -731,6 +731,7 @@ QGnomeTheme::QGnomeTheme()
+ 
+ QVariant QGnomeTheme::themeHint(QPlatformTheme::ThemeHint hint) const
+ {
++    Q_D(const QGnomeTheme);
+     switch (hint) {
+     case QPlatformTheme::DialogButtonBoxButtonsHaveIcons:
+         return QVariant(true);
+@@ -755,6 +756,9 @@ QVariant QGnomeTheme::themeHint(QPlatformTheme::ThemeHint hint) const
+         return QVariant(QChar(0x2022));
+     case QPlatformTheme::UiEffects:
+         return QVariant(int(HoverEffect));
++    case QPlatformTheme::ButtonPressKeys:
++        return QVariant::fromValue(
++                QList<Qt::Key>({ Qt::Key_Space, Qt::Key_Return, Qt::Key_Enter, Qt::Key_Select }));
+     default:
+         break;
+     }
+-- 
+2.42.0
+

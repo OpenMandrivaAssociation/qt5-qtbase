@@ -1,0 +1,57 @@
+From bf0e7bd010ee620835207600acdf4ab1fa1dbb94 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Wed, 5 Jul 2023 08:36:06 +0200
+Subject: [PATCH 108/134] Make sure we don't count down past 0
+ QT_FATAL_CRITICALS
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The old code first checked for == 0, then, if false, executed a
+fetchAndAdd(-1), both with relaxed memory ordering. This can lead to
+executions that, counter to what the code comment states, can count
+down past 0:
+
+    // T1                   T2
+    loadRelaxed()                                  // true
+                            loadRelaxed()          // true
+    fetchAndAddRelaxed(-1)                         // e.g. 1 → 0
+                            fetchAndAddRelaxed(-1) // 0 → -1
+
+while fatality is detected exactly once, this execution doesn't stop
+at 0 and causes further calls to isFatal() to count down further, with
+the (very) remote spectre of underflow past INT_MIN.
+
+Fix by using a CAS loop instead, so each count-down uses only one
+step, not two, which therefore can no longer interleave.
+
+Fixes: QTBUG-115062
+Pick-to: 6.6 6.5 6.2 5.15
+Change-Id: If77b906c94cb4b9fa91bfad84fe63bc8d9103b0a
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit b933a5668cc5647d26378f8a9a52901d0497585d)
+---
+ src/corelib/global/qlogging.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/corelib/global/qlogging.cpp b/src/corelib/global/qlogging.cpp
+index 8510cf3a26..0f253d4a27 100644
+--- a/src/corelib/global/qlogging.cpp
++++ b/src/corelib/global/qlogging.cpp
+@@ -193,7 +193,11 @@ static bool is_fatal_count_down(QAtomicInt &n)
+ {
+     // it's fatal if the current value is exactly 1,
+     // otherwise decrement if it's non-zero
+-    return n.loadRelaxed() && n.fetchAndAddRelaxed(-1) == 1;
++
++    int v = n.loadRelaxed();
++    while (v != 0 && !n.testAndSetRelaxed(v, v - 1, v))
++        ;
++    return v == 1; // we exited the loop, so either v == 0 or CAS succeeded to set n from v to v-1
+ }
+ 
+ static bool isFatal(QtMsgType msgType)
+-- 
+2.42.0
+

@@ -1,7 +1,7 @@
-From 0168721a18bfb6ca3e7451ce53e27572edb44b2f Mon Sep 17 00:00:00 2001
+From c1dd93eee3d0d8be490888889f7fc41fc3714a2f Mon Sep 17 00:00:00 2001
 From: Albert Astals Cid <albert.astals.cid@kdab.com>
 Date: Tue, 28 Sep 2021 17:34:41 +0200
-Subject: [PATCH 020/129] Fix QPainterPath with QFont::SmallCaps
+Subject: [PATCH 020/134] Fix QPainterPath with QFont::SmallCaps
 
 Previous code was getting the QFontEngine from the font+script instead of from
 the QTextEngine.
@@ -33,5 +33,5 @@ index f9544a3241..d80fafeaf1 100644
              fe->addOutlineToPath(x, y, glyphs, this,
                                   si.analysis.bidiLevel % 2
 -- 
-2.41.0.rc2
+2.42.0
 

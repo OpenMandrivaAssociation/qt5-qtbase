@@ -1,0 +1,52 @@
+From 0fdcc6e9e1ba6bdc16ddb106ee9180aa1d42c9cf Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?M=C3=A5rten=20Nordheim?= <marten.nordheim@qt.io>
+Date: Thu, 25 May 2023 14:40:29 +0200
+Subject: [PATCH 100/134] Ssl: Copy the on-demand cert loading bool from
+ default config
+
+Otherwise individual sockets will still load system certificates when
+a chain doesn't match against the configured CA certificates.
+That's not intended behavior, since specifically setting the CA
+certificates means you don't want the system certificates to be used.
+
+Follow-up to/amends ada2c573c1a25f8d96577734968fe317ddfa292a
+
+This is potentially a breaking change because now, if you ever add a
+CA to the default config, it will disable loading system certificates
+on demand for all sockets. And the only way to re-enable it is to
+create a null-QSslConfiguration and set it as the new default.
+
+Pick-to: 6.5 6.2 5.15
+Change-Id: Ic3b2ab125c0cdd58ad654af1cb36173960ce2d1e
+Reviewed-by: Timur Pocheptsov <timur.pocheptsov@qt.io>
+(cherry picked from commit 57ba6260c0801055b7188fdaa1818b940590f5f1)
+---
+ src/network/ssl/qsslsocket.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/network/ssl/qsslsocket.cpp b/src/network/ssl/qsslsocket.cpp
+index 5bb6e7ee4a..2a0b3a4f1d 100644
+--- a/src/network/ssl/qsslsocket.cpp
++++ b/src/network/ssl/qsslsocket.cpp
+@@ -2221,6 +2221,10 @@ QSslSocketPrivate::QSslSocketPrivate()
+     , flushTriggered(false)
+ {
+     QSslConfigurationPrivate::deepCopyDefaultConfiguration(&configuration);
++    // If the global configuration doesn't allow root certificates to be loaded
++    // on demand then we have to disable it for this socket as well.
++    if (!configuration.allowRootCertOnDemandLoading)
++        allowRootCertOnDemandLoading = false;
+ }
+ 
+ /*!
+@@ -2470,6 +2474,7 @@ void QSslConfigurationPrivate::deepCopyDefaultConfiguration(QSslConfigurationPri
+     ptr->sessionProtocol = global->sessionProtocol;
+     ptr->ciphers = global->ciphers;
+     ptr->caCertificates = global->caCertificates;
++    ptr->allowRootCertOnDemandLoading = global->allowRootCertOnDemandLoading;
+     ptr->protocol = global->protocol;
+     ptr->peerVerifyMode = global->peerVerifyMode;
+     ptr->peerVerifyDepth = global->peerVerifyDepth;
+-- 
+2.42.0
+

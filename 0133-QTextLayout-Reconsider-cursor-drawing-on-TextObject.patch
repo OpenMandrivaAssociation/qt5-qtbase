@@ -1,0 +1,86 @@
+From 97172fa7ceb29524a432e37e5deb4edb511a93fe Mon Sep 17 00:00:00 2001
+From: Tang Haixiang <tanghaixiang@uniontech.com>
+Date: Fri, 14 Oct 2022 10:42:07 +0800
+Subject: [PATCH 133/134] QTextLayout: Reconsider cursor drawing on TextObject
+
+Revert: e99a883bd382ca950192bd66cafb2a1de6394ce7
+Revert: 33238ea2c63b372ee8795eaafbfc5a859a778f8d
+
+These two commits made the drawing of the cursor incomprehensible,
+but their purpose was to fix the problem of abnormal cursor drawing
+when QScriptAnalysis::Object is present. Because objects require
+some special handling, they can be specially aligned or floated.
+
+Anyway, the alignment is already reflected by ascent and descent,
+and when drawing, y = position.y() + (sl.y + sl.base() - base).toReal();
+works fine. So roll them back now.
+
+We just need to specially consider the case where the QScriptItem is a
+QScriptAnalysis::Object, keeping the base and descent the same as the row.
+
+Task-number: QTBUG-92468
+Task-number: QTBUG-86823
+Task-number: QTBUG-96288
+Pick-to: 6.2 6.4
+Change-Id: I6d9a0e00fbc3823e0cc8e0e8bd061da5782d1f8a
+Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
+(cherry picked from commit de16300661bc498eb02d8d5b36ccc07ebe595ca2)
+
+* asturmlechner 2023-01-18: Resolve conflict with dev branch commit
+  5335cc4a5a73bbd6d717989b4257660b92000fb6
+
+* asturmlechner 2023-06-12: Resolve conflict with kde/5.15 commit
+  28b62aa315efd9408c7310331e45195ae4ed663d
+---
+ src/gui/text/qtextlayout.cpp | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/gui/text/qtextlayout.cpp b/src/gui/text/qtextlayout.cpp
+index d13e1260e4..f60597a076 100644
+--- a/src/gui/text/qtextlayout.cpp
++++ b/src/gui/text/qtextlayout.cpp
+@@ -1333,16 +1333,16 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
+ 
+     QFixed base = sl.base();
+     QFixed descent = sl.descent;
+-    QFixed cursorDescent = descent;
+     bool rightToLeft = d->isRightToLeft();
+     if (itm >= 0) {
+         const QScriptItem &si = d->layoutData->items.at(itm);
+-        if (si.ascent > 0)
+-            base = si.ascent;
+-        if (si.descent == 0)
+-            descent = si.descent;
+-        else if (si.descent > 0 && si.descent < descent)
+-            cursorDescent = si.descent;
++        // objects need some special treatment as they can have special alignment or be floating
++        if (si.analysis.flags != QScriptAnalysis::Object) {
++            if (si.ascent > 0)
++                base = si.ascent;
++            if (si.descent > 0)
++                descent = si.descent;
++        }
+         rightToLeft = si.analysis.bidiLevel % 2;
+     }
+     qreal y = position.y() + (sl.y + sl.base() - base).toReal();
+@@ -1356,7 +1356,7 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
+     const QTransform &deviceTransform = p->deviceTransform();
+     const qreal xScale = deviceTransform.m11();
+     if (deviceTransform.type() != QTransform::TxScale || std::trunc(xScale) == xScale) {
+-        p->fillRect(QRectF(x, y, qreal(width), (base + cursorDescent).toReal()), p->pen().brush());
++        p->fillRect(QRectF(x, y, qreal(width), (base + descent).toReal()), p->pen().brush());
+     } else {
+         // Ensure consistently rendered cursor width under fractional scaling
+         const QPen origPen = p->pen();
+@@ -1364,7 +1364,7 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
+         pen.setCosmetic(true);
+         const qreal center = x + qreal(width) / 2;
+         p->setPen(pen);
+-        p->drawLine(QPointF(center, y), QPointF(center, y + (base + cursorDescent).toReal()));
++        p->drawLine(QPointF(center, y), QPointF(center, y + (base + descent).toReal()));
+         p->setPen(origPen);
+     }
+     p->setCompositionMode(origCompositionMode);
+-- 
+2.42.0
+

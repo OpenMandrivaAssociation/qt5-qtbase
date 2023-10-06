@@ -1,0 +1,36 @@
+From dea03427ac2f96112a006440ae46c3dc21398f49 Mon Sep 17 00:00:00 2001
+From: Friedemann Kleint <Friedemann.Kleint@qt.io>
+Date: Fri, 30 Jun 2023 07:59:51 +0200
+Subject: [PATCH 105/134] Fix typo in QXmlStreamReader error message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Amends 6326bec46a618c72feba4a2bb994c4d475050aed.
+
+Pick-to: 6.6 6.5 6.2 5.15
+Task-number: QTBUG-109781
+Task-number: QTBUG-114829
+Change-Id: Ib5189dc908cd61c6c6fa23024776a4a5baa75ca5
+Reviewed-by: Robert Löhning <robert.loehning@qt.io>
+(cherry picked from commit bdc8dc51380d2ce4580e6b84e3286ec6f1866156)
+---
+ src/corelib/serialization/qxmlstream.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/serialization/qxmlstream.cpp b/src/corelib/serialization/qxmlstream.cpp
+index 561f3107a9..15972b8c53 100644
+--- a/src/corelib/serialization/qxmlstream.cpp
++++ b/src/corelib/serialization/qxmlstream.cpp
+@@ -1885,7 +1885,7 @@ void QXmlStreamReaderPrivate::raiseNamePrefixTooLongError()
+ {
+     // TODO: add a ImplementationLimitsExceededError and use it instead
+     raiseError(QXmlStreamReader::NotWellFormedError,
+-               QXmlStream::tr("Length of XML attribute name exceeds implemnetation limits (4KiB "
++               QXmlStream::tr("Length of XML attribute name exceeds implementation limits (4KiB "
+                               "characters)."));
+ }
+ 
+-- 
+2.42.0
+

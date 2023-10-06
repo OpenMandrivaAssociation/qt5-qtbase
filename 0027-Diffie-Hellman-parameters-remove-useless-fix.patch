@@ -1,7 +1,7 @@
-From e39098b4a3c68834915aa2903ba262e4708e5f9c Mon Sep 17 00:00:00 2001
+From d3c0fc0ee50d07b03bea8d67dfaed0d2baac3a37 Mon Sep 17 00:00:00 2001
 From: Timur Pocheptsov <timur.pocheptsov@qt.io>
 Date: Fri, 9 Jul 2021 16:14:16 +0200
-Subject: [PATCH 027/129] Diffie-Hellman parameters: remove useless 'fix'
+Subject: [PATCH 027/134] Diffie-Hellman parameters: remove useless 'fix'
 
 The workaround I had implemented based on alpha version of OpenSSL v3
 and what developers (OpenSSL) said about DH back then is not going to work
@@ -84,10 +84,10 @@ index aaf8741130..b58935372c 100644
  {
      int status = 0;
 diff --git a/src/network/ssl/qsslsocket_openssl_symbols.cpp b/src/network/ssl/qsslsocket_openssl_symbols.cpp
-index e53fb279f0..1e746ffa88 100644
+index d16c40ceb5..459ccd0b19 100644
 --- a/src/network/ssl/qsslsocket_openssl_symbols.cpp
 +++ b/src/network/ssl/qsslsocket_openssl_symbols.cpp
-@@ -492,9 +492,7 @@ DEFINEFUNC(DH *, DH_new, DUMMYARG, DUMMYARG, return nullptr, return)
+@@ -499,9 +499,7 @@ DEFINEFUNC(DH *, DH_new, DUMMYARG, DUMMYARG, return nullptr, return)
  DEFINEFUNC(void, DH_free, DH *dh, dh, return, DUMMYARG)
  DEFINEFUNC3(DH *, d2i_DHparams, DH**a, a, const unsigned char **pp, pp, long length, length, return nullptr, return)
  DEFINEFUNC2(int, i2d_DHparams, DH *a, a, unsigned char **p, p, return -1, return)
@@ -97,7 +97,7 @@ index e53fb279f0..1e746ffa88 100644
  DEFINEFUNC3(BIGNUM *, BN_bin2bn, const unsigned char *s, s, int len, len, BIGNUM *ret, ret, return nullptr, return)
  
  #ifndef OPENSSL_NO_EC
-@@ -1206,9 +1204,7 @@ bool q_resolveOpenSslSymbols()
+@@ -1220,9 +1218,7 @@ bool q_resolveOpenSslSymbols()
      RESOLVEFUNC(DH_free)
      RESOLVEFUNC(d2i_DHparams)
      RESOLVEFUNC(i2d_DHparams)
@@ -108,10 +108,10 @@ index e53fb279f0..1e746ffa88 100644
  
  #ifndef OPENSSL_NO_EC
 diff --git a/src/network/ssl/qsslsocket_openssl_symbols_p.h b/src/network/ssl/qsslsocket_openssl_symbols_p.h
-index 95e8897a3b..32f48b8d9e 100644
+index 5e9faae291..bf165f67ad 100644
 --- a/src/network/ssl/qsslsocket_openssl_symbols_p.h
 +++ b/src/network/ssl/qsslsocket_openssl_symbols_p.h
-@@ -582,10 +582,7 @@ DH *q_DH_new();
+@@ -598,10 +598,7 @@ DH *q_DH_new();
  void q_DH_free(DH *dh);
  DH *q_d2i_DHparams(DH **a, const unsigned char **pp, long length);
  int q_i2d_DHparams(DH *a, unsigned char **p);
@@ -123,5 +123,5 @@ index 95e8897a3b..32f48b8d9e 100644
  BIGNUM *q_BN_bin2bn(const unsigned char *s, int len, BIGNUM *ret);
  #define q_SSL_CTX_set_tmp_dh(ctx, dh) q_SSL_CTX_ctrl((ctx), SSL_CTRL_SET_TMP_DH, 0, (char *)dh)
 -- 
-2.41.0.rc2
+2.42.0
 

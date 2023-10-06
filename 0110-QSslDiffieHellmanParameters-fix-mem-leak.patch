@@ -1,0 +1,61 @@
+From 08ed2b4ad51daf1c50b331b3479ab5030d574d37 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Fri, 14 Jul 2023 21:51:41 +0200
+Subject: [PATCH 110/134] QSslDiffieHellmanParameters: fix mem-leak
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Says ASAN:
+
+    Direct leak of 524 byte(s) in 1 object(s) allocated from:
+    #0 0x7f708f0a67cf in __interceptor_malloc ../../../../gcc/libsanitizer/asan/asan_malloc_linux.cpp:145
+    #1 0x7f707d94bf9e in CRYPTO_malloc crypto/mem.c:196
+    #2 0x7f707d7bd248 in asn1_item_flags_i2d crypto/asn1/tasn_enc.c:65
+    #3 0x7f707d7bd1b7 in ASN1_item_i2d crypto/asn1/tasn_enc.c:45
+    #4 0x7f707d85b7be in i2d_DHparams crypto/dh/dh_asn1.c:54
+    #5 0x7f7075a82223 in q_i2d_DHparams(dh_st*, unsigned char**) qsslsocket_openssl_symbols.cpp:435
+    #6 0x7f7075a82223 in QTlsBackendOpenSSL::dhParametersFromPem(QByteArray const&, QByteArray*) const qssldiffiehellmanparameters_openssl.cpp:139
+    #7 0x7f708ca9b588 in QSslDiffieHellmanParametersPrivate::initFromPem(QByteArray const&) qssldiffiehellmanparameters.cpp:285
+    #8 0x7f708ca9b588 in QSslDiffieHellmanParameters::fromEncoded(QByteArray const&, QSsl::EncodingFormat) qssldiffiehellmanparameters.cpp:94
+    #9 0x55fd8a545ebe in tst_QSslDiffieHellmanParameters::constructionPEM() tst_qssldiffiehellmanparameters.cpp:98
+    [...]
+
+The pointer returned in the out-parameter of a i2d_DHparams() call is
+supposed to be OPENSSL_free()ed by the user (this is not at all
+obvious from the docs¹, but an SO answer² indicates that's how it
+should be (as well as asan stopping from complaining with this
+patch applied)).
+
+¹ https://www.openssl.org/docs/man3.1/man3/i2d_DHparams.html
+² https://stackoverflow.com/a/53563669.
+
+Amends 2cf63c71ebe139890526057dcc51b24ea6df6c30.
+
+[ChangeLog][QtNetwork][SSL] Fixed a memory leak in parsing of
+PEM-encoded Diffie-Hellman parameters.
+
+Pick-to: 6.6 6.5 6.2 5.15
+Change-Id: I9ed4a26c4676db1c0d54a1945a4fb5014ce568cd
+Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
+Reviewed-by: Timur Pocheptsov <timur.pocheptsov@qt.io>
+(cherry picked from commit 676087ef1f7cc885d51256ec30e242d972dccb65)
+---
+ src/network/ssl/qssldiffiehellmanparameters_openssl.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp b/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
+index b58935372c..93ad7fa728 100644
+--- a/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
++++ b/src/network/ssl/qssldiffiehellmanparameters_openssl.cpp
+@@ -155,6 +155,7 @@ void QSslDiffieHellmanParametersPrivate::decodePem(const QByteArray &pem)
+         if (isSafeDH(dh)) {
+             char *buf = nullptr;
+             int len = q_i2d_DHparams(dh, reinterpret_cast<unsigned char **>(&buf));
++            auto freeBuf = qScopeGuard([&] { q_OPENSSL_free(buf); });
+             if (len > 0)
+                 derData = QByteArray(buf, len);
+             else
+-- 
+2.42.0
+

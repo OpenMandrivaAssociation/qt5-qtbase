@@ -1,0 +1,61 @@
+From d7f8c26878e91cf09f474eeb27f4b140d3ad327c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?M=C3=A5rten=20Nordheim?= <marten.nordheim@qt.io>
+Date: Tue, 18 Jul 2023 09:14:05 +0200
+Subject: [PATCH 109/134] QHostInfo: fix leaking slot object
+
+We were not ref'ing or deref'ing the slot object in the various places
+that owned it. So, if, in the end, the QHostInfoResult object didn't
+call the slot we would leak the slot object.
+
+Pick-to: 6.6 6.5 6.2 5.15
+Fixes: QTBUG-115263
+Change-Id: I45f43756c7589470045d97b59257ccfd85a325b7
+Reviewed-by: Marc Mutz <marc.mutz@qt.io>
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit 061ab84e98a3457c361287084e0c1e9a396ab197)
+---
+ src/network/kernel/qhostinfo.cpp | 1 -
+ src/network/kernel/qhostinfo_p.h | 8 ++++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/network/kernel/qhostinfo.cpp b/src/network/kernel/qhostinfo.cpp
+index 33fb629899..2d8adc8154 100644
+--- a/src/network/kernel/qhostinfo.cpp
++++ b/src/network/kernel/qhostinfo.cpp
+@@ -181,7 +181,6 @@ bool QHostInfoResult::event(QEvent *event)
+         // we didn't have a context object, or it's still alive
+         if (!withContextObject || receiver)
+             slotObj->call(const_cast<QObject*>(receiver.data()), args);
+-        slotObj->destroyIfLastRef();
+ 
+         deleteLater();
+         return true;
+diff --git a/src/network/kernel/qhostinfo_p.h b/src/network/kernel/qhostinfo_p.h
+index d7875a0673..452c095b6a 100644
+--- a/src/network/kernel/qhostinfo_p.h
++++ b/src/network/kernel/qhostinfo_p.h
+@@ -90,6 +90,12 @@ public:
+             moveToThread(receiver->thread());
+     }
+ 
++    ~QHostInfoResult()
++    {
++        if (slotObj)
++            slotObj->destroyIfLastRef();
++    }
++
+     void postResultsReady(const QHostInfo &info);
+ 
+ Q_SIGNALS:
+@@ -103,6 +109,8 @@ private:
+         : receiver(other->receiver), slotObj(other->slotObj),
+           withContextObject(other->withContextObject)
+     {
++        if (slotObj)
++            slotObj->ref();
+         // cleanup if the application terminates before results are delivered
+         connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+                 this, &QObject::deleteLater);
+-- 
+2.42.0
+

@@ -1,0 +1,35 @@
+From 44aadd7345b2430d6fed2db2c420845f61ba0964 Mon Sep 17 00:00:00 2001
+From: Fabian Kosmale <fabian.kosmale@qt.io>
+Date: Mon, 28 Aug 2023 12:37:28 +0200
+Subject: [PATCH 121/134] QAccessibleWidget: Remove pointless ZWSP in warning
+ message
+
+There doesn't seem to be reason for it to exist, and apparently it
+causes compilation failures with icc.
+
+Pick-to: 6.6 6.5 5.15
+Fixes: QTBUG-116517
+Initial-patch-by: Yorick Bosman
+Change-Id: Ic2ed1d4318d522851278afa7f9791441af4fa709
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit ca4633f243a23de1848ebf32aef45f23d6d18154)
+---
+ src/widgets/accessible/qaccessiblewidgets.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/accessible/qaccessiblewidgets.cpp b/src/widgets/accessible/qaccessiblewidgets.cpp
+index 574be1f5ea..b499d5d620 100644
+--- a/src/widgets/accessible/qaccessiblewidgets.cpp
++++ b/src/widgets/accessible/qaccessiblewidgets.cpp
+@@ -900,7 +900,7 @@ QString QAccessibleTextWidget::attributes(int offset, int *startOffset, int *end
+             underlineStyleValue = QStringLiteral("wave"); // this is not correct, but provides good approximation at least
+             break;
+         default:
+-            qWarning() << "Unknown QTextCharFormat::​UnderlineStyle value " << underlineStyle << " could not be translated to IAccessible2 value";
++            qWarning() << "Unknown QTextCharFormat::UnderlineStyle value " << underlineStyle << " could not be translated to IAccessible2 value";
+             break;
+     }
+     if (!underlineStyleValue.isNull()) {
+-- 
+2.42.0
+
