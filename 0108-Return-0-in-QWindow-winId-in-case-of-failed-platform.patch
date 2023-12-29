@@ -1,0 +1,43 @@
+From 696e276d05bf0db45eaeb068b0b19589705fbc53 Mon Sep 17 00:00:00 2001
+From: Wladimir Leuschner <wladimir.leuschner@qt.io>
+Date: Mon, 24 Jul 2023 13:57:54 +0200
+Subject: [PATCH 108/144] Return 0 in QWindow::winId in case of failed platform
+ window creation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Task-number: QTBUG-114613
+Pick-to: 5.15 6.5 6.6
+Change-Id: I93184d95f8f448ab115570a18cdb720449a0637d
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit 63824363ab4844816a4ea16a4d315c74ae21344a)
+---
+ src/gui/kernel/qwindow.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/gui/kernel/qwindow.cpp b/src/gui/kernel/qwindow.cpp
+index 137f7fec5f..c2f7dc6776 100644
+--- a/src/gui/kernel/qwindow.cpp
++++ b/src/gui/kernel/qwindow.cpp
+@@ -661,6 +661,7 @@ void QWindow::create()
+     Returns the window's platform id.
+ 
+     \note This function will cause the platform window to be created if it is not already.
++    Returns 0, if the platform window creation failed.
+ 
+     For platforms where this id might be useful, the value returned
+     will uniquely represent the window inside the corresponding screen.
+@@ -674,6 +675,9 @@ WId QWindow::winId() const
+     if(!d->platformWindow)
+         const_cast<QWindow *>(this)->create();
+ 
++    if (!d->platformWindow)
++        return 0;
++
+     return d->platformWindow->winId();
+ }
+ 
+-- 
+2.43.0
+

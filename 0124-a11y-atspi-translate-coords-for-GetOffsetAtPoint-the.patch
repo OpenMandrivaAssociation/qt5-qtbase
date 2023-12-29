@@ -1,0 +1,44 @@
+From 105180e4e2819a714f3c5643cb6899e82934076b Mon Sep 17 00:00:00 2001
+From: Michael Weghorn <m.weghorn@posteo.de>
+Date: Mon, 1 Aug 2022 14:18:05 +0200
+Subject: [PATCH 124/144] a11y atspi: translate coords for GetOffsetAtPoint the
+ right way
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The coordinate type for "GetOffsetAtPoint" describes the
+coordinate type of the input coordinates and
+`QAccessibleTextInterface::offsetAtPoint` expects the
+coordinates in screen coordinates.
+
+Therefore, if window-relative coordinates are given,
+the screen coordinates of the window need to be added
+(not subtracted) to the window-relative coordinates of the point
+in order to calculate the screen coordinates of the point.
+
+Fixes: QTBUG-105281
+Pick-to: 6.4 6.3 6.2
+Change-Id: I5517335c0c0d6a47b8c45c7e4f8f8b5a91f0fcd7
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit fa0e24b641ad241195cab24d008fed6e68983944)
+---
+ src/platformsupport/linuxaccessibility/atspiadaptor.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+index 564330c27d..26537ff892 100644
+--- a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
++++ b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+@@ -1883,7 +1883,7 @@ bool AtSpiAdaptor::textInterface(QAccessibleInterface *interface, const QString
+         uint coordType = message.arguments().at(2).toUInt();
+         if (coordType == ATSPI_COORD_TYPE_WINDOW) {
+             QWindow *win = interface->window();
+-            point -= QPoint(win->x(), win->y());
++            point += QPoint(win->x(), win->y());
+         }
+         int offset = interface->textInterface()->offsetAtPoint(point);
+         sendReply(connection, message, offset);
+-- 
+2.43.0
+

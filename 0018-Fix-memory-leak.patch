@@ -1,0 +1,25 @@
+From b91190d9025c2676aa48b8b9f866f4f9589855ea Mon Sep 17 00:00:00 2001
+From: JiDe Zhang <zhangjide@uniontech.com>
+Date: Tue, 28 Sep 2021 17:46:16 +0800
+Subject: [PATCH 018/144] Fix memory leak
+
+Destroy the QDBusPendingCallWatcher object when received
+the QDBusPendingCallWatcher::finished signal later.
+
+Pick-to: 5.15 6.2
+Change-Id: I1ec67bf7c286f38200c374ad92df2a1579588a8a
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+
+
+(cherry picked from commit 71ba53e3a7b63da1ac8755dba8b9311774d46103)
+---
+ tests/manual/rhi/cubemap_render/buildshader.bat | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ mode change 100755 => 100644 tests/manual/rhi/cubemap_render/buildshader.bat
+
+diff --git a/tests/manual/rhi/cubemap_render/buildshader.bat b/tests/manual/rhi/cubemap_render/buildshader.bat
+old mode 100755
+new mode 100644
+-- 
+2.43.0
+

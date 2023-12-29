@@ -1,0 +1,36 @@
+From dee3f0e5a9448fd2db2b59205fd074c953e1f98c Mon Sep 17 00:00:00 2001
+From: Liang Qi <liang.qi@qt.io>
+Date: Wed, 19 Apr 2023 13:23:10 +0200
+Subject: [PATCH 135/144] QWidgetTextControl: ignore invalid input method event
+
+to avoid update the text document.
+
+Fixes: QTBUG-112953
+Pick-to: 6.5 6.2 5.15
+Change-Id: Ib72de57133314e4eb38a15758b8318d901196d75
+Reviewed-by: Axel Spoerl <axel.spoerl@qt.io>
+Reviewed-by: Artem Sokolovskii <artem.sokolovskii@qt.io>
+(cherry picked from commit 70f064f270fa5765f0f00b8eccb45fb7eb68cd9a)
+---
+ src/widgets/widgets/qwidgettextcontrol.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/widgets/widgets/qwidgettextcontrol.cpp b/src/widgets/widgets/qwidgettextcontrol.cpp
+index ba9b6e0587..9493f090ec 100644
+--- a/src/widgets/widgets/qwidgettextcontrol.cpp
++++ b/src/widgets/widgets/qwidgettextcontrol.cpp
+@@ -2057,6 +2057,11 @@ void QWidgetTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
+             || e->preeditString() != cursor.block().layout()->preeditAreaText()
+             || e->replacementLength() > 0;
+ 
++    if (!isGettingInput && e->attributes().isEmpty()) {
++        e->ignore();
++        return;
++    }
++
+     int oldCursorPos = cursor.position();
+ 
+     cursor.beginEditBlock();
+-- 
+2.43.0
+

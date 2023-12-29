@@ -1,0 +1,61 @@
+From 46e528747bf0473f22af73418af470f3e3e72115 Mon Sep 17 00:00:00 2001
+From: Axel Spoerl <axel.spoerl@qt.io>
+Date: Fri, 9 Dec 2022 13:45:11 +0100
+Subject: [PATCH 070/144] Set geometry property in QXcbWindow after checking
+ minimum size
+
+QXcbWindow::create() bound the window's size to windowMinimumSize(),
+after its size had been inherited from parent().
+QPlatformWindow::setGeometry() was called before that sanity check.
+
+When a fullscreen window is re-mapped from a deactivated screen to the
+remaining screen, the call to QPlatformWindow::setGeometry() assigns
+an invalid QRect to QPlatformWindowPrivate::rect
+The negative int values x2 and/or y2 cause
+QXcbBackingStoreImage::flushPixmap to address unmapped memory and
+crash.
+
+This patch moves the call to QPlatformWindow::setGeometry() from
+before to after bounding to a minimum value. That assures a valid
+rectangle to be assigned in all cases.
+
+Fixes: QTBUG-109226
+Pick-to: 6.4 6.2 5.15
+Change-Id: I349a0f3c721059a9013a275de5b4cb147fbdd7a1
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+(cherry picked from commit 6a3627b6c5aa5109a80024f3d7b0f938504f7ffe)
+---
+ src/plugins/platforms/xcb/qxcbwindow.cpp | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbwindow.cpp b/src/plugins/platforms/xcb/qxcbwindow.cpp
+index bffad0fac5..45bac8ee85 100644
+--- a/src/plugins/platforms/xcb/qxcbwindow.cpp
++++ b/src/plugins/platforms/xcb/qxcbwindow.cpp
+@@ -299,11 +299,6 @@ void QXcbWindow::create()
+         return;
+     }
+ 
+-    QPlatformWindow::setGeometry(rect);
+-
+-    if (platformScreen != currentScreen)
+-        QWindowSystemInterface::handleWindowScreenChanged(window(), platformScreen->QPlatformScreen::screen());
+-
+     const QSize minimumSize = windowMinimumSize();
+     if (rect.width() > 0 || rect.height() > 0) {
+         rect.setWidth(qBound(1, rect.width(), XCOORD_MAX));
+@@ -315,6 +310,11 @@ void QXcbWindow::create()
+         rect.setHeight(QHighDpi::toNativePixels(int(defaultWindowHeight), platformScreen->QPlatformScreen::screen()));
+     }
+ 
++    QPlatformWindow::setGeometry(rect);
++
++    if (platformScreen != currentScreen)
++        QWindowSystemInterface::handleWindowScreenChanged(window(), platformScreen->QPlatformScreen::screen());
++
+     xcb_window_t xcb_parent_id = platformScreen->root();
+     if (parent()) {
+         xcb_parent_id = static_cast<QXcbWindow *>(parent())->xcb_window();
+-- 
+2.43.0
+

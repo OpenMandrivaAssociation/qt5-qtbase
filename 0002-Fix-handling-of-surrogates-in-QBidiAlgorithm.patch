@@ -1,7 +1,7 @@
-From 4c9cdc67d6d4ebe4bac27c59d61ff935ab79c9d0 Mon Sep 17 00:00:00 2001
+From 8400328e707de389032f6828493baed522a7b0d2 Mon Sep 17 00:00:00 2001
 From: Edward Welbourne <edward.welbourne@qt.io>
 Date: Mon, 8 Feb 2021 12:13:13 +0100
-Subject: [PATCH 002/134] Fix handling of surrogates in QBidiAlgorithm
+Subject: [PATCH 002/144] Fix handling of surrogates in QBidiAlgorithm
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -33,5 +33,5 @@ index 6336fadf74..a6c66e5d2d 100644
  **
  ** This file is part of the QtGui module of the Qt Toolkit.
 -- 
-2.42.0
+2.43.0
 

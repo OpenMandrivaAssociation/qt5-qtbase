@@ -1,0 +1,35 @@
+From 6584423d01c5f31cbd3ab82cbbc97c2e12af2ec9 Mon Sep 17 00:00:00 2001
+From: Albert Astals Cid <aacid@kde.org>
+Date: Mon, 25 Sep 2023 23:49:23 +0200
+Subject: [PATCH 127/144] FileChooser portal: Make sure filter.name is not
+ empty
+
+Xdg-desktop-portal will reject any OpenFile request if there is an empty
+filter, so if we can't find the mimetype in the mimedatabase we just
+use it's "raw name"
+
+Pick-to: 6.6 6.5 5.15
+Change-Id: I705ae7523445e5c2ec97a42ee334401bc90adb68
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 88c74240a8db5dfe9ebce387845a21c7b6244340)
+---
+ .../xdgdesktopportal/qxdgdesktopportalfiledialog.cpp           | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
+index b2301c8c15..8987e3efd0 100644
+--- a/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
++++ b/src/plugins/platformthemes/xdgdesktopportal/qxdgdesktopportalfiledialog.cpp
+@@ -238,6 +238,9 @@ void QXdgDesktopPortalFileDialog::openPortal(Qt::WindowFlags windowFlags, Qt::Wi
+             filter.name = mimeType.comment();
+             filter.filterConditions = filterConditions;
+ 
++            if (filter.name.isEmpty())
++                filter.name = mimeTypefilter;
++
+             filterList << filter;
+ 
+             if (!d->selectedMimeTypeFilter.isEmpty() && d->selectedMimeTypeFilter == mimeTypefilter)
+-- 
+2.43.0
+

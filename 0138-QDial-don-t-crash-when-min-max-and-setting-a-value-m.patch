@@ -1,0 +1,62 @@
+From ac5fe9319bf9b688262066aba73094558010350f Mon Sep 17 00:00:00 2001
+From: Christian Ehrlicher <ch.ehrlicher@gmx.de>
+Date: Sun, 12 Nov 2023 13:49:16 +0100
+Subject: [PATCH 138/144] QDial: don't crash when min==max and setting a value
+ != min & max
+
+QDial::bound() is crashing when min == max due to a division by zero.
+Therefore check for this condition beforehand and return min.
+
+Pick-to: 6.6 6.5 6.2 5.15
+Fixes: QTBUG-104641
+Change-Id: I612625af1ad18333d59a7771abfdec602301b58e
+Reviewed-by: Axel Spoerl <axel.spoerl@qt.io>
+(cherry picked from commit e4315204b1412d74842b3167c3eb9a49dc233355)
+---
+ src/widgets/widgets/qdial.cpp                  |  2 ++
+ tests/auto/widgets/widgets/qdial/tst_qdial.cpp | 10 ++++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/src/widgets/widgets/qdial.cpp b/src/widgets/widgets/qdial.cpp
+index 8f774a3cc7..ec5cec0d82 100644
+--- a/src/widgets/widgets/qdial.cpp
++++ b/src/widgets/widgets/qdial.cpp
+@@ -94,6 +94,8 @@ int QDialPrivate::bound(int val) const
+     if (wrapping) {
+         if ((val >= minimum) && (val <= maximum))
+             return val;
++        if (minimum == maximum)
++            return minimum;
+         val = minimum + ((val - minimum) % (maximum - minimum));
+         if (val < minimum)
+             val += maximum - minimum;
+diff --git a/tests/auto/widgets/widgets/qdial/tst_qdial.cpp b/tests/auto/widgets/widgets/qdial/tst_qdial.cpp
+index 356f773ae9..a014df3b15 100644
+--- a/tests/auto/widgets/widgets/qdial/tst_qdial.cpp
++++ b/tests/auto/widgets/widgets/qdial/tst_qdial.cpp
+@@ -42,6 +42,7 @@ private slots:
+     void valueChanged();
+     void sliderMoved();
+     void wrappingCheck();
++    void minEqualMaxValueOutsideRange();
+ };
+ 
+ // Testing get/set functions
+@@ -194,5 +195,14 @@ void tst_QDial::wrappingCheck()
+     }
+ }
+ 
++// QTBUG-104641
++void tst_QDial::minEqualMaxValueOutsideRange()
++{
++    QDial dial;
++    dial.setRange(30, 30);
++    dial.setWrapping(true);
++    dial.setValue(45);
++}
++
+ QTEST_MAIN(tst_QDial)
+ #include "tst_qdial.moc"
+-- 
+2.43.0
+

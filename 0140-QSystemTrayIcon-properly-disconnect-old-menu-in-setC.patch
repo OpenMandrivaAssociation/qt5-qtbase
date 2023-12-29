@@ -1,0 +1,36 @@
+From 65961c2dd4bc24ebfcfcbb1858da2433c66060f4 Mon Sep 17 00:00:00 2001
+From: Vladimir Belyavsky <belyavskyv@gmail.com>
+Date: Sun, 12 Nov 2023 12:04:12 +0300
+Subject: [PATCH 140/144] QSystemTrayIcon: properly disconnect old menu in
+ setContextMenu()
+
+Amends 121a30ccef3b6306c1da4f415fe1305dbf2dd901
+Fix the unfortunate mistake where oldMenu was not properly disconnected
+from the contextMenuRequested() signal. This could lead to a situation
+when several menus are displayed at the same time.
+
+Fixes: QTBUG-78737
+Pick-to: 6.6 6.5 6.2 5.15
+Change-Id: Ice59841724207192eacd5a52b644f83159e09913
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit b71aa3c661797a916effd29171665ea838816595)
+---
+ src/widgets/util/qsystemtrayicon.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/util/qsystemtrayicon.cpp b/src/widgets/util/qsystemtrayicon.cpp
+index 203fcbc443..e9b2724903 100644
+--- a/src/widgets/util/qsystemtrayicon.cpp
++++ b/src/widgets/util/qsystemtrayicon.cpp
+@@ -208,7 +208,7 @@ void QSystemTrayIcon::setContextMenu(QMenu *menu)
+     if (oldMenu != menu && d->qpa_sys) {
+         // Show the QMenu-based menu for QPA plugins that do not provide native menus
+         if (oldMenu && !oldMenu->platformMenu())
+-            QObject::disconnect(d->qpa_sys, &QPlatformSystemTrayIcon::contextMenuRequested, menu, nullptr);
++            QObject::disconnect(d->qpa_sys, &QPlatformSystemTrayIcon::contextMenuRequested, oldMenu, nullptr);
+         if (menu && !menu->platformMenu()) {
+             QObject::connect(d->qpa_sys, &QPlatformSystemTrayIcon::contextMenuRequested,
+                              menu,
+-- 
+2.43.0
+
