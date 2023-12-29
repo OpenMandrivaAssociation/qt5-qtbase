@@ -193,6 +193,7 @@ Patch200:	Avoid-SIGABRT-on-platform-plugin-initialization-fail.patch
 # just built QtCore. This should be fixed properly in the Makefiles.
 BuildConflicts:	%{mklibname -d qt5core} < %{version}
 
+BuildRequires:	make
 BuildRequires:	pkgconfig(libjpeg)
 BuildRequires:	cmake(double-conversion)
 # PCRE 2.x
