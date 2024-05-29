@@ -1,7 +1,7 @@
-From 7326ce94ed4624343f9c2efa671291680f8c9e03 Mon Sep 17 00:00:00 2001
+From 5e700a62593899afc81a51000e34c3f9d3e05a78 Mon Sep 17 00:00:00 2001
 From: Albert Astals Cid <albert.astals.cid@kdab.com>
 Date: Tue, 28 Sep 2021 17:00:59 +0200
-Subject: [PATCH 020/144] Respect font stretch if set together with font style
+Subject: [PATCH 020/140] Respect font stretch if set together with font style
 
 Fixes: QTBUG-77854
 Change-Id: I2bf9cea9d5ecd151a9d96bbe93e9477a9159ca1f
@@ -68,5 +68,5 @@ index 15e0ecadaa..b4eca74283 100644
  {
      int regularFontId = QFontDatabase::addApplicationFont(m_testFont);
 -- 
-2.43.0
+2.45.1
 

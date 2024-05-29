@@ -1,0 +1,47 @@
+From d53857270c938a1851632076421c5b99ea76bc8a Mon Sep 17 00:00:00 2001
+From: Fushan Wen <qydwhotmail@gmail.com>
+Date: Tue, 18 Oct 2022 20:38:35 +0800
+Subject: [PATCH 062/140] Send accessible focus event after list view has focus
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+QListView::currentChanged sends an accessible focus event even if the
+list view doesn't have focus. For screen readers like Orca, accessible
+focus events will be ignored if the target item does not have focus
+when screen reader receives the event.
+
+This corrects the behavior by calling QAbstractItemView::currentChanged
+before sending an accessible focus event.
+
+Pick-to: 6.4
+Change-Id: I71732f62e2f27d7856b4781b268495b88b24b715
+Reviewed-by: Jan Arve Sæther <jan-arve.saether@qt.io>
+(cherry picked from commit 2cf5253b91d5269e387c68d06f58f00ec36e80c0)
+---
+ src/widgets/itemviews/qlistview.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/widgets/itemviews/qlistview.cpp b/src/widgets/itemviews/qlistview.cpp
+index fab44923de..79254e052f 100644
+--- a/src/widgets/itemviews/qlistview.cpp
++++ b/src/widgets/itemviews/qlistview.cpp
+@@ -3389,6 +3389,7 @@ void QIconModeViewBase::updateContentsSize()
+ */
+ void QListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+ {
++    QAbstractItemView::currentChanged(current, previous);
+ #ifndef QT_NO_ACCESSIBILITY
+     if (QAccessible::isActive()) {
+         if (current.isValid()) {
+@@ -3399,7 +3400,6 @@ void QListView::currentChanged(const QModelIndex &current, const QModelIndex &pr
+         }
+     }
+ #endif
+-    QAbstractItemView::currentChanged(current, previous);
+ }
+ 
+ /*!
+-- 
+2.45.1
+

@@ -1,7 +1,7 @@
-From e2d8da4bffa7d8e48599a50de02b7e7a3f1a5cda Mon Sep 17 00:00:00 2001
+From f934d840cf6ddad9183a9c16f5d801fcdaa30403 Mon Sep 17 00:00:00 2001
 From: Edward Welbourne <edward.welbourne@qt.io>
 Date: Wed, 2 Jun 2021 12:14:31 +0200
-Subject: [PATCH 009/144] Fix copy-and-paste bug in QDTEP::getMaximum()
+Subject: [PATCH 009/140] Fix copy-and-paste bug in QDTEP::getMaximum()
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -30,5 +30,5 @@ index d36b6f8f9a..e0df5b5158 100644
  **
  ** This file is part of the QtWidgets module of the Qt Toolkit.
 -- 
-2.43.0
+2.45.1
 

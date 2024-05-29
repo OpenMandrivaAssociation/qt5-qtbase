@@ -1,0 +1,50 @@
+From 8e23988a7671c3522b0a3f3dc4d7802e3f9e37d9 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Mon, 5 Jun 2023 22:15:14 +0200
+Subject: [PATCH 123/140] QPixmapCache: fix leaking of QStrings and Keys on
+ clear()
+
+QPixmapCache maintains a mapping from QString to QPixmapCache::Key, in
+the form of the cacheKeys QHash, but QPixmapCache::clear() didn't
+touch it, leading to the string data (as well as the Keys) being
+retained after any possible use. This can lead to memory slowly being
+eaten up, as reported in QTBUG-112200, and prevents a periodic calling
+of QPixmapCache::clear() from being a work-around for the issue in the
+bug report.
+
+Fix by clearing cacheKeys in QPixmapCache::clear().
+
+This is designed as a low-risk enabler of a work-around, not a fix for
+the issue. The work-around enabled by this is periodic calling of
+QPixmapCache::clear().
+
+[ChangeLog][QtGui][QPixmapCache] Fixed QString key data not being
+freed on clear().
+
+Pick-to: 6.6 6.5 6.2 5.15
+Task-number: QTBUG-112200
+Change-Id: Ica6fa0e27e1b47b8df58d5e996378a2ececa5f9c
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+(cherry picked from commit 6ab0d25a09f5aeb7a5a062f7fd44e95ca761e21e)
+
+* asturmlechner 2023-11-16: test dropped
+---
+ src/gui/image/qpixmapcache.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/gui/image/qpixmapcache.cpp b/src/gui/image/qpixmapcache.cpp
+index b6e5e70f55..a4317a4eac 100644
+--- a/src/gui/image/qpixmapcache.cpp
++++ b/src/gui/image/qpixmapcache.cpp
+@@ -466,6 +466,7 @@ void QPMCache::clear()
+         killTimer(theid);
+         theid = 0;
+     }
++    cacheKeys.clear();
+ }
+ 
+ QPixmapCache::KeyData* QPMCache::getKeyData(QPixmapCache::Key *key)
+-- 
+2.45.1
+

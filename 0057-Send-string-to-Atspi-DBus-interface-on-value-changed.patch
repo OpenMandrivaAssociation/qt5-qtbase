@@ -1,0 +1,36 @@
+From 3149a8160f46647f21dcdd82e89f2f6b58c45c6b Mon Sep 17 00:00:00 2001
+From: Fushan Wen <qydwhotmail@gmail.com>
+Date: Sat, 23 Jul 2022 09:31:14 +0800
+Subject: [PATCH 057/140] Send string to Atspi DBus interface on value changed
+ for comboboxes
+
+Orca only accepts string or list type for
+object:property-change:accessible-name events. This fixes
+NameChanged not being announced by Orca.
+
+Pick-to: 6.4 6.2
+Change-Id: Ib30fed94aad70b98400deec5e31630b4f8c22e26
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit c6b1c3381461b01255b432468fe38ed5c32b6537)
+---
+ src/platformsupport/linuxaccessibility/atspiadaptor.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+index 9153fd20bb..7ea6680fba 100644
+--- a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
++++ b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+@@ -1038,7 +1038,9 @@ void AtSpiAdaptor::notify(QAccessibleEvent *event)
+                 // Combo Box with AT-SPI likes to be special
+                 // It requires a name-change to update caches and then selection-changed
+                 QString path = pathForInterface(iface);
+-                QVariantList args1 = packDBusSignalArguments(QLatin1String("accessible-name"), 0, 0, variantForPath(path));
++                QVariantList args1 = packDBusSignalArguments(
++                    QLatin1String("accessible-name"), 0, 0,
++                    QVariant::fromValue(QDBusVariant(iface->text(QAccessible::Name))));
+                 sendDBusSignal(path, QLatin1String(ATSPI_DBUS_INTERFACE_EVENT_OBJECT),
+                                QLatin1String("PropertyChange"), args1);
+                 QVariantList args2 = packDBusSignalArguments(QString(), 0, 0, QVariant::fromValue(QDBusVariant(QVariant(0))));
+-- 
+2.45.1
+

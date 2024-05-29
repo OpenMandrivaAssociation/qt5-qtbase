@@ -1,0 +1,84 @@
+From 8fd8bfa37957f27a718d462f995cee0584569446 Mon Sep 17 00:00:00 2001
+From: Eirik Aavitsland <eirik.aavitsland@qt.io>
+Date: Tue, 20 Feb 2024 08:07:38 +0100
+Subject: [PATCH 138/140] QPainter: fix assert when drawing bitmaps at very
+ near to .5 coord
+
+The code assumed that the rounding of a floating point value, and the
+rounding of the sum of that value and an integer, would always snap in
+the same direction. But because of accuracy limits (independently
+of the rounding function employed), that is not always the case for
+fractions very near to .5.
+
+Fixes: QTBUG-122451
+Pick-to: 6.7 6.6 6.5 6.2 5.15
+Change-Id: I0825d42e6be7f6e3397760a5e9be5dddca42dcdc
+Reviewed-by: Eskil Abrahamsen Blomfeldt <eskil.abrahamsen-blomfeldt@qt.io>
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+(cherry picked from commit a43d86fe1c0bc9d352f67c134a9ee5f754aea5e6)
+---
+ src/gui/painting/qpaintengine_raster.cpp          | 14 ++++++++------
+ tests/auto/gui/painting/qpainter/tst_qpainter.cpp | 11 +++++++++++
+ 2 files changed, 19 insertions(+), 6 deletions(-)
+
+diff --git a/src/gui/painting/qpaintengine_raster.cpp b/src/gui/painting/qpaintengine_raster.cpp
+index 6caed6bce6..a04160791b 100644
+--- a/src/gui/painting/qpaintengine_raster.cpp
++++ b/src/gui/painting/qpaintengine_raster.cpp
+@@ -3462,16 +3462,18 @@ void QRasterPaintEngine::drawBitmap(const QPointF &pos, const QImage &image, QSp
+     // Boundaries
+     int w = image.width();
+     int h = image.height();
+-    int ymax = qMin(qRound(pos.y() + h), d->rasterBuffer->height());
+-    int ymin = qMax(qRound(pos.y()), 0);
+-    int xmax = qMin(qRound(pos.x() + w), d->rasterBuffer->width());
+-    int xmin = qMax(qRound(pos.x()), 0);
++    int px = qRound(pos.x());
++    int py = qRound(pos.y());
++    int ymax = qMin(py + h, d->rasterBuffer->height());
++    int ymin = qMax(py, 0);
++    int xmax = qMin(px + w, d->rasterBuffer->width());
++    int xmin = qMax(px, 0);
+ 
+-    int x_offset = xmin - qRound(pos.x());
++    int x_offset = xmin - px;
+ 
+     QImage::Format format = image.format();
+     for (int y = ymin; y < ymax; ++y) {
+-        const uchar *src = image.scanLine(y - qRound(pos.y()));
++        const uchar *src = image.scanLine(y - py);
+         if (format == QImage::Format_MonoLSB) {
+             for (int x = 0; x < xmax - xmin; ++x) {
+                 int src_x = x + x_offset;
+diff --git a/tests/auto/gui/painting/qpainter/tst_qpainter.cpp b/tests/auto/gui/painting/qpainter/tst_qpainter.cpp
+index d7c3f95f1d..bfc77b0831 100644
+--- a/tests/auto/gui/painting/qpainter/tst_qpainter.cpp
++++ b/tests/auto/gui/painting/qpainter/tst_qpainter.cpp
+@@ -84,6 +84,7 @@ private slots:
+ #endif
+     void drawPixmapFragments();
+     void drawPixmapNegativeScale();
++    void drawPixmapRounding();
+ 
+     void drawLine_data();
+     void drawLine();
+@@ -799,6 +800,16 @@ void tst_QPainter::drawPixmapNegativeScale()
+     QVERIFY(resultImage.pixel(12, 8) == qRgba(0, 0, 0, 255)); // and right strip is now black
+ }
+ 
++void tst_QPainter::drawPixmapRounding()
++{
++    // Just test that we don't assert
++    QBitmap bm(8, 8);
++    QImage out(64, 64, QImage::Format_RGB32);
++    QPainter p(&out);
++    qreal y = 26.499999999999996;
++    p.drawPixmap(QPointF(0, y), bm);
++}
++
+ void tst_QPainter::drawLine_data()
+ {
+     QTest::addColumn<QLine>("line");
+-- 
+2.45.1
+

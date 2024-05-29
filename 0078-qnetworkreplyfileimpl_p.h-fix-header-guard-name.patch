@@ -1,0 +1,40 @@
+From d5b501044b392f5a821ee78e515fdc3ed22c78db Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Wed, 7 Jun 2023 15:50:17 +0200
+Subject: [PATCH 078/140] qnetworkreplyfileimpl_p.h: fix header guard name
+
+It was missing the _P.
+
+Pick-to: 6.6 6.5 6.2 5.15
+Change-Id: Ic07b4145f06ba3b1bea52349cf9b3f8215f30313
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Fabian Kosmale <fabian.kosmale@qt.io>
+(cherry picked from commit b2244a252ca36da3b566112464655a70e887f178)
+---
+ src/network/access/qnetworkreplyfileimpl_p.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/network/access/qnetworkreplyfileimpl_p.h b/src/network/access/qnetworkreplyfileimpl_p.h
+index 48d82abd3f..4bfbc3f7d1 100644
+--- a/src/network/access/qnetworkreplyfileimpl_p.h
++++ b/src/network/access/qnetworkreplyfileimpl_p.h
+@@ -37,8 +37,8 @@
+ **
+ ****************************************************************************/
+ 
+-#ifndef QNETWORKREPLYFILEIMPL_H
+-#define QNETWORKREPLYFILEIMPL_H
++#ifndef QNETWORKREPLYFILEIMPL_P_H
++#define QNETWORKREPLYFILEIMPL_P_H
+ 
+ //
+ //  W A R N I N G
+@@ -99,4 +99,4 @@ QT_END_NAMESPACE
+ 
+ Q_DECLARE_METATYPE(QNetworkRequest::KnownHeaders)
+ 
+-#endif // QNETWORKREPLYFILEIMPL_H
++#endif // QNETWORKREPLYFILEIMPL_P_H
+-- 
+2.45.1
+

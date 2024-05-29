@@ -133,7 +133,7 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.15.12
+Version:	5.15.14
 %if "%{beta}" != ""
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
@@ -153,7 +153,6 @@ Source2:	10-qt5-check-opengl.xsetup
 Source3:	qtlogging.ini
 Source100:	%{name}.rpmlintrc
 Patch0:		qtbase-everywhere-src-5.3.2-QTBUG-35459.patch
-Patch1:		https://src.fedoraproject.org/rpms/qt5-qtbase/raw/rawhide/f/qt5-qtbase-gcc11.patch
 # Fix XDG_RUNTIME_DIR for setuid applications
 # https://issues.openmandriva.org/show_bug.cgi?id=1641
 #Patch2:		qt-5.7.0-setuid-XDG_RUNTIME_DIR.patch

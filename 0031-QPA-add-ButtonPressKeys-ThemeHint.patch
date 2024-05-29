@@ -1,7 +1,7 @@
-From ad809436378a78a38ea031de49ff6e964917d658 Mon Sep 17 00:00:00 2001
+From 646a1302a5bb4d4484c6b961af3decb4eaac94ce Mon Sep 17 00:00:00 2001
 From: Noah Davis <noahadvs@gmail.com>
 Date: Wed, 9 Feb 2022 10:29:33 -0500
-Subject: [PATCH 031/144] QPA: add ButtonPressKeys ThemeHint
+Subject: [PATCH 031/140] QPA: add ButtonPressKeys ThemeHint
 
 Platforms should allow more than just Qt::Key_Space and Qt::Key_Select
 to press buttons. KDE Plasma developers want to be able to press buttons
@@ -19,7 +19,7 @@ Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
  2 files changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/src/gui/kernel/qplatformtheme.cpp b/src/gui/kernel/qplatformtheme.cpp
-index 71521c0339..2325873245 100644
+index a11388fdb6..aed480e875 100644
 --- a/src/gui/kernel/qplatformtheme.cpp
 +++ b/src/gui/kernel/qplatformtheme.cpp
 @@ -163,6 +163,8 @@ QT_BEGIN_NAMESPACE
@@ -55,5 +55,5 @@ index 3185fc4541..7e6c9d5740 100644
  
      enum DialogType {
 -- 
-2.43.0
+2.45.1
 

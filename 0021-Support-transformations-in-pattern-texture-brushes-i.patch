@@ -1,7 +1,7 @@
-From f9842bb6feccfffce5caaa7dfe01594e2af6a207 Mon Sep 17 00:00:00 2001
+From 3fcfd4bef241f80231a53b22daf09192c906ab66 Mon Sep 17 00:00:00 2001
 From: Eirik Aavitsland <eirik.aavitsland@qt.io>
 Date: Fri, 1 Oct 2021 10:30:38 +0200
-Subject: [PATCH 021/144] Support transformations in pattern/texture brushes in
+Subject: [PATCH 021/140] Support transformations in pattern/texture brushes in
  pdf
 
 The brush transform was ignored for pattern/texture brushes. Since
@@ -32,5 +32,5 @@ index 3066744f1b..2c8d3c3b53 100644
          *gStateObject = addConstantAlphaObject(qRound(brush.color().alpha() * opacity),
                                                 qRound(pen.color().alpha() * opacity));
 -- 
-2.43.0
+2.45.1
 

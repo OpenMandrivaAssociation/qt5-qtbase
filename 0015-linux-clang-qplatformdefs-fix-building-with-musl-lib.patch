@@ -1,7 +1,7 @@
-From fc150970c41d82f7c0d40d1061c8975769b3ed3f Mon Sep 17 00:00:00 2001
+From c42bb3911957527be1e3bfd58f8bf4262793220b Mon Sep 17 00:00:00 2001
 From: Kylie McClain <kylie@somas.is>
 Date: Sat, 30 Nov 2019 19:24:34 -0500
-Subject: [PATCH 015/144] linux-clang/qplatformdefs: fix building with musl
+Subject: [PATCH 015/140] linux-clang/qplatformdefs: fix building with musl
  libc
 
 This is basically a duplicate of the commit which fixed building with
@@ -31,5 +31,5 @@ index a818d973f0..34cd665883 100644
  #if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
  #define QT_SNPRINTF             ::snprintf
 -- 
-2.43.0
+2.45.1
 

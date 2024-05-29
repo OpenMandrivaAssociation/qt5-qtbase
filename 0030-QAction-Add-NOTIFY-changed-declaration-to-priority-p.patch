@@ -1,7 +1,7 @@
-From 33ef6aad81c3cd2998f70d858c28e3bfcb7b9171 Mon Sep 17 00:00:00 2001
+From 1885b20fb6a31701e57b83f931ac19d39d1bfe10 Mon Sep 17 00:00:00 2001
 From: Kai Uwe Broulik <kde@privat.broulik.de>
 Date: Wed, 16 Mar 2022 12:35:20 +0100
-Subject: [PATCH 030/144] QAction: Add NOTIFY changed declaration to priority
+Subject: [PATCH 030/140] QAction: Add NOTIFY changed declaration to priority
  property
 
 It already emits the signal and was merely missing the declaration.
@@ -28,5 +28,5 @@ index 258a1ea0a0..737c1e8285 100644
  public:
      // note this is copied into qplatformmenu.h, which must stay in sync
 -- 
-2.43.0
+2.45.1
 
