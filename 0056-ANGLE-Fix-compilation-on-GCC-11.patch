@@ -1,7 +1,7 @@
-From 1fc7143cf55da111728b86aa950c70ad2a54a7b8 Mon Sep 17 00:00:00 2001
+From 5d68fa00404f7bbb99b8286ea2151ae11ed5e16a Mon Sep 17 00:00:00 2001
 From: Johannes Kauffmann <johanneskauffmann@hotmail.com>
 Date: Wed, 28 Sep 2022 12:52:41 +0200
-Subject: [PATCH 056/140] ANGLE: Fix compilation on GCC 11
+Subject: [PATCH 056/127] ANGLE: Fix compilation on GCC 11
 
 GCC 11 no longer transitively includes <limits>, needed for
 std::numeric_limits<T>::max and friends, and thus compilation breaks.
@@ -26,5 +26,5 @@ index c3c184258f..32af3f8f29 100644
  #include "common/debug.h"
  
 -- 
-2.45.1
+2.46.0
 

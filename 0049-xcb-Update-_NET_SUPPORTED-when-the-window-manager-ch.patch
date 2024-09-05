@@ -1,7 +1,7 @@
-From 06fa3aad2a2cd78725372cad136eee6d687eac4e Mon Sep 17 00:00:00 2001
+From e511df52bec163a28b392ac01a79d70fa68ad878 Mon Sep 17 00:00:00 2001
 From: Tang Haixiang <tanghaixiang@uniontech.com>
 Date: Thu, 25 Feb 2021 18:05:17 +0800
-Subject: [PATCH 049/140] xcb: Update _NET_SUPPORTED when the window manager
+Subject: [PATCH 049/127] xcb: Update _NET_SUPPORTED when the window manager
  changes it
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -35,5 +35,5 @@ index 013ca7369f..631ade2ec7 100644
              HANDLE_PLATFORM_WINDOW_EVENT(xcb_property_notify_event_t, window, handlePropertyNotifyEvent);
          }
 -- 
-2.45.1
+2.46.0
 

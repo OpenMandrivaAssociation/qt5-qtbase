@@ -1,0 +1,55 @@
+From 9d08065281677214507e5a7ed854a72520d40d9f Mon Sep 17 00:00:00 2001
+From: Jan Grulich <jgrulich@redhat.com>
+Date: Tue, 2 May 2023 11:19:29 +0200
+Subject: [PATCH 107/127] OpenFile portal: do not use O_PATH fds
+
+Using O_PATH requires correctly specifying whether the fd is writable or
+not. Stating that the fd is writable without it actually being writable
+results into rejection on xdg-desktop-portal side. Other implementations
+like xdg-open or gtk have also moved away from O_PATH fds so this will
+make a matching implementation and avoid possible rejections from xdp.
+
+Fixes: QTBUG-113143
+Pick-to: 6.5 5.15
+Change-Id: Icc171752d73ee091282b7c655f71da3cb59179b1
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit 03cbcba7b2b0e42a04033a008c7fac87595e7f35)
+---
+ .../services/genericunix/qgenericunixservices.cpp         | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/src/platformsupport/services/genericunix/qgenericunixservices.cpp b/src/platformsupport/services/genericunix/qgenericunixservices.cpp
+index 2abe039126..47ef7d2b5c 100644
+--- a/src/platformsupport/services/genericunix/qgenericunixservices.cpp
++++ b/src/platformsupport/services/genericunix/qgenericunixservices.cpp
+@@ -210,8 +210,7 @@ static inline QDBusMessage xdgDesktopPortalOpenFile(const QUrl &url)
+     // handle_token (s) -  A string that will be used as the last element of the @handle.
+     // writable (b) - Whether to allow the chosen application to write to the file.
+ 
+-#ifdef O_PATH
+-    const int fd = qt_safe_open(QFile::encodeName(url.toLocalFile()), O_PATH);
++    const int fd = qt_safe_open(QFile::encodeName(url.toLocalFile()), O_RDONLY);
+     if (fd != -1) {
+         QDBusMessage message = QDBusMessage::createMethodCall(QLatin1String("org.freedesktop.portal.Desktop"),
+                                                               QLatin1String("/org/freedesktop/portal/desktop"),
+@@ -221,16 +220,13 @@ static inline QDBusMessage xdgDesktopPortalOpenFile(const QUrl &url)
+         QDBusUnixFileDescriptor descriptor;
+         descriptor.giveFileDescriptor(fd);
+ 
+-        const QVariantMap options = {{QLatin1String("writable"), true}};
++        const QVariantMap options = {};
+ 
+         // FIXME parent_window_id
+         message << QString() << QVariant::fromValue(descriptor) << options;
+ 
+         return QDBusConnection::sessionBus().call(message);
+     }
+-#else
+-    Q_UNUSED(url)
+-#endif
+ 
+     return QDBusMessage::createError(QDBusError::InternalError, qt_error_string());
+ }
+-- 
+2.46.0
+

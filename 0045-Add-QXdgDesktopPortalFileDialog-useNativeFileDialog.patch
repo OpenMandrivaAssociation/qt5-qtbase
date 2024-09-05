@@ -1,7 +1,7 @@
-From fda4f360cf2c70fec28558777dc85f464fbb01b8 Mon Sep 17 00:00:00 2001
+From b40427b69928a50db3e0df784f7f965b0713ee01 Mon Sep 17 00:00:00 2001
 From: Ilya Fedin <fedin-ilja2010@ya.ru>
 Date: Mon, 6 Jun 2022 20:57:22 +0400
-Subject: [PATCH 045/140] Add
+Subject: [PATCH 045/127] Add
  QXdgDesktopPortalFileDialog::useNativeFileDialog()
 
 Task-number: QTBUG-98988
@@ -84,5 +84,5 @@ index 4f4de96ecf..5c1231bb54 100644
      QScopedPointer<QXdgDesktopPortalFileDialogPrivate> d_ptr;
  };
 -- 
-2.45.1
+2.46.0
 

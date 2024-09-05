@@ -1,7 +1,7 @@
-From a8061dae836d5b6d790baed7a043af14bb4ee219 Mon Sep 17 00:00:00 2001
+From 12743f60b7310fdc8231fc56a5151c6cd4515ee2 Mon Sep 17 00:00:00 2001
 From: Johannes Rosenqvist <xeroc81@gmail.com>
 Date: Wed, 4 May 2022 12:49:24 +0200
-Subject: [PATCH 035/140] Fix a QDBusConnection crash with pending calls when
+Subject: [PATCH 035/127] Fix a QDBusConnection crash with pending calls when
  connection is closed
 
 QDBusConnection::closeConnection does not use deref() on pendingCall
@@ -38,5 +38,5 @@ index a4cbfecc98..9ccbbbb37d 100644
      // Disconnect all signals from signal hooks and from the object tree to
      // avoid QObject::destroyed being sent to dbus daemon thread which has
 -- 
-2.45.1
+2.46.0
 

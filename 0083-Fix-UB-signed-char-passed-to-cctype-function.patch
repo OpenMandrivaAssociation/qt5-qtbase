@@ -1,0 +1,39 @@
+From 5d2949899364426f79f2139cf48e8816d675aae3 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Thu, 6 Jul 2023 18:07:27 +0200
+Subject: [PATCH 083/127] Fix UB (signed char passed to <cctype> function)
+
+Passing char to a <cctype> function is UB for characters that are outside the range [0...255, EOF].
+
+You have to cast chars to uchar so the implicit conversion to int
+does not produce negative values.
+
+Amends a6ffce09ce6d4fd39fbb50eb58f7b5d1027f4d60.
+
+Pick-to: 6.6 6.5 6.2 5.15
+Change-Id: I597ee3ff87d38c40dbdf794ee07d302da26f520e
+Reviewed-by: Mike Krus <mike.krus@kdab.com>
+(cherry picked from commit cf084d958c1d795fbdc06b6a377ab61d68e0960a in qt3d)
+
+* asturmlechner 2023-08-14: Resolve conflict with qt3d/dev commit
+  b291ef7442453d3ea842756189413d9521029b1b (int -> qsizetype)
+---
+ src/gui/util/qshadergenerator.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/util/qshadergenerator.cpp b/src/gui/util/qshadergenerator.cpp
+index 1ec25ccd7b..20ed6abc3a 100644
+--- a/src/gui/util/qshadergenerator.cpp
++++ b/src/gui/util/qshadergenerator.cpp
+@@ -492,7 +492,7 @@ QByteArray QShaderGenerator::createShaderCode(const QStringList &enabledLayers)
+             int end = begin + 1;
+             char endChar = line.at(end);
+             const int size = line.size();
+-            while (end < size && (std::isalnum(endChar) || endChar == '_')) {
++            while (end < size && (std::isalnum(uchar(endChar)) || endChar == '_')) {
+                 ++end;
+                 endChar = line.at(end);
+             }
+-- 
+2.46.0
+

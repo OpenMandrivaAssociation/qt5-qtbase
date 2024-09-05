@@ -1,0 +1,34 @@
+From 6b1abb4056b1b2164339d05d5ff3ae313ee556c8 Mon Sep 17 00:00:00 2001
+From: Michael Weghorn <m.weghorn@posteo.de>
+Date: Mon, 18 Jul 2022 09:11:42 +0200
+Subject: [PATCH 091/127] a11y atspi: Fix incorrect use of x instead of y
+ position
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes: QTBUG-105031
+Pick-to: 6.4 6.3 6.2
+Change-Id: I26fcbfbd5a90982b87dda89b2880efe937f099d8
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+(cherry picked from commit d40dacf5f4697a57314ec77709e4551977d97c29)
+---
+ src/platformsupport/linuxaccessibility/atspiadaptor.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+index 255ea5e33e..174408c86c 100644
+--- a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
++++ b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+@@ -1628,7 +1628,7 @@ static QRect getRelativeRect(QAccessibleInterface *interface)
+         wr = window->rect();
+ 
+         cr.setX(cr.x() - wr.x());
+-        cr.setY(cr.x() - wr.y());
++        cr.setY(cr.y() - wr.y());
+     }
+     return cr;
+ }
+-- 
+2.46.0
+

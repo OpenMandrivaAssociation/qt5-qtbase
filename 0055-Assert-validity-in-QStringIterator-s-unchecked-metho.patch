@@ -1,7 +1,7 @@
-From 9c37d58a84caaac601160fbf7c9bdf081f752d9b Mon Sep 17 00:00:00 2001
+From 93d40f4561b0e06d825ec12a694284bcc3e75cc2 Mon Sep 17 00:00:00 2001
 From: Edward Welbourne <edward.welbourne@qt.io>
 Date: Wed, 12 Aug 2020 14:24:10 +0200
-Subject: [PATCH 055/140] Assert validity in QStringIterator's unchecked
+Subject: [PATCH 055/127] Assert validity in QStringIterator's unchecked
  methods
 
 These methods should never be used on strings not known to be valid UTF-16.
@@ -91,5 +91,5 @@ index b31c7673c2..731a241407 100644
      }
  
 -- 
-2.45.1
+2.46.0
 

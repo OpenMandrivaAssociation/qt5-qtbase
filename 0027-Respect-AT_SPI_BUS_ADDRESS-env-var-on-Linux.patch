@@ -1,7 +1,7 @@
-From 7005cadd57a7e6866fb5d27bb42ebee97317975b Mon Sep 17 00:00:00 2001
+From ee8abdea5fec00942143394b210cb705b8109f90 Mon Sep 17 00:00:00 2001
 From: Patrick Griffis <tingping@tingping.se>
 Date: Mon, 7 Feb 2022 16:05:02 -0600
-Subject: [PATCH 027/140] Respect AT_SPI_BUS_ADDRESS env var on Linux
+Subject: [PATCH 027/127] Respect AT_SPI_BUS_ADDRESS env var on Linux
 
 Change-Id: Ic277b5ebe2d752360cebdb2ff728ca219f9d7124
 Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
@@ -31,5 +31,5 @@ index 45ddc8e496..17fc130ed8 100644
      QDBusConnection c = QDBusConnection::sessionBus();
      if (!c.isConnected()) {
 -- 
-2.45.1
+2.46.0
 

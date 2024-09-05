@@ -1,7 +1,7 @@
-From 930556b8f4e0bd00e8f7b8a0a8961aaf119c4f8d Mon Sep 17 00:00:00 2001
+From eadc0daf6b771e61f88fce50cdaf1d5350308fa0 Mon Sep 17 00:00:00 2001
 From: Christian Ehrlicher <ch.ehrlicher@gmx.de>
 Date: Mon, 21 Dec 2020 14:16:57 +0100
-Subject: [PATCH 037/140] QPushButton/fusion style: don't ignore QIcon::On icon
+Subject: [PATCH 037/127] QPushButton/fusion style: don't ignore QIcon::On icon
 
 The fusion style did ignore the QIcon::On icon because it reset State_On
 to avoid the visual shift of a pressed button.
@@ -40,5 +40,5 @@ index a225d4b563..35e2769ac4 100644
          painter->save();
      {
 -- 
-2.45.1
+2.46.0
 

@@ -1,7 +1,7 @@
-From d967d7b1f0812d954dbece49129110aab13c38e0 Mon Sep 17 00:00:00 2001
+From 58c3342e8f293a6001ded2211baa4aa7f3e20665 Mon Sep 17 00:00:00 2001
 From: Ilya Fedin <fedin-ilja2010@ya.ru>
 Date: Wed, 1 Jun 2022 15:40:56 +0400
-Subject: [PATCH 046/140] Fallback to another file dialog implementation when
+Subject: [PATCH 046/127] Fallback to another file dialog implementation when
  XDP is inaccessible
 
 Fixes: QTBUG-98988
@@ -228,5 +228,5 @@ index 2fc3167fd5..b809503122 100644
          return new QXdgDesktopPortalFileDialog;
      }
 -- 
-2.45.1
+2.46.0
 

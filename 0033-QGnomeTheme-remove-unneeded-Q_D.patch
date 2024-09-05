@@ -1,7 +1,7 @@
-From a17dbc8536343452549c05f46823e9d72b4c60f4 Mon Sep 17 00:00:00 2001
+From 7a23011a647e54603779a3902318a9d346755c2e Mon Sep 17 00:00:00 2001
 From: Noah Davis <noahadvs@gmail.com>
 Date: Thu, 17 Feb 2022 05:07:29 -0500
-Subject: [PATCH 033/140] QGnomeTheme: remove unneeded Q_D
+Subject: [PATCH 033/127] QGnomeTheme: remove unneeded Q_D
 
 Change-Id: I3fcb1de9487bfdfab16bae5603fed09ef72e01ba
 Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
@@ -24,5 +24,5 @@ index dafa3ec4da..6e01af052c 100644
      case QPlatformTheme::DialogButtonBoxButtonsHaveIcons:
          return QVariant(true);
 -- 
-2.45.1
+2.46.0
 

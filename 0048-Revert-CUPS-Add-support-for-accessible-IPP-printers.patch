@@ -1,7 +1,7 @@
-From 3e3889b4e4de81c824300018f4e94888dd111d98 Mon Sep 17 00:00:00 2001
+From 632a9d05c4584ba0360d1efafcac7d9367eb21ee Mon Sep 17 00:00:00 2001
 From: Volker Hilsheimer <volker.hilsheimer@qt.io>
 Date: Thu, 28 Jul 2022 16:31:18 +0200
-Subject: [PATCH 048/140] Revert "CUPS: Add support for accessible IPP
+Subject: [PATCH 048/127] Revert "CUPS: Add support for accessible IPP
  printers"
 
 This reverts commit 2f5f276b4a2a19b9f2669b84f28ce8e970aaa39f,
@@ -39,5 +39,5 @@ index 1131d43f64..42a7a821f2 100644
      cupsFreeDests(count, dests);
      return list;
 -- 
-2.45.1
+2.46.0
 

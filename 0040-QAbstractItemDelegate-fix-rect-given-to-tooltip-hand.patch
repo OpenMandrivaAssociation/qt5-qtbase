@@ -1,7 +1,7 @@
-From bf81f0de2a7dd56ba9fdb45c77d668e5acf1235b Mon Sep 17 00:00:00 2001
+From 87e5c20283a99978da5109b09117cb1d2b7b1e22 Mon Sep 17 00:00:00 2001
 From: David Faure <david.faure@kdab.com>
 Date: Tue, 2 Mar 2021 00:05:00 +0100
-Subject: [PATCH 040/140] QAbstractItemDelegate: fix rect given to tooltip
+Subject: [PATCH 040/127] QAbstractItemDelegate: fix rect given to tooltip
  handing
 
 * The rect passed to QToolTip::showText() is in view coordinates,
@@ -44,5 +44,5 @@ index e120817edc..8ea36b5427 100644
          break;
          }
 -- 
-2.45.1
+2.46.0
 

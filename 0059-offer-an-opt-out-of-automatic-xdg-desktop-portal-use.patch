@@ -1,7 +1,7 @@
-From ebdde9a5a7205c9d10f59fcde0b0c342b23e6955 Mon Sep 17 00:00:00 2001
+From a5ffd7118b0b789deeb613249f1ee210a1e5879c Mon Sep 17 00:00:00 2001
 From: Harald Sitter <sitter@kde.org>
 Date: Mon, 17 Oct 2022 11:43:30 +0200
-Subject: [PATCH 059/140] offer an opt out of automatic xdg-desktop-portal use
+Subject: [PATCH 059/127] offer an opt out of automatic xdg-desktop-portal use
 
 this allows users to skip over the portal invocation if it is
 undesirable (e.g. during early stages of session setup on KDE's Plasma)
@@ -28,5 +28,5 @@ index 210e843e6d..2abe039126 100644
              QStringLiteral("org.freedesktop.portal.Desktop"), QStringLiteral("/org/freedesktop/portal/desktop"),
              QStringLiteral("org.freedesktop.DBus.Properties"), QStringLiteral("Get"));
 -- 
-2.45.1
+2.46.0
 

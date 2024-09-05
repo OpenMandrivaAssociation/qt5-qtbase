@@ -1,0 +1,98 @@
+From 225124876019700691399dbaac1fa7558c9c4494 Mon Sep 17 00:00:00 2001
+From: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Date: Mon, 3 Jun 2024 10:14:54 +0200
+Subject: [PATCH 125/127] a11y atspi: Add null checks in table iface methods
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add null checks to cover the cases where
+QAccessibleTableInterface::cellAt returns
+nullptr (which happens e.g. when called with
+invalid indices via AT-SPI) or where the
+cell object doesn't implement the
+QAccessibleTableCellInterface, which
+would previously result in crashes.
+
+Cherry-picked into 5.15 as it fixes a crash in popular accessibility
+client software. Conflict resolution: remove C++17'isms (`if`
+with initializer).
+
+Fixes: QTBUG-119167
+Fixes: QTBUG-125954
+Change-Id: Ieb42617b32ca829af09ae1d54f5de9ec029e3ab2
+Reviewed-by: Jan Arve Sæther <jan-arve.saether@qt.io>
+(cherry picked from commit d91d53c951144255349e5d246353b598179ce967)
+---
+ .../linuxaccessibility/atspiadaptor.cpp       | 37 +++++++++++++------
+ 1 file changed, 26 insertions(+), 11 deletions(-)
+
+diff --git a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+index 26537ff892..d30ed5b6dc 100644
+--- a/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
++++ b/src/platformsupport/linuxaccessibility/atspiadaptor.cpp
+@@ -2440,13 +2440,14 @@ bool AtSpiAdaptor::tableInterface(QAccessibleInterface *interface, const QString
+         if (cols > 0) {
+             row = index / cols;
+             col = index % cols;
+-            QAccessibleTableCellInterface *cell = interface->tableInterface()->cellAt(row, col)->tableCellInterface();
+-            if (cell) {
+-                row = cell->rowIndex();
+-                col = cell->columnIndex();
+-                rowExtents = cell->rowExtent();
+-                colExtents = cell->columnExtent();
+-                isSelected = cell->isSelected();
++            QAccessibleInterface *cell = interface->tableInterface()->cellAt(row, col);
++            QAccessibleTableCellInterface *cellIface = cell ? cell->tableCellInterface() : nullptr;
++            if (cellIface) {
++                row = cellIface->rowIndex();
++                col = cellIface->columnIndex();
++                rowExtents = cellIface->rowExtent();
++                colExtents = cellIface->columnExtent();
++                isSelected = cellIface->isSelected();
+                 success = true;
+             }
+         }
+@@ -2457,12 +2458,22 @@ bool AtSpiAdaptor::tableInterface(QAccessibleInterface *interface, const QString
+     } else if (function == QLatin1String("GetColumnExtentAt")) {
+         int row = message.arguments().at(0).toInt();
+         int column = message.arguments().at(1).toInt();
+-        connection.send(message.createReply(interface->tableInterface()->cellAt(row, column)->tableCellInterface()->columnExtent()));
++        int columnExtent = 0;
++        QAccessibleInterface *cell = interface->tableInterface()->cellAt(row, column);
++        QAccessibleTableCellInterface *cellIface = cell ? cell->tableCellInterface() : nullptr;
++        if (cellIface)
++            columnExtent = cellIface->columnExtent();
++        connection.send(message.createReply(columnExtent));
+ 
+     } else if (function == QLatin1String("GetRowExtentAt")) {
+         int row = message.arguments().at(0).toInt();
+         int column = message.arguments().at(1).toInt();
+-        connection.send(message.createReply(interface->tableInterface()->cellAt(row, column)->tableCellInterface()->rowExtent()));
++        int rowExtent = 0;
++        QAccessibleInterface *cell = interface->tableInterface()->cellAt(row, column);
++        QAccessibleTableCellInterface *cellIface = cell ? cell->tableCellInterface() : nullptr;
++        if (cellIface)
++            rowExtent = cellIface->rowExtent();
++        connection.send(message.createReply(rowExtent));
+ 
+     } else if (function == QLatin1String("GetColumnHeader")) {
+         int column = message.arguments().at(0).toInt();
+@@ -2502,8 +2513,12 @@ bool AtSpiAdaptor::tableInterface(QAccessibleInterface *interface, const QString
+     } else if (function == QLatin1String("IsSelected")) {
+         int row = message.arguments().at(0).toInt();
+         int column = message.arguments().at(1).toInt();
+-        QAccessibleTableCellInterface* cell = interface->tableInterface()->cellAt(row, column)->tableCellInterface();
+-        connection.send(message.createReply(cell->isSelected()));
++        bool isSelected = false;
++        QAccessibleInterface *cell = interface->tableInterface()->cellAt(row, column);
++        QAccessibleTableCellInterface *cellIface = cell ? cell->tableCellInterface() : nullptr;
++        if (cellIface)
++            isSelected = cellIface->isSelected();
++        connection.send(message.createReply(isSelected));
+     } else if (function == QLatin1String("AddColumnSelection")) {
+         int column = message.arguments().at(0).toInt();
+         connection.send(message.createReply(interface->tableInterface()->selectColumn(column)));
+-- 
+2.46.0
+

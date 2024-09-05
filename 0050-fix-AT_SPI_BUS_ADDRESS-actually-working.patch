@@ -1,7 +1,7 @@
-From 51bc1ffb209a4a01a6753ae7a6cd416b11b25f00 Mon Sep 17 00:00:00 2001
+From 44ebaeb9d74ebc082aa59d2dd3817a6a4d04a77b Mon Sep 17 00:00:00 2001
 From: Harald Sitter <sitter@kde.org>
 Date: Mon, 18 Jul 2022 12:26:36 +0200
-Subject: [PATCH 050/140] fix AT_SPI_BUS_ADDRESS actually working
+Subject: [PATCH 050/127] fix AT_SPI_BUS_ADDRESS actually working
 
 the previous invocation wasn't working because QSpiAccessibleBridge
 first needs to construct the connection before it can connect to the
@@ -42,5 +42,5 @@ index 17fc130ed8..0e5af37e3f 100644
      }
  
 -- 
-2.45.1
+2.46.0
 

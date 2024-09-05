@@ -1,7 +1,7 @@
-From de0c7afddcb74c3e8ea0c9d8824e779d9c562372 Mon Sep 17 00:00:00 2001
+From 29e850162c0ca336481c472419b6ef7e83184dc0 Mon Sep 17 00:00:00 2001
 From: Laszlo Agocs <laszlo.agocs@qt.io>
 Date: Fri, 17 Mar 2023 15:03:54 +0100
-Subject: [PATCH 071/140] Add QImage null check when QOpenGLTexture converts
+Subject: [PATCH 071/127] Add QImage null check when QOpenGLTexture converts
 
 ...the image to RGBA8888. Just mirror the first null check that is
 done for the user-provided QImage. The same should be done for the
@@ -42,5 +42,5 @@ index 5490ad8025..afd3d8dbe6 100644
      uploadOptions.setAlignment(1);
      setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, glImage.constBits(), &uploadOptions);
 -- 
-2.45.1
+2.46.0
 

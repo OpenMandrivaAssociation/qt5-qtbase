@@ -1,7 +1,7 @@
-From 364b2adbbd38aa531167cc265ffa72e3fa22ef61 Mon Sep 17 00:00:00 2001
+From 6e03df00069c5f12bf3f4d6aa20fb289db035b85 Mon Sep 17 00:00:00 2001
 From: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
 Date: Tue, 1 Mar 2022 16:03:44 +0100
-Subject: [PATCH 029/140] Qt namespace: fix QT_Q_FLAG declaration for
+Subject: [PATCH 029/127] Qt namespace: fix QT_Q_FLAG declaration for
  Qt::MouseEventFlags
 
 The declaration was accidentally declaring the enumeration as
@@ -32,5 +32,5 @@ index deab11f729..486b63fa3f 100644
      QT_Q_ENUM(HighDpiScaleFactorRoundingPolicy)
      QT_Q_ENUM(TabFocusBehavior)
 -- 
-2.45.1
+2.46.0
 

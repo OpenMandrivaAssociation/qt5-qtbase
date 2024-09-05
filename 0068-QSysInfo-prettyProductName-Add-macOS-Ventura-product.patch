@@ -1,7 +1,7 @@
-From f6571330ea2a0a456ee9ca12066c70f1bf2f0be3 Mon Sep 17 00:00:00 2001
+From 4fdf3c1316cdf5b941427d2ea37ca237877786ee Mon Sep 17 00:00:00 2001
 From: Alexander Rezepkin <etu@vivaldi.net>
 Date: Wed, 7 Dec 2022 20:36:15 +0300
-Subject: [PATCH 068/140] QSysInfo::prettyProductName(): Add macOS Ventura
+Subject: [PATCH 068/127] QSysInfo::prettyProductName(): Add macOS Ventura
  product name
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -30,5 +30,5 @@ index 7428d8ec42..ecf7b1efaa 100644
          return "Monterey";
      // Compare against predefined constant to handle 10.16/11.0
 -- 
-2.45.1
+2.46.0
 

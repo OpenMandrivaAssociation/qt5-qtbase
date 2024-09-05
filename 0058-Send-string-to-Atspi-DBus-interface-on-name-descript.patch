@@ -1,7 +1,7 @@
-From 629a234d95fbc0acdbed90d50a9344059dd113f0 Mon Sep 17 00:00:00 2001
+From ec1c9ea419424cffa1ea9d99966e9b14f9bcd6b3 Mon Sep 17 00:00:00 2001
 From: Fushan Wen <qydwhotmail@gmail.com>
 Date: Sat, 23 Jul 2022 00:48:37 +0800
-Subject: [PATCH 058/140] Send string to Atspi DBus interface on
+Subject: [PATCH 058/127] Send string to Atspi DBus interface on
  name/description changed
 
 Orca only accepts string or list type for
@@ -70,5 +70,5 @@ index 7ea6680fba..c8c717ba6b 100644
                             QLatin1String("PropertyChange"), args);
          }
 -- 
-2.45.1
+2.46.0
 

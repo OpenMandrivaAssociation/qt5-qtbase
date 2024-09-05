@@ -1,7 +1,7 @@
-From 5e60633df4733b83ea7ee7c67b7994989934e70d Mon Sep 17 00:00:00 2001
+From 58cb471d9c94bf14c1cce542c87b64962ead2cbe Mon Sep 17 00:00:00 2001
 From: Noah Davis <noahadvs@gmail.com>
 Date: Wed, 16 Feb 2022 08:50:08 -0500
-Subject: [PATCH 032/140] QGnomeTheme: Allow Space, Return, Enter and Select to
+Subject: [PATCH 032/127] QGnomeTheme: Allow Space, Return, Enter and Select to
  press buttons
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,5 +42,5 @@ index cb1b39db64..dafa3ec4da 100644
          break;
      }
 -- 
-2.45.1
+2.46.0
 

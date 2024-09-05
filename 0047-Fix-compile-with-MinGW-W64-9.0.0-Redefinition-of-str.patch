@@ -1,7 +1,7 @@
-From af937b57c759a6f54c1afb66791fdcee8b755fbc Mon Sep 17 00:00:00 2001
+From 5f9cbbba1ae50a417189d517ffd87614f7b0242a Mon Sep 17 00:00:00 2001
 From: Jonas Kvinge <jonas@jkvinge.net>
 Date: Mon, 16 Aug 2021 22:01:39 +0200
-Subject: [PATCH 047/140] Fix compile with MinGW-W64 9.0.0: Redefinition of
+Subject: [PATCH 047/127] Fix compile with MinGW-W64 9.0.0: Redefinition of
  'struct _FILE_ID_INFO'
 
 With MinGW-W64 9.0.0, _WIN32_WINNT is set to Windows 10 by default, so
@@ -39,5 +39,5 @@ index 002f720926..e6f118a5c4 100644
  // File ID for Windows up to version 7 and FAT32 drives
  static inline QByteArray fileId(HANDLE handle)
 -- 
-2.45.1
+2.46.0
 

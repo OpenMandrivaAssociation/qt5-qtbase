@@ -1,0 +1,40 @@
+From a5a868ee13964dafe5e5855a2895256ba06bc35b Mon Sep 17 00:00:00 2001
+From: Liang Qi <liang.qi@qt.io>
+Date: Thu, 21 Mar 2024 14:18:54 +0100
+Subject: [PATCH 117/127] gui: fix build against gcc-14
+ (-Werror=calloc-transposed-args)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+    src/gui/painting/qpaintengine_raster.cpp:3811:42: error: ‘void* calloc(size_t, size_t)’ sizes specified with ‘sizeof’ in the earlier argument and not in the later argument [-Werror=calloc-transposed-args]
+     3811 |         m_clipLines = (ClipLine *)calloc(sizeof(ClipLine), clipSpanHeight);
+          |                                          ^~~~~~~~~~~~~~~~
+    src/gui/painting/qpaintengine_raster.cpp:3811:42: note: earlier argument should specify number of elements, later size of each element
+
+Pick-to: 6.7 6.6 6.5 6.2 5.15
+Change-Id: I41ec3dd5c439e5cd51dd917741125ce50659500e
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+Reviewed-by: Ahmad Samir <a.samirh78@gmail.com>
+Reviewed-by: Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+(cherry picked from commit 12a432c80feba60ced4c67b496ac0762bacb8777)
+---
+ src/gui/painting/qpaintengine_raster.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/painting/qpaintengine_raster.cpp b/src/gui/painting/qpaintengine_raster.cpp
+index 38bad9a6b0..6caed6bce6 100644
+--- a/src/gui/painting/qpaintengine_raster.cpp
++++ b/src/gui/painting/qpaintengine_raster.cpp
+@@ -3860,7 +3860,7 @@ void QClipData::initialize()
+         return;
+ 
+     if (!m_clipLines)
+-        m_clipLines = (ClipLine *)calloc(sizeof(ClipLine), clipSpanHeight);
++        m_clipLines = (ClipLine *)calloc(clipSpanHeight, sizeof(ClipLine));
+ 
+     Q_CHECK_PTR(m_clipLines);
+     QT_TRY {
+-- 
+2.46.0
+

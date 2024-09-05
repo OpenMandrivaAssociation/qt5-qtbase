@@ -1,7 +1,7 @@
-From 84a7cef6d872ac8d5a09f7ced2561c9f395c7b0f Mon Sep 17 00:00:00 2001
+From 2ec2e4baf2a1f1e6ac1135bf7605f2018cb8cab2 Mon Sep 17 00:00:00 2001
 From: Laszlo Papp <lpapp@kde.org>
 Date: Thu, 12 May 2022 13:37:27 +0100
-Subject: [PATCH 064/140] QKeySequence: Add missing modifier names
+Subject: [PATCH 064/127] QKeySequence: Add missing modifier names
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -70,5 +70,5 @@ index 874468c954..04ceb4ab65 100644
  
  void tst_QKeySequence::toStringFromKeycode()
 -- 
-2.45.1
+2.46.0
 

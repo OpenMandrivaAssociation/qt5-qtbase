@@ -1,7 +1,7 @@
-From bd655a690cf58b6ea360380a95ed72d22805abdb Mon Sep 17 00:00:00 2001
+From ba152043e5f24d979a913c0006aa9353f0b5eb45 Mon Sep 17 00:00:00 2001
 From: Martin Walch <walch.martin@web.de>
 Date: Sat, 1 Oct 2022 15:48:42 +0200
-Subject: [PATCH 063/140] Scale BMP color samples with periodic bit expansion
+Subject: [PATCH 063/127] Scale BMP color samples with periodic bit expansion
 
 Scale samples up by periodically repeating the bit pattern of each value to fill
 up the lower bits instead of padding them with 0.
@@ -150,5 +150,5 @@ index 96f1e8cb1d..0e73bbbdb0 100644
              }
          }
 -- 
-2.45.1
+2.46.0
 

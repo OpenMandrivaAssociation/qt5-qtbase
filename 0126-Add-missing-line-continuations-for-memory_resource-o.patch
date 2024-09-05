@@ -1,0 +1,41 @@
+From 507f579f8dc33fa4256d9dccb5e4ea4a936b4ac1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tor=20Arne=20Vestb=C3=B8?= <tor.arne.vestbo@qt.io>
+Date: Thu, 8 Jun 2023 15:29:27 +0200
+Subject: [PATCH 126/127] Add missing line continuations for memory_resource
+ opt-out on Apple systems
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+And add some additional parenthesis for extra safety.
+
+Amends f7c8ff511c30dc4310a72b3da4b4a345efe1fba0.
+
+Pick-to: 6.6 6.5
+Change-Id: I4ca8b70f6adb876a10f82685ba9800021218d418
+Reviewed-by: Mikołaj Boc <Mikolaj.Boc@qt.io>
+(cherry picked from commit e84c0df50f51c61aa49b47823582b0f8de406e3d)
+---
+ src/corelib/global/qcompilerdetection.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/corelib/global/qcompilerdetection.h b/src/corelib/global/qcompilerdetection.h
+index c98f22982e..b6bc259ebb 100644
+--- a/src/corelib/global/qcompilerdetection.h
++++ b/src/corelib/global/qcompilerdetection.h
+@@ -1065,9 +1065,9 @@
+ // Also disable <atomic>, since it's clearly not there
+ #   undef Q_COMPILER_ATOMICS
+ #  endif
+-#  if defined(__cpp_lib_memory_resource)
+-    && (defined(__MAC_OS_X_VERSION_MIN_REQUIRED)  && __MAC_OS_X_VERSION_MIN_REQUIRED  < 140000
+-     || defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED < 170000)
++#  if defined(__cpp_lib_memory_resource) \
++    && ((defined(__MAC_OS_X_VERSION_MIN_REQUIRED)  && __MAC_OS_X_VERSION_MIN_REQUIRED  < 140000) \
++     || (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED < 170000))
+ #   undef __cpp_lib_memory_resource // Only supported on macOS 14 and iOS 17
+ #  endif
+ # endif // defined(Q_CC_CLANG) && defined(Q_OS_DARWIN)
+-- 
+2.46.0
+

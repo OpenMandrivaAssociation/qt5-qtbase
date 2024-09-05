@@ -1,7 +1,7 @@
-From bd1c9e6a267577f6e50a862ebd6bbaddfdff4032 Mon Sep 17 00:00:00 2001
+From 55cf1b19b2f74f73e27206a01ca4a6ac5e0ecd78 Mon Sep 17 00:00:00 2001
 From: Albert Astals Cid <albert.astals.cid@kdab.com>
 Date: Fri, 28 May 2021 17:28:03 +0200
-Subject: [PATCH 024/140] Use icon themes in QPrintPreviewDialog [if they
+Subject: [PATCH 024/127] Use icon themes in QPrintPreviewDialog [if they
  exist]
 
 I've renamed a few of the qrc icons to the names most common icon themes use
@@ -178,5 +178,5 @@ index 39575d5f57..23b7e89538 100644
      QObject::connect(printAction, SIGNAL(triggered(bool)), q, SLOT(_q_print()));
      QObject::connect(pageSetupAction, SIGNAL(triggered(bool)), q, SLOT(_q_pageSetup()));
 -- 
-2.45.1
+2.46.0
 

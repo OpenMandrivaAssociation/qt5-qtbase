@@ -1,7 +1,7 @@
-From 7c0d7796f7ecc799c8e6e7b960deb65054023303 Mon Sep 17 00:00:00 2001
+From 9c7f64204376d69fae2eb317ce18dba2e3113760 Mon Sep 17 00:00:00 2001
 From: Jonas Kvinge <jonas@jkvinge.net>
 Date: Wed, 16 Jun 2021 00:45:53 +0200
-Subject: [PATCH 041/140] QDBusMenuConnection: Close open D-Bus connection
+Subject: [PATCH 041/127] QDBusMenuConnection: Close open D-Bus connection
 
 Using QSystemTrayIcon::isSystemTrayAvailable() generates a new
 connection from QDBusTrayIcon::isSystemTrayAvailable() with a new unique instance ID.
@@ -66,5 +66,5 @@ index 11c7e56534..97bdfabb85 100644
      QDBusServiceWatcher *m_dbusWatcher;
      bool m_statusNotifierHostRegistered;
 -- 
-2.45.1
+2.46.0
 

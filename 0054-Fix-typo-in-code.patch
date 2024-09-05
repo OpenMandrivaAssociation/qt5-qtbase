@@ -1,7 +1,7 @@
-From c63086c951f71f9a168a5e14284ba2b51a6e5ae4 Mon Sep 17 00:00:00 2001
+From 95823924dbc0012597b1123cf96e5eaa8b006431 Mon Sep 17 00:00:00 2001
 From: Duan Ting <duanting@uniontech.com>
 Date: Wed, 22 Jun 2022 14:07:25 +0800
-Subject: [PATCH 054/140] Fix typo in code
+Subject: [PATCH 054/127] Fix typo in code
 
 Found by codespell
 
@@ -28,5 +28,5 @@ index 645a0ae2e9..3e0e406f1a 100644
  
      m_thread = new QEglFSKmsEventReaderThread(m_device->fd());
 -- 
-2.45.1
+2.46.0
 

@@ -1,7 +1,7 @@
-From 901a044bf925fb059ddd2fa79a6cb07904cd23df Mon Sep 17 00:00:00 2001
+From b2e49775aa540c2db8e82182452722b4564f7db0 Mon Sep 17 00:00:00 2001
 From: Joerg Bornemann <joerg.bornemann@qt.io>
 Date: Mon, 20 Apr 2020 07:53:54 +0200
-Subject: [PATCH 016/140] Remove checks for glibc < 2 from qplatformdefs.h
+Subject: [PATCH 016/127] Remove checks for glibc < 2 from qplatformdefs.h
  files
 
 The last release of glibc 1 was 1995 and can be considered outdated.
@@ -136,5 +136,5 @@ index 4339ea2b23..6007af0055 100644
  #define QT_SNPRINTF             ::snprintf
  #define QT_VSNPRINTF            ::vsnprintf
 -- 
-2.45.1
+2.46.0
 

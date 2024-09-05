@@ -1,7 +1,7 @@
-From 3149a8160f46647f21dcdd82e89f2f6b58c45c6b Mon Sep 17 00:00:00 2001
+From c42b547cd79400d22eb1916a1982ff54213be66e Mon Sep 17 00:00:00 2001
 From: Fushan Wen <qydwhotmail@gmail.com>
 Date: Sat, 23 Jul 2022 09:31:14 +0800
-Subject: [PATCH 057/140] Send string to Atspi DBus interface on value changed
+Subject: [PATCH 057/127] Send string to Atspi DBus interface on value changed
  for comboboxes
 
 Orca only accepts string or list type for
@@ -32,5 +32,5 @@ index 9153fd20bb..7ea6680fba 100644
                                 QLatin1String("PropertyChange"), args1);
                  QVariantList args2 = packDBusSignalArguments(QString(), 0, 0, QVariant::fromValue(QDBusVariant(QVariant(0))));
 -- 
-2.45.1
+2.46.0
 

@@ -1,7 +1,7 @@
-From 4fc46324172560bb5f67d29568d0455fc5f66771 Mon Sep 17 00:00:00 2001
+From b1af2df8b48eafeed60655c0d6692dd7856a3ff4 Mon Sep 17 00:00:00 2001
 From: Yuhang Zhao <2546789017@qq.com>
 Date: Tue, 24 May 2022 14:05:10 +0800
-Subject: [PATCH 067/140] QSysInfo::prettyProductName(): add missing macOS
+Subject: [PATCH 067/127] QSysInfo::prettyProductName(): add missing macOS
  product names
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,5 +72,5 @@ index 5ad82c259d..7428d8ec42 100644
  
  #endif
 -- 
-2.45.1
+2.46.0
 

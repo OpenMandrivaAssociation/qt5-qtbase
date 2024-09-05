@@ -1,7 +1,7 @@
-From b483335f3a4551a2e44e922b8383844864e41f5e Mon Sep 17 00:00:00 2001
+From 3590135f76940216af4a18f41e370018859cf373 Mon Sep 17 00:00:00 2001
 From: Marco Martin <notmart@gmail.com>
 Date: Tue, 17 Jan 2023 12:56:36 +0000
-Subject: [PATCH 069/140] QToolButton: reimplement the fix for QTBUG-95255
+Subject: [PATCH 069/127] QToolButton: reimplement the fix for QTBUG-95255
 
 The code in 188d739400e10fc8571bbf2ec86d5cd338b04a5d uses a connect() to
 a lambda, passing UniqueConnection to avoid establishing the connection
@@ -57,5 +57,5 @@ index 52bd2d5f7a..82b5d7924f 100644
      void initStyleOption(QStyleOptionToolButton *option) const;
  
 -- 
-2.45.1
+2.46.0
 

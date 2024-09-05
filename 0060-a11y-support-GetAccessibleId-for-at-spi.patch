@@ -1,7 +1,7 @@
-From f44e81d10e600aa9bcdf4268b75658822db99295 Mon Sep 17 00:00:00 2001
+From 0cdfe2233019fc7beb7e7352405f4026265a3bdc Mon Sep 17 00:00:00 2001
 From: Harald Sitter <sitter@kde.org>
 Date: Wed, 10 Aug 2022 13:20:33 +0200
-Subject: [PATCH 060/140] a11y: support GetAccessibleId for at-spi
+Subject: [PATCH 060/127] a11y: support GetAccessibleId for at-spi
 
 This introduces a new helper function accessibleIdForAccessible
 (inspired by Windows' automationIdForAccessible) to synthesize an id out
@@ -115,5 +115,5 @@ index 7ba3715e13..752aa122f6 100644
  }
  
 -- 
-2.45.1
+2.46.0
 

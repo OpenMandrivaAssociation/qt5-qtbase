@@ -1,7 +1,7 @@
-From 00d39dfad1bec819a04ad58442e448dbdf9ba704 Mon Sep 17 00:00:00 2001
+From 458809349d4d4305fe7f14706d041d21dd96295e Mon Sep 17 00:00:00 2001
 From: Igor Kushnir <igorkuo@gmail.com>
 Date: Mon, 29 Mar 2021 18:58:19 +0300
-Subject: [PATCH 010/140] Optimize quadratic-time insertion in
+Subject: [PATCH 010/127] Optimize quadratic-time insertion in
  QSortFilterProxyModel
 
 Let N = proxy_to_source.size() before the code modified in this commit.
@@ -50,5 +50,5 @@ index ce35bda5e1..f2871a2da7 100644
          build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
  
 -- 
-2.45.1
+2.46.0
 

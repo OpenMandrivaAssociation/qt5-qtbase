@@ -1,0 +1,33 @@
+From 174d222a32b0a1638fa591aca23a9caf57ad7cf7 Mon Sep 17 00:00:00 2001
+From: Andy Shaw <andy.shaw@qt.io>
+Date: Thu, 7 Mar 2024 08:27:24 +0100
+Subject: [PATCH 121/127] XCB: Unset the connection's mousePressWindow if it's
+ this window
+
+In some rare cases it can delete the window before this is handled by
+other calls, so rather than crashing we clean up.
+
+Pick-to: 6.7 6.6 6.5 6.2 5.15
+Change-Id: Iddcd9890f0c13f4130626b0ed9c5b32f5890208d
+Reviewed-by: Axel Spoerl <axel.spoerl@qt.io>
+(cherry picked from commit b8f9a8681347476f4db1719b38a67d7f9d3c74be)
+---
+ src/plugins/platforms/xcb/qxcbwindow.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/plugins/platforms/xcb/qxcbwindow.cpp b/src/plugins/platforms/xcb/qxcbwindow.cpp
+index c67ffa9dd7..e2e345e2a8 100644
+--- a/src/plugins/platforms/xcb/qxcbwindow.cpp
++++ b/src/plugins/platforms/xcb/qxcbwindow.cpp
+@@ -539,6 +539,8 @@ void QXcbWindow::destroy()
+         doFocusOut();
+     if (connection()->mouseGrabber() == this)
+         connection()->setMouseGrabber(nullptr);
++    if (connection()->mousePressWindow() == this)
++        connection()->setMousePressWindow(nullptr);
+ 
+     if (m_syncCounter && connection()->hasXSync())
+         xcb_sync_destroy_counter(xcb_connection(), m_syncCounter);
+-- 
+2.46.0
+

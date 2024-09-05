@@ -1,7 +1,7 @@
-From ed4762bfeb5a4238172495e691dbd7bd48efad77 Mon Sep 17 00:00:00 2001
+From 2d2fc8e2768547c08ebd7a43c70ffbf518a3fc1e Mon Sep 17 00:00:00 2001
 From: Lu YaNing <luyaning@uniontech.com>
 Date: Thu, 31 Mar 2022 13:53:52 +0800
-Subject: [PATCH 038/140] CUPS: Add support for accessible IPP printers
+Subject: [PATCH 038/127] CUPS: Add support for accessible IPP printers
 
 CUPS 2.2 adds accessible IPP printers to the list of destinations
 that can be used. The "printer-uri-supported" option will be
@@ -40,5 +40,5 @@ index 42a7a821f2..1131d43f64 100644
      cupsFreeDests(count, dests);
      return list;
 -- 
-2.45.1
+2.46.0
 

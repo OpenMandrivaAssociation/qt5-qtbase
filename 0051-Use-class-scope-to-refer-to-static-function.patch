@@ -1,7 +1,7 @@
-From 2aa567ad0538b0813915242efc262a14e3082e59 Mon Sep 17 00:00:00 2001
+From 05c779858344562658add6d4e9ef02520726788a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?M=C3=A5rten=20Nordheim?= <marten.nordheim@qt.io>
 Date: Mon, 25 Jul 2022 10:26:20 +0200
-Subject: [PATCH 051/140] Use class scope to refer to static function
+Subject: [PATCH 051/127] Use class scope to refer to static function
 
 The call to metaObject() in the ctor may generate a warning since it
 calls a virtual function during construction.
@@ -30,5 +30,5 @@ index 0e5af37e3f..cc734abc63 100644
                  [this, addressEnv] {
                      m_enabled = true;
 -- 
-2.45.1
+2.46.0
 

@@ -1,7 +1,7 @@
-From 5f5401188ea2cc6122ed56504877be0cc9579c5f Mon Sep 17 00:00:00 2001
+From 0528d4034ec8260d216b1933bd479fa759298cb6 Mon Sep 17 00:00:00 2001
 From: Harald Sitter <sitter@kde.org>
 Date: Mon, 11 Jul 2022 14:45:40 +0200
-Subject: [PATCH 052/140] add color picking support on wayland using the XDG
+Subject: [PATCH 052/127] add color picking support on wayland using the XDG
  desktop portal
 
 On wayland applications are not trusted to perform screen grabs by
@@ -369,5 +369,5 @@ index 4247731275..cb325be85c 100644
          colorPickingEventFilter = new QColorPickingEventFilter(this, q);
      q->installEventFilter(colorPickingEventFilter);
 -- 
-2.45.1
+2.46.0
 

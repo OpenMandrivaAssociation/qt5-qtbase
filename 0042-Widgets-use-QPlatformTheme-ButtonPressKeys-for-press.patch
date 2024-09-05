@@ -1,7 +1,7 @@
-From 8f23d3c379aad8129bd3a3b01aba9b7d3c715a41 Mon Sep 17 00:00:00 2001
+From 9e0f8b6f3de36c8f24ead0c859a6e973fc9997c6 Mon Sep 17 00:00:00 2001
 From: Noah Davis <noahadvs@gmail.com>
 Date: Wed, 9 Feb 2022 10:32:53 -0500
-Subject: [PATCH 042/140] Widgets: use QPlatformTheme::ButtonPressKeys for
+Subject: [PATCH 042/127] Widgets: use QPlatformTheme::ButtonPressKeys for
  pressing buttons
 
 QComboBox is included because it works like a button when it is not
@@ -467,5 +467,5 @@ index e818514a79..4043e9326a 100644
      QCOMPARE( press_count, (uint)1 );
      QCOMPARE( release_count, (uint)1 );
 -- 
-2.45.1
+2.46.0
 

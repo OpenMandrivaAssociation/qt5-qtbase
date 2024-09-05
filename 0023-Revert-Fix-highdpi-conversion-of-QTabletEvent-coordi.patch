@@ -1,7 +1,7 @@
-From c38e5644c6211474c21b91c96a27207c4edee70a Mon Sep 17 00:00:00 2001
+From 75db442b3f741b90fdd3dba085152af2a7d4e066 Mon Sep 17 00:00:00 2001
 From: Albert Astals Cid <aacid@kde.org>
 Date: Tue, 12 Oct 2021 16:27:15 +0200
-Subject: [PATCH 023/140] Revert "Fix highdpi conversion of QTabletEvent
+Subject: [PATCH 023/127] Revert "Fix highdpi conversion of QTabletEvent
  coordinates on xcb"
 
 It does not compile
@@ -35,5 +35,5 @@ index e49edbd34e..1ced02f31d 100644
              break;
          case QXcbAtom::AbsPressure:
 -- 
-2.45.1
+2.46.0
 

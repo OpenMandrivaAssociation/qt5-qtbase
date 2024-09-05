@@ -1,7 +1,7 @@
-From 7b9dcef1638140e0bb6ae6d98d0ab745ce312b2a Mon Sep 17 00:00:00 2001
+From 94d8ec0c74a83bf354307af6fc8703a55187e800 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Magnus=20Gro=C3=9F?= <magnus.gross@rwth-aachen.de>
 Date: Thu, 18 Nov 2021 16:03:14 +0100
-Subject: [PATCH 070/140] Do not set Qt::ToolTip flag for QShapedPixmapWindow
+Subject: [PATCH 070/127] Do not set Qt::ToolTip flag for QShapedPixmapWindow
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,5 +39,5 @@ index bb0d8e4ee7..b98fcc61e7 100644
  }
  
 -- 
-2.45.1
+2.46.0
 

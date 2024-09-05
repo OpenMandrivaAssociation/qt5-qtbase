@@ -1,7 +1,7 @@
-From 3c27834a606ad37b4e081d157b123553be0a911f Mon Sep 17 00:00:00 2001
+From e1b59525f8c02da47351295e95dd2f9e444c3196 Mon Sep 17 00:00:00 2001
 From: Noah Davis <noahadvs@gmail.com>
 Date: Thu, 17 Feb 2022 10:20:31 -0500
-Subject: [PATCH 034/140] testlib/qasciikey: Add keypad navigation keys
+Subject: [PATCH 034/127] testlib/qasciikey: Add keypad navigation keys
 
 Needed to prevent qasciikey.cpp from failing an assertion when
 Qt::Key_Select is used in tests.
@@ -30,5 +30,5 @@ index 9a308da2bc..93498b256f 100644
      }
  }
 -- 
-2.45.1
+2.46.0
 

@@ -1,7 +1,7 @@
-From ac1428f890f7418c3d6a072e50a116497ad80c89 Mon Sep 17 00:00:00 2001
+From ff5514f7672314d970b07c6049024f88bb84047f Mon Sep 17 00:00:00 2001
 From: Fushan Wen <qydwhotmail@gmail.com>
 Date: Wed, 29 Jun 2022 19:39:40 +0800
-Subject: [PATCH 044/140] Drop call to setPlatformScreen in
+Subject: [PATCH 044/127] Drop call to setPlatformScreen in
  QHighDpiScaling::setScreenFactor
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -73,5 +73,5 @@ index 7da542c25e..e50fc3190b 100644
      void updatePrimaryOrientation();
      void updateGeometriesWithSignals();
 -- 
-2.45.1
+2.46.0
 

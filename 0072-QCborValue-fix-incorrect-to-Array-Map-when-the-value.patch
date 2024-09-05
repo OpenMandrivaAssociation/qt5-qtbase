@@ -1,7 +1,7 @@
-From 3eb3e0ed0097550ab2810c0f0994d38076cbc36a Mon Sep 17 00:00:00 2001
+From fd83a0b8982c26010510b4b7c13f2474147dac8f Mon Sep 17 00:00:00 2001
 From: Thiago Macieira <thiago.macieira@intel.com>
 Date: Tue, 9 Nov 2021 15:24:45 -0800
-Subject: [PATCH 072/140] QCborValue: fix incorrect to{Array,Map} when the
+Subject: [PATCH 072/127] QCborValue: fix incorrect to{Array,Map} when the
  value is empty
 
 When QCborValue referred to an empty array or map, toArray() and toMap()
@@ -154,5 +154,5 @@ index 533fb1c8aa..63ce77d67f 100644
  {
      QCborValue vundef, vnull(nullptr);
 -- 
-2.45.1
+2.46.0
 
