@@ -145,7 +145,7 @@ Release:	1
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
-Url:		http://www.qt.io
+Url:		https://www.qt.io
 Source1:	qt5.macros
 # (tpg) Use software rendering in case when OpenGL supported by graphics card is older than 2.
 # needs xinitrc
