@@ -141,7 +141,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	1
+Release:	2
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -500,6 +500,7 @@ Development files for version 5 of the QtEGLDeviceIntegration library.
 Summary:	Qt GUI library
 Group:		System/Libraries
 Suggests:	qt5-style-plugins
+Requires:	(qt5-qtwayland if plasma6-kwin-wayland)
 %rename %{qtgui}-x11
 Requires:	%{_lib}qt5-output-driver = %{EVRD}
 %if %omvver >= 405000
