@@ -398,14 +398,11 @@ Development files for version 5 of the QtCore library.
 %{_qt_docdir}/global
 %{_bindir}/moc-qt%{api}
 %{_qt_bindir}/moc
-%{_bindir}/moc
 %{_qt_bindir}/syncqt*
 %{_bindir}/rcc-qt%{api}
 %{_qt_bindir}/rcc
-%{_bindir}/rcc
 %{_qt_bindir}/tracegen
-%{_bindir}/tracegen
-%{_bindir}/tracegen-qt5
+%{_bindir}/tracegen-qt%{api}
 %{_qt_includedir}/QtCore
 %{_qt_libdir}/libQt%{api}Core.so
 %{_qt_libdir}/libQt%{api}Core.prl
@@ -447,10 +444,8 @@ Development files for version 5 of the QtDBus library.
 
 %files -n %{qtdbusd}
 %{_qt_bindir}/qdbuscpp2xml
-%{_bindir}/qdbuscpp2xml
 %{_bindir}/qdbuscpp2xml-qt%{api}
 %{_qt_bindir}/qdbusxml2cpp
-%{_bindir}/qdbusxml2cpp
 %{_bindir}/qdbusxml2cpp-qt%{api}
 %{_qt_includedir}/QtDBus
 %{_qt_libdir}/libQt%{api}DBus.so
@@ -578,7 +573,6 @@ Development files for version 5 of the QtGui library.
 
 %files -n %{qtguid}
 %{_qt_bindir}/uic
-%{_bindir}/uic
 %{_bindir}/uic-qt%{api}
 %{_qt_includedir}/QtGui
 %{_qt_includedir}/QtPlatformHeaders
@@ -1276,7 +1270,6 @@ Tools that help porting code from Qt 4.x to 5.x .
 
 %files -n qt5-porting-tools
 %{_qt_bindir}/fixqt4headers.pl
-%{_bindir}/fixqt4headers.pl
 
 #----------------------------------------------------------------------------
 
@@ -1591,7 +1584,6 @@ Makefile generation system for Qt 5.
 
 %files -n qmake%{api}
 %{_bindir}/qmake-qt%{api}
-%{_bindir}/qmake
 %{_qt_bindir}/qmake
 %{_qt_prefix}/mkspecs
 
@@ -1607,7 +1599,6 @@ Qt LALR parser generator.
 
 %files -n qlalr%{api}
 %{_qt_bindir}/qlalr
-%{_bindir}/qlalr
 
 #----------------------------------------------------------------------------
 
@@ -1880,10 +1871,6 @@ rm -f %{buildroot}%{_qt_translationsdir}/qtconfig_*.qm
 mkdir -p %{buildroot}%{_bindir}
 for i in qmake moc uic rcc tracegen qdbuscpp2xml qdbusxml2cpp; do
     ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i-qt%{api}
-    ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i
-done
-for i in fixqt4headers.pl qlalr; do
-    ln -s ../%{_lib}/qt%{api}/bin/$i %{buildroot}%{_bindir}/$i
 done
 
 %if "%{_qt_libdir}" != "%{_libdir}"
