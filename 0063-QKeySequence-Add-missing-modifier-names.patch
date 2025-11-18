@@ -1,0 +1,74 @@
+From 8ccd6d00e4caa9ac8db0094e9b7f5d7399959a61 Mon Sep 17 00:00:00 2001
+From: Laszlo Papp <lpapp@kde.org>
+Date: Thu, 12 May 2022 13:37:27 +0100
+Subject: [PATCH 063/109] QKeySequence: Add missing modifier names
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The issue is that when someone is trying to use the following code:
+
+QKeySequence keySequence(Qt::Key_Shift);
+qDebug() << keySequence.toString();
+
+This will print seemingly gibberish output. It is unicode in practice. For
+Qt::Key_Shift, this would be: "�_@\uDC20"
+
+The reason why this is happening is because we have platform-specific ways to
+handle this due to Mac glyphs which are not available on Linux or Windows. This
+works fine on Mac.
+
+But for the Linux and Windows codepaths, there is not really any mapping like
+for other keys. It seems that modifiers were left out.
+
+The solution is to simply amend the list of mapping from these modifier key
+codes to raw strings for Linux and Windows like it is done for other key codes.
+So, now, modifiers will also be included in the list.
+
+So, the expected output will be generated for the above code, as: "Shift".
+
+[ChangeLog][QtGui][QKeySequence] Added missing modifier names
+
+Fixes: QTBUG-69715
+Fixes: QTBUG-40030
+Change-Id: I460d54bc8e593b350ff95894f23c5b4a7c819a44
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+(cherry picked from commit d83441340c210056d25777ed59ec6dab6351a55f)
+---
+ src/gui/kernel/qkeysequence.cpp                         | 4 ++++
+ tests/auto/gui/kernel/qkeysequence/tst_qkeysequence.cpp | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/src/gui/kernel/qkeysequence.cpp b/src/gui/kernel/qkeysequence.cpp
+index 56cd2d02bcb..d448429f6cd 100644
+--- a/src/gui/kernel/qkeysequence.cpp
++++ b/src/gui/kernel/qkeysequence.cpp
+@@ -701,6 +701,10 @@ static const struct {
+     { Qt::Key_TouchpadToggle,  QT_TRANSLATE_NOOP("QShortcut", "Touchpad Toggle") },
+     { Qt::Key_TouchpadOn,  QT_TRANSLATE_NOOP("QShortcut", "Touchpad On") },
+     { Qt::Key_TouchpadOff,  QT_TRANSLATE_NOOP("QShortcut", "Touchpad Off") },
++    { Qt::Key_Shift,  QT_TRANSLATE_NOOP("QShortcut", "Shift") },
++    { Qt::Key_Control,  QT_TRANSLATE_NOOP("QShortcut", "Control") },
++    { Qt::Key_Alt,  QT_TRANSLATE_NOOP("QShortcut", "Alt") },
++    { Qt::Key_Meta,  QT_TRANSLATE_NOOP("QShortcut", "Meta") },
+ 
+ };
+ static Q_CONSTEXPR int numKeyNames = sizeof keyname / sizeof *keyname;
+diff --git a/tests/auto/gui/kernel/qkeysequence/tst_qkeysequence.cpp b/tests/auto/gui/kernel/qkeysequence/tst_qkeysequence.cpp
+index 874468c9546..04ceb4ab659 100644
+--- a/tests/auto/gui/kernel/qkeysequence/tst_qkeysequence.cpp
++++ b/tests/auto/gui/kernel/qkeysequence/tst_qkeysequence.cpp
+@@ -507,6 +507,10 @@ void tst_QKeySequence::toStringFromKeycode_data()
+     QTest::newRow("Ctrl+Alt+Num+Del") << QKeySequence(Qt::ControlModifier | Qt::AltModifier | Qt::KeypadModifier | Qt::Key_Delete) << "Ctrl+Alt+Num+Del";
+     QTest::newRow("Ctrl+Ins") << QKeySequence(Qt::ControlModifier | Qt::Key_Insert) << "Ctrl+Ins";
+     QTest::newRow("Ctrl+Num+Ins(1)") << QKeySequence(Qt::Key_Insert | Qt::KeypadModifier | Qt::ControlModifier) << "Ctrl+Num+Ins";
++    QTest::newRow("Ctrl") << QKeySequence(Qt::Key_Control) << "Control";
++    QTest::newRow("Alt") << QKeySequence(Qt::Key_Alt) << "Alt";
++    QTest::newRow("Shift") << QKeySequence(Qt::Key_Shift) << "Shift";
++    QTest::newRow("Meta") << QKeySequence(Qt::Key_Meta) << "Meta";
+ }
+ 
+ void tst_QKeySequence::toStringFromKeycode()
+-- 
+2.51.2
+

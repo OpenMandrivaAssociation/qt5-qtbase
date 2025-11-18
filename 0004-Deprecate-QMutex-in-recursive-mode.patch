@@ -1,7 +1,7 @@
-From e4d079a128b9b530b913a745bb97d7cba5363a4e Mon Sep 17 00:00:00 2001
+From c996c6b7871750e371a2438f4fbeb388c5fb72e5 Mon Sep 17 00:00:00 2001
 From: Lars Knoll <lars.knoll@qt.io>
 Date: Fri, 4 Sep 2020 10:40:29 +0200
-Subject: [PATCH 004/127] Deprecate QMutex in recursive mode
+Subject: [PATCH 004/109] Deprecate QMutex in recursive mode
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -20,7 +20,7 @@ Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
  3 files changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/src/corelib/thread/qmutex.cpp b/src/corelib/thread/qmutex.cpp
-index 310d1cb14f..7097122d8e 100644
+index 310d1cb14f7..7097122d8e0 100644
 --- a/src/corelib/thread/qmutex.cpp
 +++ b/src/corelib/thread/qmutex.cpp
 @@ -152,6 +152,7 @@ public:
@@ -49,7 +49,7 @@ index 310d1cb14f..7097122d8e 100644
      } else if (d) {
  #ifndef QT_LINUX_FUTEX
 diff --git a/src/corelib/thread/qmutex.h b/src/corelib/thread/qmutex.h
-index 73c9e00663..b2e2640ba2 100644
+index 73c9e006630..b2e2640ba2d 100644
 --- a/src/corelib/thread/qmutex.h
 +++ b/src/corelib/thread/qmutex.h
 @@ -134,8 +134,16 @@ public:
@@ -80,7 +80,7 @@ index 73c9e00663..b2e2640ba2 100644
      Q_DISABLE_COPY(QMutex)
      friend class QMutexLocker;
 diff --git a/src/corelib/thread/qwaitcondition_unix.cpp b/src/corelib/thread/qwaitcondition_unix.cpp
-index 88b058f410..0f1da4dc9b 100644
+index 88b058f4101..0f1da4dc9b3 100644
 --- a/src/corelib/thread/qwaitcondition_unix.cpp
 +++ b/src/corelib/thread/qwaitcondition_unix.cpp
 @@ -213,7 +213,7 @@ bool QWaitCondition::wait(QMutex *mutex, QDeadlineTimer deadline)
@@ -93,5 +93,5 @@ index 88b058f410..0f1da4dc9b 100644
          return false;
      }
 -- 
-2.46.0
+2.51.2
 

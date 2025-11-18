@@ -1,0 +1,27 @@
+From 8c2d986c9534063c0168595eca43862609b69d81 Mon Sep 17 00:00:00 2001
+From: Stefan Gerlach <stefan.gerlach@uni-konstanz.de>
+Date: Sun, 19 May 2024 09:28:22 +0000
+Subject: [PATCH 101/109] Opt out of standard library memory_resource on macOS
+ < 14 and iOS < 17
+
+Change-Id: I42f681cc962ec4dae2e131fc44f9714f1b3f23c4
+---
+ src/corelib/tools/qduplicatetracker_p.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/corelib/tools/qduplicatetracker_p.h b/src/corelib/tools/qduplicatetracker_p.h
+index c5ddfe37af0..140fc31a34c 100644
+--- a/src/corelib/tools/qduplicatetracker_p.h
++++ b/src/corelib/tools/qduplicatetracker_p.h
+@@ -52,7 +52,7 @@
+ 
+ #include <qglobal.h>
+ 
+-#if QT_HAS_INCLUDE(<memory_resource>) && __cplusplus > 201402L
++#if defined(__cpp_lib_memory_resource) && __cplusplus > 201402L
+ #  include <unordered_set>
+ #  include <memory_resource>
+ #else
+-- 
+2.51.2
+

@@ -1,0 +1,28 @@
+From 930f012bf74a5d8ae447a4549f5e1f95aa5a1890 Mon Sep 17 00:00:00 2001
+From: Lu YaNing <luyaning@uniontech.com>
+Date: Wed, 8 May 2024 10:32:05 +0800
+Subject: [PATCH 097/109] xcb: Avoid repeatedly registering xsettings callbacks
+ When switching cursor themes, I found that xsettings callbacks are being
+ registered repeatedly. When disconnecting the xsettings callback, only one
+ can be disconnected.
+
+---
+ src/plugins/platforms/xcb/qxcbcursor.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbcursor.cpp b/src/plugins/platforms/xcb/qxcbcursor.cpp
+index 0670b6ebce1..4635c199d0d 100644
+--- a/src/plugins/platforms/xcb/qxcbcursor.cpp
++++ b/src/plugins/platforms/xcb/qxcbcursor.cpp
+@@ -562,7 +562,7 @@ xcb_cursor_t QXcbCursor::createFontCursor(int cshape)
+     xcb_cursor_t cursor = XCB_NONE;
+ 
+ #if QT_CONFIG(xcb_xlib) && QT_CONFIG(library)
+-    if (m_screen->xSettings()->initialized()) {
++    if (!m_callbackForPropertyRegistered && m_screen->xSettings()->initialized()) {
+         m_screen->xSettings()->registerCallbackForProperty("Gtk/CursorThemeName",cursorThemePropertyChanged,this);
+         m_callbackForPropertyRegistered = true;
+     }
+-- 
+2.51.2
+

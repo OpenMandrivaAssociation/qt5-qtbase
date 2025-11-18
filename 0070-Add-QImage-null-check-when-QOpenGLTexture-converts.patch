@@ -1,0 +1,46 @@
+From 1fd3c96c16cf0db32e3caacaca70866e208a2f81 Mon Sep 17 00:00:00 2001
+From: Laszlo Agocs <laszlo.agocs@qt.io>
+Date: Fri, 17 Mar 2023 15:03:54 +0100
+Subject: [PATCH 070/109] Add QImage null check when QOpenGLTexture converts
+
+...the image to RGBA8888. Just mirror the first null check that is
+done for the user-provided QImage. The same should be done for the
+result of convertToFormat().
+
+Pick-to: 6.5 6.5 6.2 5.15
+Fixes: QTBUG-68884
+Change-Id: I77091d7a2bc6e32d2aa292dc7650c1af091fcec1
+Reviewed-by: Andy Nichols <andy.nichols@qt.io>
+(cherry picked from commit a561d52a8352f17f4a39bf54e0d3d9842c0d4064)
+---
+ src/gui/opengl/qopengltexture.cpp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/gui/opengl/qopengltexture.cpp b/src/gui/opengl/qopengltexture.cpp
+index 5490ad80255..afd3d8dbe65 100644
+--- a/src/gui/opengl/qopengltexture.cpp
++++ b/src/gui/opengl/qopengltexture.cpp
+@@ -3725,6 +3725,12 @@ void QOpenGLTexture::setData(const QImage& image, MipMapGeneration genMipMaps)
+         return;
+     }
+ 
++    QImage glImage = image.convertToFormat(QImage::Format_RGBA8888);
++    if (glImage.isNull()) {
++        qWarning("QOpenGLTexture::setData() failed to convert image");
++        return;
++    }
++
+     if (context->isOpenGLES() && context->format().majorVersion() < 3)
+         setFormat(QOpenGLTexture::RGBAFormat);
+     else
+@@ -3735,7 +3741,6 @@ void QOpenGLTexture::setData(const QImage& image, MipMapGeneration genMipMaps)
+     allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+ 
+     // Upload pixel data and generate mipmaps
+-    QImage glImage = image.convertToFormat(QImage::Format_RGBA8888);
+     QOpenGLPixelTransferOptions uploadOptions;
+     uploadOptions.setAlignment(1);
+     setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, glImage.constBits(), &uploadOptions);
+-- 
+2.51.2
+

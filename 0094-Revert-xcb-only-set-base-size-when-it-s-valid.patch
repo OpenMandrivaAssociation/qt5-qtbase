@@ -1,0 +1,31 @@
+From e5aee4d3377e8dcb52311d04dff4c0eae6e6d960 Mon Sep 17 00:00:00 2001
+From: Andreas Sturmlechner <asturm@gentoo.org>
+Date: Thu, 1 Feb 2024 10:02:37 +0100
+Subject: [PATCH 094/109] Revert "xcb: only set base size when it's valid"
+
+This reverts commit 6f9ed26a0f10dddde2ef48bd2baae93b1422ed5e.
+
+See also: https://invent.kde.org/qt/qt/qtbase/-/merge_requests/303
+KDE-bug: https://bugs.kde.org/show_bug.cgi?id=478141#c13
+Signed-off-by: Andreas Sturmlechner <asturm@gentoo.org>
+---
+ src/plugins/platforms/xcb/qxcbwindow.cpp | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/plugins/platforms/xcb/qxcbwindow.cpp b/src/plugins/platforms/xcb/qxcbwindow.cpp
+index 86417a37a89..1baf5858cbe 100644
+--- a/src/plugins/platforms/xcb/qxcbwindow.cpp
++++ b/src/plugins/platforms/xcb/qxcbwindow.cpp
+@@ -1457,8 +1457,7 @@ void QXcbWindow::propagateSizeHints()
+                                           qMin(XCOORD_MAX, maximumSize.height()));
+ 
+     if (sizeIncrement.width() > 0 || sizeIncrement.height() > 0) {
+-        if (!baseSize.isNull() && baseSize.isValid())
+-            xcb_icccm_size_hints_set_base_size(&hints, baseSize.width(), baseSize.height());
++        xcb_icccm_size_hints_set_base_size(&hints, baseSize.width(), baseSize.height());
+         xcb_icccm_size_hints_set_resize_inc(&hints, sizeIncrement.width(), sizeIncrement.height());
+     }
+ 
+-- 
+2.51.2
+

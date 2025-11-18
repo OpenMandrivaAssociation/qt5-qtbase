@@ -1,0 +1,158 @@
+From 8f03ba003f14b04e3dddb49508c2c7417ace0704 Mon Sep 17 00:00:00 2001
+From: Thiago Macieira <thiago.macieira@intel.com>
+Date: Tue, 9 Nov 2021 15:24:45 -0800
+Subject: [PATCH 071/109] QCborValue: fix incorrect to{Array,Map} when the
+ value is empty
+
+When QCborValue referred to an empty array or map, toArray() and toMap()
+would respectively return the default value instead of the empty object,
+as expected.
+
+Pick-to: 6.2 6.3
+Change-Id: I5e52dc5b093c43a3b678fffd16b60456d0037ad7
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+(cherry picked from commit de6ced66920600e659dbaa2509526a3bcb0b3360)
+---
+ src/corelib/serialization/qcborvalue.cpp      |  6 +-
+ .../qcborvalue/tst_qcborvalue.cpp             | 87 +++++++++++++++++++
+ 2 files changed, 91 insertions(+), 2 deletions(-)
+
+diff --git a/src/corelib/serialization/qcborvalue.cpp b/src/corelib/serialization/qcborvalue.cpp
+index 89a928d3480..3a8c2cb9ec3 100644
+--- a/src/corelib/serialization/qcborvalue.cpp
++++ b/src/corelib/serialization/qcborvalue.cpp
+@@ -2123,7 +2123,8 @@ QCborArray QCborValue::toArray(const QCborArray &defaultValue) const
+     Q_ASSERT(n == -1 || container == nullptr);
+     if (n < 0)
+         dd = container;
+-    return dd ? QCborArray(*dd) : defaultValue;
++    // return QCborArray(*dd); but that's UB if dd is nullptr
++    return dd ? QCborArray(*dd) : QCborArray();
+ }
+ 
+ /*!
+@@ -2165,7 +2166,8 @@ QCborMap QCborValue::toMap(const QCborMap &defaultValue) const
+     Q_ASSERT(n == -1 || container == nullptr);
+     if (n < 0)
+         dd = container;
+-    return dd ? QCborMap(*dd) : defaultValue;
++    // return QCborMap(*dd); but that's UB if dd is nullptr
++    return dd ? QCborMap(*dd) : QCborMap();
+ }
+ 
+ /*!
+diff --git a/tests/auto/corelib/serialization/qcborvalue/tst_qcborvalue.cpp b/tests/auto/corelib/serialization/qcborvalue/tst_qcborvalue.cpp
+index 533fb1c8aa7..63ce77d67fa 100644
+--- a/tests/auto/corelib/serialization/qcborvalue/tst_qcborvalue.cpp
++++ b/tests/auto/corelib/serialization/qcborvalue/tst_qcborvalue.cpp
+@@ -75,6 +75,7 @@ private slots:
+     void arrayStringElements();
+     void arraySelfAssign_data() { basics_data(); }
+     void arraySelfAssign();
++    void arrayNested();
+ 
+     void mapDefaultInitialization();
+     void mapEmptyInitializerList();
+@@ -93,6 +94,7 @@ private slots:
+     void mapSelfAssign();
+     void mapComplexKeys_data() { basics_data(); }
+     void mapComplexKeys();
++    void mapNested();
+ 
+     void sorting();
+ 
+@@ -1570,6 +1572,91 @@ void tst_QCborValue::mapComplexKeys()
+     QVERIFY(!m.contains(tagged));
+ }
+ 
++void tst_QCborValue::arrayNested()
++{
++    const QCborArray wrongArray = { false, nullptr, QCborValue() };
++    {
++        QCborArray a1 = { 42, 47 };
++        QCborArray a2 = { QCborValue(a1) };
++        QCOMPARE(a2.size(), 1);
++        const QCborValue &first = qAsConst(a2).first();
++        QVERIFY(first.isArray());
++        QCOMPARE(first.toArray(wrongArray).size(), 2);
++        QCOMPARE(first.toArray(wrongArray).first(), 42);
++        QCOMPARE(first.toArray(wrongArray).last(), 47);
++    }
++    {
++        QCborArray a1 = { 42, 47 };
++        QCborArray a2 = { QCborValue(a1) };
++        QCOMPARE(a2.size(), 1);
++        QCborValueRef first = a2.first();
++        QVERIFY(first.isArray());
++        QCOMPARE(first.toArray(wrongArray).size(), 2);
++        QCOMPARE(first.toArray(wrongArray).first(), 42);
++        QCOMPARE(first.toArray(wrongArray).last(), 47);
++    }
++
++    {
++        QCborArray a1;
++        a1 = { QCborValue(a1) };        // insert it into itself
++        QCOMPARE(a1.size(), 1);
++        const QCborValue &first = qAsConst(a1).first();
++        QVERIFY(first.isArray());
++        QCOMPARE(first, QCborArray());
++        QCOMPARE(first.toArray(wrongArray), QCborArray());
++    }
++    {
++        QCborArray a1;
++        a1 = { QCborValue(a1) };        // insert it into itself
++        QCborValueRef first = a1.first();
++        QVERIFY(first.isArray());
++        QCOMPARE(first, QCborArray());
++        QCOMPARE(first.toArray(wrongArray), QCborArray());
++    }
++    {
++        QCborArray a1;
++        a1.append(a1);                  // insert into itself
++        QCOMPARE(a1.size(), 1);
++        const QCborValue &first = qAsConst(a1).first();
++        QVERIFY(first.isArray());
++        QCOMPARE(first, QCborArray());
++        QCOMPARE(first.toArray(), QCborArray());
++    }
++    {
++        QCborArray a1;
++        a1.append(a1);                  // insert into itself
++        QCborValueRef first = a1.first();
++        QVERIFY(first.isArray());
++        QCOMPARE(first, QCborArray());
++        QCOMPARE(first.toArray(), QCborArray());
++    }
++}
++
++void tst_QCborValue::mapNested()
++{
++    const QCborMap wrongMap = { { -1, false }, {-2, nullptr }, { -3, QCborValue() } };
++    {
++        QCborMap m1 = { {1, 42}, {2, 47} };
++        QCborMap m2 = { { QString(), m1 } };
++        QCOMPARE(m2.size(), 1);
++        const QCborValue &first = m2.constBegin().value();
++        QVERIFY(first.isMap());
++        QCOMPARE(first.toMap(wrongMap).size(), 2);
++        QCOMPARE(first.toMap(wrongMap).begin().key(), 1);
++        QCOMPARE(first.toMap(wrongMap).begin().value(), 42);
++    }
++
++    {
++        QCborMap m1;
++        m1 = { { QString(), QCborValue(m1) } };         // insert it into itself
++        QCOMPARE(m1.size(), 1);
++        const QCborValue &first = m1.constBegin().value();
++        QVERIFY(first.isMap());
++        QCOMPARE(first, QCborMap());
++        QCOMPARE(first.toMap(wrongMap), QCborMap());
++    }
++}
++
+ void tst_QCborValue::sorting()
+ {
+     QCborValue vundef, vnull(nullptr);
+-- 
+2.51.2
+

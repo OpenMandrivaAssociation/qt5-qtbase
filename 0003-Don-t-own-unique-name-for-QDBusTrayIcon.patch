@@ -1,7 +1,7 @@
-From bcc09c0b46e6a870e448bc7ea50ab5b34e80b4ad Mon Sep 17 00:00:00 2001
+From bba5438f29f495e5aed05cde14f9b8d1c543cc92 Mon Sep 17 00:00:00 2001
 From: Ilya Fedin <fedin-ilja2010@ya.ru>
 Date: Mon, 12 Apr 2021 12:09:59 +0400
-Subject: [PATCH 003/127] Don't own unique name for QDBusTrayIcon
+Subject: [PATCH 003/109] Don't own unique name for QDBusTrayIcon
 
 Flatpak doesn't allow to own random name with PID. Even after adding
 such a permission into manifest, all flatpaked apps have PID 2, so only
@@ -25,7 +25,7 @@ Reviewed-by: Shawn Rutledge <shawn.rutledge@qt.io>
  2 files changed, 5 insertions(+), 14 deletions(-)
 
 diff --git a/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection.cpp b/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection.cpp
-index 09470bccc6..345a853b1b 100644
+index 09470bccc6c..345a853b1b7 100644
 --- a/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection.cpp
 +++ b/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection.cpp
 @@ -105,13 +105,7 @@ void QDBusMenuConnection::unregisterTrayIconMenu(QDBusTrayIcon *item)
@@ -69,7 +69,7 @@ index 09470bccc6..345a853b1b 100644
  #endif // QT_NO_SYSTEMTRAYICON
  
 diff --git a/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection_p.h b/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection_p.h
-index f484795fbb..11c7e56534 100644
+index f484795fbb7..11c7e56534d 100644
 --- a/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection_p.h
 +++ b/src/platformsupport/themes/genericunix/dbusmenu/qdbusmenuconnection_p.h
 @@ -78,7 +78,7 @@ public:
@@ -82,5 +82,5 @@ index f484795fbb..11c7e56534 100644
  
  Q_SIGNALS:
 -- 
-2.46.0
+2.51.2
 

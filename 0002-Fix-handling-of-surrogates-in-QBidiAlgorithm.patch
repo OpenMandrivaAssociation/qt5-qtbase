@@ -1,7 +1,7 @@
-From 9bb035515cac54557b91ffb1288a89d9a02374e8 Mon Sep 17 00:00:00 2001
+From c76e4552d280675035ac7f1bd6339cba058bc3ff Mon Sep 17 00:00:00 2001
 From: Edward Welbourne <edward.welbourne@qt.io>
 Date: Mon, 8 Feb 2021 12:13:13 +0100
-Subject: [PATCH 002/127] Fix handling of surrogates in QBidiAlgorithm
+Subject: [PATCH 002/109] Fix handling of surrogates in QBidiAlgorithm
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -21,7 +21,7 @@ Reviewed-by: Lars Knoll <lars.knoll@qt.io>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/gui/text/qtextengine.cpp b/src/gui/text/qtextengine.cpp
-index 6336fadf74..a6c66e5d2d 100644
+index 8fb6e4fa7b1..0423899918d 100644
 --- a/src/gui/text/qtextengine.cpp
 +++ b/src/gui/text/qtextengine.cpp
 @@ -1,6 +1,6 @@
@@ -33,5 +33,5 @@ index 6336fadf74..a6c66e5d2d 100644
  **
  ** This file is part of the QtGui module of the Qt Toolkit.
 -- 
-2.46.0
+2.51.2
 

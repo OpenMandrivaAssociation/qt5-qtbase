@@ -1,0 +1,27 @@
+From 0d50ea74b973e62e63bae5f99465c57911d558cc Mon Sep 17 00:00:00 2001
+From: Mike Krus <mike.krus@kdab.com>
+Date: Tue, 21 Jun 2022 10:59:30 +0100
+Subject: [PATCH 079/109] Qt3DRender: includemocs
+
+Task-number: QTBUG-103286
+Pick-to: 6.3 6.2 5.15
+Change-Id: Iaddad08bb469408ee975e463ac82c95870130cee
+Reviewed-by: Sean Harmer <sean.harmer@kdab.com>
+(cherry picked from commit 1e940bf2f8d260c313917718584736fa9fa86b14 in qt3d)
+---
+ src/gui/util/qshaderlanguage.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/gui/util/qshaderlanguage.cpp b/src/gui/util/qshaderlanguage.cpp
+index efd607ba604..9399d6efcc9 100644
+--- a/src/gui/util/qshaderlanguage.cpp
++++ b/src/gui/util/qshaderlanguage.cpp
+@@ -52,3 +52,5 @@ void qt_register_ShaderLanguage_enums()
+ }
+ 
+ QT_END_NAMESPACE
++
++#include "moc_qshaderlanguage_p.cpp"
+-- 
+2.51.2
+

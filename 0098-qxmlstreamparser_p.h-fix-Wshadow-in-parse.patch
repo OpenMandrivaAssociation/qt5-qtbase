@@ -1,0 +1,81 @@
+From e77d487c95850f3d424a2156e7b6440d4c3ac48c Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Tue, 17 Sep 2024 10:56:52 +0200
+Subject: [PATCH 098/109] qxmlstreamparser_p.h: fix -Wshadow in parse()
+
+The name `prefix` is also used for a data member, and the very next
+rule actually assigns to it, so using the same name in this huge
+switch is actually impairing readability.
+
+Fix by abbreviating the local variable.
+
+This code predates the start of the public history.
+
+Pick-to: 6.8 6.7 6.5 6.2 5.15
+Task-number: QTBUG-126219
+Change-Id: Iece828a9303b5449397ac93e51f540bf890f7d08
+Reviewed-by: Ahmad Samir <a.samirh78@gmail.com>
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+Reviewed-by: Matthias Rauter <matthias.rauter@qt.io>
+Reviewed-by: Lena Biliaieva <lena.biliaieva@qt.io>
+(cherry picked from commit 2fda30053dcf13356d72f9a8116413d26bcb14a1)
+
+* asturmlechner 2024-10-23: Resolve conflicts with dev branch commits
+   6eb1cdd1c6dc8cabc392942d0e1a1e1e89b6cc61 and
+   ecfb5d2d15e586c40ca2e8b097fb77821be8c884
+---
+ src/corelib/serialization/qxmlstream.g   | 6 +++---
+ src/corelib/serialization/qxmlstream_p.h | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/corelib/serialization/qxmlstream.g b/src/corelib/serialization/qxmlstream.g
+index 8c6a1a58870..18fbf14c035 100644
+--- a/src/corelib/serialization/qxmlstream.g
++++ b/src/corelib/serialization/qxmlstream.g
+@@ -1512,8 +1512,8 @@ attribute_value_content ::= literal_content | char_ref | entity_ref_in_attribute
+ attribute ::= qname space_opt EQ space_opt attribute_value;
+ /.
+         case $rule_number: {
+-            QStringRef prefix = symPrefix(1);
+-            if (prefix.isEmpty() && symString(1) == QLatin1String("xmlns") && namespaceProcessing) {
++            const QStringRef prfx = symPrefix(1);
++            if (prfx.isEmpty() && symString(1) == QLatin1String("xmlns") && namespaceProcessing) {
+                 NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
+                 namespaceDeclaration.prefix.clear();
+ 
+@@ -1563,7 +1563,7 @@ attribute ::= qname space_opt EQ space_opt attribute_value;
+                     attribute.value.pos = pos;
+                     attribute.value.len = n;
+                 }
+-                if (prefix == QLatin1String("xmlns") && namespaceProcessing) {
++                if (prfx == QLatin1String("xmlns") && namespaceProcessing) {
+                     NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
+                     QStringRef namespacePrefix = symString(attribute.key);
+                     QStringRef namespaceUri = symString(attribute.value);
+diff --git a/src/corelib/serialization/qxmlstream_p.h b/src/corelib/serialization/qxmlstream_p.h
+index be7b1fe6655..fd8fcca4e15 100644
+--- a/src/corelib/serialization/qxmlstream_p.h
++++ b/src/corelib/serialization/qxmlstream_p.h
+@@ -1722,8 +1722,8 @@ bool QXmlStreamReaderPrivate::parse()
+         break;
+ 
+         case 229: {
+-            QStringRef prefix = symPrefix(1);
+-            if (prefix.isEmpty() && symString(1) == QLatin1String("xmlns") && namespaceProcessing) {
++            const QStringRef prfx = symPrefix(1);
++            if (prfx.isEmpty() && symString(1) == QLatin1String("xmlns") && namespaceProcessing) {
+                 NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
+                 namespaceDeclaration.prefix.clear();
+ 
+@@ -1773,7 +1773,7 @@ bool QXmlStreamReaderPrivate::parse()
+                     attribute.value.pos = pos;
+                     attribute.value.len = n;
+                 }
+-                if (prefix == QLatin1String("xmlns") && namespaceProcessing) {
++                if (prfx == QLatin1String("xmlns") && namespaceProcessing) {
+                     NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
+                     QStringRef namespacePrefix = symString(attribute.key);
+                     QStringRef namespaceUri = symString(attribute.value);
+-- 
+2.51.2
+

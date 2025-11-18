@@ -1,0 +1,120 @@
+From bd3e0caa050e67e4a5f90d1f9cad6c60b099c932 Mon Sep 17 00:00:00 2001
+From: Marc Mutz <marc.mutz@qt.io>
+Date: Tue, 22 Feb 2022 08:53:13 +0100
+Subject: [PATCH 105/109] Protect headers against min/max macros
+
+... using the usual pattern, which, being idiomatic, doesn't need a
+comment explaining it.
+
+Pick-to: 6.3
+Change-Id: Id6b12450495a18f89e1f83f2018b6218b03ff6a7
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Reviewed-by: Qt CI Bot <qt_ci_bot@qt-project.org>
+Reviewed-by: Edward Welbourne <edward.welbourne@qt.io>
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(cherry picked from commit b727f2190fb4878aad5edf1536e875e1b75907ae)
+
+* asturmlechner 2024-10-23: Resolve conflicts with dev branch commits
+   a14bba6803f674edede596eaeb5a46feed0f889e,
+   f11bc388508359b070320866eab4c917cb4c4739,
+   df8456061ef0d57ea6be37746951c50f38a65101
+
+Change-Id: I3e5a8339b6ddb50cdd8c18fc3aad625916c1af72
+---
+ src/corelib/global/qendian.h          | 4 ++--
+ src/corelib/global/qrandom.h          | 8 ++++----
+ src/corelib/kernel/qdeadlinetimer.h   | 2 +-
+ src/corelib/time/qtimezoneprivate_p.h | 8 ++++----
+ src/widgets/widgets/qcombobox_p.h     | 2 +-
+ 5 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/src/corelib/global/qendian.h b/src/corelib/global/qendian.h
+index e9e51c4b93d..85f72c494d4 100644
+--- a/src/corelib/global/qendian.h
++++ b/src/corelib/global/qendian.h
+@@ -330,9 +330,9 @@ public:
+     }
+ 
+     static Q_DECL_CONSTEXPR QSpecialInteger max()
+-    { return QSpecialInteger(std::numeric_limits<T>::max()); }
++    { return QSpecialInteger((std::numeric_limits<T>::max)()); }
+     static Q_DECL_CONSTEXPR QSpecialInteger min()
+-    { return QSpecialInteger(std::numeric_limits<T>::min()); }
++    { return QSpecialInteger((std::numeric_limits<T>::min)()); }
+ };
+ 
+ template<typename T>
+diff --git a/src/corelib/global/qrandom.h b/src/corelib/global/qrandom.h
+index 445b520c76a..4c216eeb65b 100644
+--- a/src/corelib/global/qrandom.h
++++ b/src/corelib/global/qrandom.h
+@@ -169,8 +169,8 @@ public:
+     void seed(quint32 s = 1) { *this = { s }; }
+     void seed(std::seed_seq &sseq) noexcept { *this = { sseq }; }
+     Q_CORE_EXPORT void discard(unsigned long long z);
+-    static Q_DECL_CONSTEXPR result_type min() { return std::numeric_limits<result_type>::min(); }
+-    static Q_DECL_CONSTEXPR result_type max() { return std::numeric_limits<result_type>::max(); }
++    static Q_DECL_CONSTEXPR result_type min() { return (std::numeric_limits<result_type>::min)(); }
++    static Q_DECL_CONSTEXPR result_type max() { return (std::numeric_limits<result_type>::max)(); }
+ 
+     static inline Q_DECL_CONST_FUNCTION QRandomGenerator *system();
+     static inline Q_DECL_CONST_FUNCTION QRandomGenerator *global();
+@@ -245,8 +245,8 @@ public:
+         QRandomGenerator::discard(z * 2);
+     }
+ 
+-    static Q_DECL_CONSTEXPR result_type min() { return std::numeric_limits<result_type>::min(); }
+-    static Q_DECL_CONSTEXPR result_type max() { return std::numeric_limits<result_type>::max(); }
++    static Q_DECL_CONSTEXPR result_type min() { return (std::numeric_limits<result_type>::min)(); }
++    static Q_DECL_CONSTEXPR result_type max() { return (std::numeric_limits<result_type>::max)(); }
+     static Q_DECL_CONST_FUNCTION Q_CORE_EXPORT QRandomGenerator64 *system();
+     static Q_DECL_CONST_FUNCTION Q_CORE_EXPORT QRandomGenerator64 *global();
+     static Q_CORE_EXPORT QRandomGenerator64 securelySeeded();
+diff --git a/src/corelib/kernel/qdeadlinetimer.h b/src/corelib/kernel/qdeadlinetimer.h
+index 99e09eb31f8..e0dcb8d3aa5 100644
+--- a/src/corelib/kernel/qdeadlinetimer.h
++++ b/src/corelib/kernel/qdeadlinetimer.h
+@@ -66,7 +66,7 @@ public:
+     Q_DECL_CONSTEXPR QDeadlineTimer(Qt::TimerType type_ = Qt::CoarseTimer) noexcept
+         : t1(0), t2(0), type(type_) {}
+     Q_DECL_CONSTEXPR QDeadlineTimer(ForeverConstant, Qt::TimerType type_ = Qt::CoarseTimer) noexcept
+-        : t1(std::numeric_limits<qint64>::max()), t2(0), type(type_) {}
++        : t1((std::numeric_limits<qint64>::max)()), t2(0), type(type_) {}
+     explicit QDeadlineTimer(qint64 msecs, Qt::TimerType type = Qt::CoarseTimer) noexcept;
+ 
+     void swap(QDeadlineTimer &other) noexcept
+diff --git a/src/corelib/time/qtimezoneprivate_p.h b/src/corelib/time/qtimezoneprivate_p.h
+index cf2a690f507..fb9fb1528b4 100644
+--- a/src/corelib/time/qtimezoneprivate_p.h
++++ b/src/corelib/time/qtimezoneprivate_p.h
+@@ -137,10 +137,10 @@ public:
+     virtual void serialize(QDataStream &ds) const;
+ 
+     // Static Utility Methods
+-    static inline qint64 maxMSecs() { return std::numeric_limits<qint64>::max(); }
+-    static inline qint64 minMSecs() { return std::numeric_limits<qint64>::min() + 1; }
+-    static inline qint64 invalidMSecs() { return std::numeric_limits<qint64>::min(); }
+-    static inline qint64 invalidSeconds() { return std::numeric_limits<int>::min(); }
++    static inline qint64 maxMSecs() { return (std::numeric_limits<qint64>::max)(); }
++    static inline qint64 minMSecs() { return (std::numeric_limits<qint64>::min)() + 1; }
++    static inline qint64 invalidMSecs() { return (std::numeric_limits<qint64>::min)(); }
++    static inline qint64 invalidSeconds() { return (std::numeric_limits<int>::min)(); }
+     static Data invalidData();
+     static QTimeZone::OffsetData invalidOffsetData();
+     static QTimeZone::OffsetData toOffsetData(const Data &data);
+diff --git a/src/widgets/widgets/qcombobox_p.h b/src/widgets/widgets/qcombobox_p.h
+index 45580ba943a..2a97f56791f 100644
+--- a/src/widgets/widgets/qcombobox_p.h
++++ b/src/widgets/widgets/qcombobox_p.h
+@@ -429,7 +429,7 @@ public:
+     int minimumContentsLength = 0;
+     int indexBeforeChange = -1;
+     int maxVisibleItems = 10;
+-    int maxCount = std::numeric_limits<int>::max();
++    int maxCount = (std::numeric_limits<int>::max)();
+     int modelColumn = 0;
+     int placeholderIndex = -1;
+     bool shownOnce : 1;
+-- 
+2.51.2
+

@@ -1,0 +1,38 @@
+From a32007fc0717dd91555ff2269440382e12299c61 Mon Sep 17 00:00:00 2001
+From: Albert Astals Cid <aacid@kde.org>
+Date: Mon, 12 Jun 2023 21:35:26 +0200
+Subject: [PATCH 075/109] Revert "Draw the cursor considering the descent is 0"
+
+This reverts commit b7c4b74146d51431bb9591965cf139abeb9561b1.
+
+This is not a pure upstream commit but follows the idea that the
+commit that is being reverted is also reverted upstream by
+   de16300661bc498eb02d8d5b36ccc07ebe595ca2
+---
+ src/gui/text/qtextlayout.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/gui/text/qtextlayout.cpp b/src/gui/text/qtextlayout.cpp
+index b8601e40bb0..73e0c956ed9 100644
+--- a/src/gui/text/qtextlayout.cpp
++++ b/src/gui/text/qtextlayout.cpp
+@@ -1336,13 +1336,13 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
+     bool rightToLeft = d->isRightToLeft();
+     if (itm >= 0) {
+         const QScriptItem &si = d->layoutData->items.at(itm);
+-        if (si.ascent >= 0)
++        if (si.ascent > 0)
+             base = si.ascent;
+-        if (si.descent >= 0)
++        if (si.descent > 0)
+             descent = si.descent;
+         rightToLeft = si.analysis.bidiLevel % 2;
+     }
+-    qreal y = position.y() + (sl.y + sl.base() + sl.descent - base - descent).toReal();
++    qreal y = position.y() + (sl.y + sl.base() - base).toReal();
+     bool toggleAntialiasing = !(p->renderHints() & QPainter::Antialiasing)
+                               && (p->transform().type() > QTransform::TxTranslate);
+     if (toggleAntialiasing)
+-- 
+2.51.2
+

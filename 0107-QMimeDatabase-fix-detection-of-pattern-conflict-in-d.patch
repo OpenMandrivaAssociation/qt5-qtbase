@@ -1,0 +1,147 @@
+From e3b54a890e32fcc449b2456003fe1fb912332fd6 Mon Sep 17 00:00:00 2001
+From: David Faure <david.faure@kdab.com>
+Date: Mon, 28 Aug 2023 17:42:02 +0200
+Subject: [PATCH 107/109] QMimeDatabase: fix detection of pattern conflict in
+ different prefixes
+
+Installing a second mimetype with *.txt as glob had a different
+effect depending on whether it was installed into the same prefix
+or a different prefix as the one where text/plain is installed.
+
+Pick-to: 6.6
+Change-Id: I7f54b8efe22f620eb57257745c48fe5402c87626
+Reviewed-by: Thiago Macieira <thiago.macieira@intel.com>
+(based on commit 1b39e61a775d70ee96287e9f0e418cb5741e6638)
+---
+ src/corelib/mimetypes/qmimeprovider.cpp       | 23 ++++++++++++-------
+ src/corelib/mimetypes/qmimeprovider_p.h       |  2 +-
+ .../mimetypes/qmimedatabase/testdata.qrc      |  1 +
+ .../qmimedatabase/text-plain-subclass.xml     | 15 ++++++++++++
+ .../qmimedatabase/tst_qmimedatabase.cpp       |  3 +++
+ 5 files changed, 35 insertions(+), 9 deletions(-)
+ create mode 100644 tests/auto/corelib/mimetypes/qmimedatabase/text-plain-subclass.xml
+
+diff --git a/src/corelib/mimetypes/qmimeprovider.cpp b/src/corelib/mimetypes/qmimeprovider.cpp
+index 4642d0f2d00..5125704cf1d 100644
+--- a/src/corelib/mimetypes/qmimeprovider.cpp
++++ b/src/corelib/mimetypes/qmimeprovider.cpp
+@@ -242,24 +242,28 @@ void QMimeBinaryProvider::addFileNameMatches(const QString &fileName, QMimeGlobM
+         return;
+     Q_ASSERT(m_cacheFile);
+     const QString lowerFileName = fileName.toLower();
++    int numMatches = 0;
+     // Check literals (e.g. "Makefile")
+-    matchGlobList(result, m_cacheFile, m_cacheFile->getUint32(PosLiteralListOffset), fileName);
++    numMatches = matchGlobList(result, m_cacheFile, m_cacheFile->getUint32(PosLiteralListOffset), fileName);
+     // Check the very common *.txt cases with the suffix tree
+-    if (result.m_matchingMimeTypes.isEmpty()) {
++    if (numMatches == 0) {
+         const int reverseSuffixTreeOffset = m_cacheFile->getUint32(PosReverseSuffixTreeOffset);
+         const int numRoots = m_cacheFile->getUint32(reverseSuffixTreeOffset);
+         const int firstRootOffset = m_cacheFile->getUint32(reverseSuffixTreeOffset + 4);
+-        matchSuffixTree(result, m_cacheFile, numRoots, firstRootOffset, lowerFileName, lowerFileName.length() - 1, false);
+-        if (result.m_matchingMimeTypes.isEmpty())
+-            matchSuffixTree(result, m_cacheFile, numRoots, firstRootOffset, fileName, fileName.length() - 1, true);
++        if (matchSuffixTree(result, m_cacheFile, numRoots, firstRootOffset, lowerFileName, lowerFileName.length() - 1, false)) {
++            ++numMatches;
++        } else if (matchSuffixTree(result, m_cacheFile, numRoots, firstRootOffset, fileName, fileName.length() - 1, true)) {
++            ++numMatches;
++        }
+     }
+     // Check complex globs (e.g. "callgrind.out[0-9]*" or "README*")
+-    if (result.m_matchingMimeTypes.isEmpty())
++    if (numMatches == 0)
+         matchGlobList(result, m_cacheFile, m_cacheFile->getUint32(PosGlobListOffset), fileName);
+ }
+ 
+-void QMimeBinaryProvider::matchGlobList(QMimeGlobMatchResult &result, CacheFile *cacheFile, int off, const QString &fileName)
++int QMimeBinaryProvider::matchGlobList(QMimeGlobMatchResult &result, CacheFile *cacheFile, int off, const QString &fileName)
+ {
++    int numMatches = 0;
+     const int numGlobs = cacheFile->getUint32(off);
+     //qDebug() << "Loading" << numGlobs << "globs from" << cacheFile->file.fileName() << "at offset" << cacheFile->globListOffset;
+     for (int i = 0; i < numGlobs; ++i) {
+@@ -275,9 +279,12 @@ void QMimeBinaryProvider::matchGlobList(QMimeGlobMatchResult &result, CacheFile
+         //qDebug() << pattern << mimeType << weight << caseSensitive;
+         QMimeGlobPattern glob(pattern, QString() /*unused*/, weight, qtCaseSensitive);
+ 
+-        if (glob.matchFileName(fileName))
++        if (glob.matchFileName(fileName)) {
+             result.addMatch(QLatin1String(mimeType), weight, pattern);
++            ++numMatches;
++        }
+     }
++    return numMatches;
+ }
+ 
+ bool QMimeBinaryProvider::matchSuffixTree(QMimeGlobMatchResult &result, QMimeBinaryProvider::CacheFile *cacheFile, int numEntries, int firstOffset, const QString &fileName, int charPos, bool caseSensitiveCheck)
+diff --git a/src/corelib/mimetypes/qmimeprovider_p.h b/src/corelib/mimetypes/qmimeprovider_p.h
+index f9c8ef384c1..5b328a7d5e9 100644
+--- a/src/corelib/mimetypes/qmimeprovider_p.h
++++ b/src/corelib/mimetypes/qmimeprovider_p.h
+@@ -115,7 +115,7 @@ public:
+ private:
+     struct CacheFile;
+ 
+-    void matchGlobList(QMimeGlobMatchResult &result, CacheFile *cacheFile, int offset, const QString &fileName);
++    int matchGlobList(QMimeGlobMatchResult &result, CacheFile *cacheFile, int offset, const QString &fileName);
+     bool matchSuffixTree(QMimeGlobMatchResult &result, CacheFile *cacheFile, int numEntries, int firstOffset, const QString &fileName, int charPos, bool caseSensitiveCheck);
+     bool matchMagicRule(CacheFile *cacheFile, int numMatchlets, int firstOffset, const QByteArray &data);
+     QLatin1String iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
+diff --git a/tests/auto/corelib/mimetypes/qmimedatabase/testdata.qrc b/tests/auto/corelib/mimetypes/qmimedatabase/testdata.qrc
+index aa177f09e4a..0b077afb625 100644
+--- a/tests/auto/corelib/mimetypes/qmimedatabase/testdata.qrc
++++ b/tests/auto/corelib/mimetypes/qmimedatabase/testdata.qrc
+@@ -3,6 +3,7 @@
+         <file alias="yast2-metapackage-handler-mimetypes.xml">yast2-metapackage-handler-mimetypes.xml</file>
+         <file alias="qml-again.xml">qml-again.xml</file>
+         <file alias="text-x-objcsrc.xml">text-x-objcsrc.xml</file>
++        <file alias="text-plain-subclass.xml">text-plain-subclass.xml</file>
+         <file alias="test.qml">test.qml</file>
+         <file>invalid-magic1.xml</file>
+         <file>invalid-magic2.xml</file>
+diff --git a/tests/auto/corelib/mimetypes/qmimedatabase/text-plain-subclass.xml b/tests/auto/corelib/mimetypes/qmimedatabase/text-plain-subclass.xml
+new file mode 100644
+index 00000000000..7b5cb7506d3
+--- /dev/null
++++ b/tests/auto/corelib/mimetypes/qmimedatabase/text-plain-subclass.xml
+@@ -0,0 +1,15 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
++    <mime-type type="text/x-microdvd">
++        <comment>MicroDVD subtitles</comment>
++        <sub-class-of type="text/plain"/>
++        <magic priority="50">
++            <match type="string" value="{1}" offset="0"/>
++            <match type="string" value="{0}" offset="0"/>
++            <match type="string" value="}{" offset="0:6"/>
++        </magic>
++        <generic-icon name="text-x-generic"/>
++        <glob pattern="*.sub"/>
++        <glob pattern="*.txt"/>
++    </mime-type>
++</mime-info>
+diff --git a/tests/auto/corelib/mimetypes/qmimedatabase/tst_qmimedatabase.cpp b/tests/auto/corelib/mimetypes/qmimedatabase/tst_qmimedatabase.cpp
+index e8d35fa5e20..c415d0b2856 100644
+--- a/tests/auto/corelib/mimetypes/qmimedatabase/tst_qmimedatabase.cpp
++++ b/tests/auto/corelib/mimetypes/qmimedatabase/tst_qmimedatabase.cpp
+@@ -49,6 +49,7 @@ static const char *const additionalMimeFiles[] = {
+     "yast2-metapackage-handler-mimetypes.xml",
+     "qml-again.xml",
+     "text-x-objcsrc.xml",
++    "text-plain-subclass.xml",
+     "invalid-magic1.xml",
+     "invalid-magic2.xml",
+     "invalid-magic3.xml",
+@@ -1165,6 +1166,8 @@ void tst_QMimeDatabase::installNewLocalMimeType()
+         QVERIFY(objcsrc.isValid());
+         QCOMPARE(objcsrc.globPatterns(), QStringList());
+     }
++    QCOMPARE(db.mimeTypeForFile(QLatin1String("foo.txt"), QMimeDatabase::MatchExtension).name(),
++             QString::fromLatin1("text/plain"));
+ 
+     // Test that a double-definition of a mimetype doesn't lead to sniffing ("conflicting globs").
+     const QString qmlTestFile = s_additionalFilesResourcePrefix + QLatin1String("test.qml");
+-- 
+2.51.2
+

@@ -1,7 +1,7 @@
-From 629404123c88c0aded4cd5a5eb9b3f450a0915cc Mon Sep 17 00:00:00 2001
+From 260241dc4e359e1623bd1fedca5902e02872bdee Mon Sep 17 00:00:00 2001
 From: Luca Beldi <v.ronin@yahoo.it>
 Date: Fri, 23 Apr 2021 15:35:29 +0100
-Subject: [PATCH 005/127] Fix QAbstractItemModelTester false positive
+Subject: [PATCH 005/109] Fix QAbstractItemModelTester false positive
 
 When inserting rows to a branch with no columns
 the tester should not complain about indexes being invalid
@@ -16,7 +16,7 @@ Reviewed-by: David Faure <david.faure@kdab.com>
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/src/testlib/qabstractitemmodeltester.cpp b/src/testlib/qabstractitemmodeltester.cpp
-index 1cd18b98bb..41219a7e23 100644
+index 1cd18b98bbc..41219a7e233 100644
 --- a/src/testlib/qabstractitemmodeltester.cpp
 +++ b/src/testlib/qabstractitemmodeltester.cpp
 @@ -454,7 +454,7 @@ void QAbstractItemModelTesterPrivate::parent()
@@ -29,7 +29,7 @@ index 1cd18b98bb..41219a7e23 100644
          MODELTESTER_VERIFY(childIndex.isValid());
          MODELTESTER_COMPARE(model->parent(childIndex), topIndex);
 diff --git a/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp b/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
-index f6ad97a96b..61452dceae 100644
+index f6ad97a96be..61452dceaed 100644
 --- a/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
 +++ b/tests/auto/testlib/qabstractitemmodeltester/tst_qabstractitemmodeltester.cpp
 @@ -116,6 +116,10 @@ void tst_QAbstractItemModelTester::standardItemModelZeroColumns()
@@ -44,5 +44,5 @@ index f6ad97a96b..61452dceae 100644
  
  void tst_QAbstractItemModelTester::testInsertThroughProxy()
 -- 
-2.46.0
+2.51.2
 

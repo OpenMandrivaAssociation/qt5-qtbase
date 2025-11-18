@@ -1,0 +1,43 @@
+From 952f13517e48aa37e51588154fedb8f6dd7feaac Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Magnus=20Gro=C3=9F?= <magnus.gross@rwth-aachen.de>
+Date: Thu, 18 Nov 2021 16:03:14 +0100
+Subject: [PATCH 069/109] Do not set Qt::ToolTip flag for QShapedPixmapWindow
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This hint is not really needed in the first place and only causes
+problems in some environments.
+
+For example in KDE, the compositor animates changes in position and size
+for all ToolTip windows. However, this is not wanted here because we use
+this window as a thumbnail for a drag-and-drop operation.
+Before this patch the dragged element would lag significantly behind the
+cursor. Now it works as expected, i.e. the dragged element follows the
+cursor immediately.
+
+Fixes: QTBUG-98048
+Change-Id: I49ef453c05228ce1a9336a9463046a794650acae
+Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+Reviewed-by: Liang Qi <liang.qi@qt.io>
+(cherry picked from commit 180b496b537089b8592b48e8d00d90fa5dcb9cac)
+---
+ src/gui/kernel/qshapedpixmapdndwindow.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/kernel/qshapedpixmapdndwindow.cpp b/src/gui/kernel/qshapedpixmapdndwindow.cpp
+index bb0d8e4ee70..b98fcc61e77 100644
+--- a/src/gui/kernel/qshapedpixmapdndwindow.cpp
++++ b/src/gui/kernel/qshapedpixmapdndwindow.cpp
+@@ -56,7 +56,7 @@ QShapedPixmapWindow::QShapedPixmapWindow(QScreen *screen)
+     QSurfaceFormat format;
+     format.setAlphaBufferSize(8);
+     setFormat(format);
+-    setFlags(Qt::ToolTip | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint
++    setFlags(Qt::FramelessWindowHint | Qt::BypassWindowManagerHint
+              | Qt::WindowTransparentForInput | Qt::WindowDoesNotAcceptFocus);
+ }
+ 
+-- 
+2.51.2
+

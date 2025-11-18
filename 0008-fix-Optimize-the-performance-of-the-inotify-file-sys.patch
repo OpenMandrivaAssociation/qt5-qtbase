@@ -1,7 +1,7 @@
-From 1bbb9f92202fefaa30055cd8c98341ce10bb3b03 Mon Sep 17 00:00:00 2001
+From a3a8e8a85e2163bb1d17cbeb205a153667e60d7e Mon Sep 17 00:00:00 2001
 From: Gong Heng <gongheng@uniontech.com>
 Date: Thu, 18 Mar 2021 16:53:11 +0800
-Subject: [PATCH 008/127] =?UTF-8?q?fix:=20Optimize=20the=20performance=20o?=
+Subject: [PATCH 008/109] =?UTF-8?q?fix:=20Optimize=20the=20performance=20o?=
  =?UTF-8?q?f=20the=20inotify=20file=20system=20monitoring=20program?=
  =?UTF-8?q?=E3=80=82?=
 MIME-Version: 1.0
@@ -25,7 +25,7 @@ Reviewed-by: Mårten Nordheim <marten.nordheim@qt.io>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/src/corelib/io/qfilesystemwatcher_inotify.cpp b/src/corelib/io/qfilesystemwatcher_inotify.cpp
-index 94d9d06bcb..27e0b13b0b 100644
+index 94d9d06bcb9..27e0b13b0bf 100644
 --- a/src/corelib/io/qfilesystemwatcher_inotify.cpp
 +++ b/src/corelib/io/qfilesystemwatcher_inotify.cpp
 @@ -366,7 +366,9 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
@@ -40,5 +40,5 @@ index 94d9d06bcb..27e0b13b0b 100644
      buffSize = read(inotifyFd, buffer.data(), buffSize);
      char *at = buffer.data();
 -- 
-2.46.0
+2.51.2
 

@@ -1,7 +1,7 @@
-From 89576dce9bc3103dab64eb1573c0772dafd7497d Mon Sep 17 00:00:00 2001
+From 188a1c06e28a186e1a647f7b2b043708e17854b1 Mon Sep 17 00:00:00 2001
 From: ChunLin Wang <wangchunlin@uniontech.com>
 Date: Wed, 31 Mar 2021 17:54:49 +0800
-Subject: [PATCH 001/127] Fix get out of bounds index in
+Subject: [PATCH 001/109] Fix get out of bounds index in
  QSortFilterProxyModel::filterAcceptsRow
 
 Before calling the index function, we need to check the validity of the parameters.
@@ -17,7 +17,7 @@ Reviewed-by: David Faure <david.faure@kdab.com>
  2 files changed, 22 insertions(+), 3 deletions(-)
 
 diff --git a/src/corelib/itemmodels/qsortfilterproxymodel.cpp b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
-index 3d7fe43cd3..ce35bda5e1 100644
+index 3d7fe43cd3f..ce35bda5e11 100644
 --- a/src/corelib/itemmodels/qsortfilterproxymodel.cpp
 +++ b/src/corelib/itemmodels/qsortfilterproxymodel.cpp
 @@ -3131,8 +3131,9 @@ bool QSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &
@@ -45,7 +45,7 @@ index 3d7fe43cd3..ce35bda5e1 100644
      return d->filter_data.hasMatch(key);
  }
 diff --git a/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp b/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp
-index e1ea7a4552..90972caa57 100644
+index e1ea7a45525..90972caa575 100644
 --- a/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp
 +++ b/tests/auto/corelib/itemmodels/qconcatenatetablesproxymodel/tst_qconcatenatetablesproxymodel.cpp
 @@ -117,6 +117,7 @@ private Q_SLOTS:
@@ -80,5 +80,5 @@ index e1ea7a4552..90972caa57 100644
  
  #include "tst_qconcatenatetablesproxymodel.moc"
 -- 
-2.46.0
+2.51.2
 
