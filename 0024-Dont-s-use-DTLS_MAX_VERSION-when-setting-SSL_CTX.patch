@@ -1,7 +1,7 @@
-From c695e2cdb9b776f5a93dc752b59528784d0c655a Mon Sep 17 00:00:00 2001
+From 93cd6cd2cc65e2d6f92e0d0d3c5da57f28624260 Mon Sep 17 00:00:00 2001
 From: Timur Pocheptsov <timur.pocheptsov@qt.io>
 Date: Fri, 9 Jul 2021 15:00:19 +0200
-Subject: [PATCH 024/109] Dont's use DTLS_MAX_VERSION when setting SSL_CTX
+Subject: [PATCH 24/96] Dont's use DTLS_MAX_VERSION when setting SSL_CTX
 
 It was fixed quite some time ago for TLS counterpart (TLS_MAX_VERSION),
 but somehow the similar fix was missing for DTLS. OpenSSL v3 deprecated
@@ -39,5 +39,5 @@ index c30192a4eb3..e4bb61ecb57 100644
      case QSsl::TlsV1_3OrLater:
  #ifdef TLS1_3_VERSION
 -- 
-2.51.2
+2.53.0
 

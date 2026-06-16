@@ -1,7 +1,7 @@
-From 0474a6cec678b581b5233d102f3235f1d0074980 Mon Sep 17 00:00:00 2001
+From 343d0ec073aa62d3a289e5b0950ab0b94f66fd54 Mon Sep 17 00:00:00 2001
 From: Noah Davis <noahadvs@gmail.com>
 Date: Wed, 16 Feb 2022 08:50:08 -0500
-Subject: [PATCH 031/109] QGnomeTheme: Allow Space, Return, Enter and Select to
+Subject: [PATCH 31/96] QGnomeTheme: Allow Space, Return, Enter and Select to
  press buttons
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -20,7 +20,7 @@ Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
  1 file changed, 4 insertions(+)
 
 diff --git a/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp b/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
-index cb1b39db646..dafa3ec4dac 100644
+index 3de19734250..ecdc006b7f3 100644
 --- a/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
 +++ b/src/platformsupport/themes/genericunix/qgenericunixthemes.cpp
 @@ -731,6 +731,7 @@ QGnomeTheme::QGnomeTheme()
@@ -42,5 +42,5 @@ index cb1b39db646..dafa3ec4dac 100644
          break;
      }
 -- 
-2.51.2
+2.53.0
 

@@ -110,7 +110,7 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
@@ -133,15 +133,15 @@
 
 Summary:	Version 5 of the Qt toolkit
 Name:		qt5-qtbase
-Version:	5.15.18
+Version:	5.15.19
 %if "%{beta}" != ""
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
 Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
-Source0:	http://download.qt.io/official_releases/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	2
+Source0:	http://download.qt.io/archive/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
+Release:	1
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -175,6 +175,7 @@ Patch6:		qtbase-5.15-qsqlite-blocking-changes-from-akonadi.patch
 # in Kicker
 #Patch7:		qtbase-5.15.7-prefer-xcb_egl-to-xcb_glx.patch
 #Patch8:		qt-5.15.8-lld-16.patch
+Patch9:		qtbase-5.15.19-openssl4.patch
 
 ### Fedora patches
 Patch102:	qtbase-everywhere-src-5.6.0-moc_WORDSIZE.patch
@@ -194,7 +195,6 @@ BuildConflicts:	%{mklibname -d qt5core} < %{version}
 
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	libtool-base
 BuildRequires:	slibtool
 BuildRequires:	make
 BuildRequires:	which

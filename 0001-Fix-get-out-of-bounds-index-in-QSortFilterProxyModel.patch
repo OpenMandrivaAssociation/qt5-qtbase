@@ -1,7 +1,7 @@
-From 188a1c06e28a186e1a647f7b2b043708e17854b1 Mon Sep 17 00:00:00 2001
+From fa5eb4165cc0e8418025ac55f1f94617e28ee41d Mon Sep 17 00:00:00 2001
 From: ChunLin Wang <wangchunlin@uniontech.com>
 Date: Wed, 31 Mar 2021 17:54:49 +0800
-Subject: [PATCH 001/109] Fix get out of bounds index in
+Subject: [PATCH 01/96] Fix get out of bounds index in
  QSortFilterProxyModel::filterAcceptsRow
 
 Before calling the index function, we need to check the validity of the parameters.
@@ -80,5 +80,5 @@ index e1ea7a45525..90972caa575 100644
  
  #include "tst_qconcatenatetablesproxymodel.moc"
 -- 
-2.51.2
+2.53.0
 

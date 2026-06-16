@@ -1,7 +1,7 @@
-From abb935cc753c70597bab71bba7ff51bf436e3047 Mon Sep 17 00:00:00 2001
+From 772fe0961cb0b8871752e4b5bd26cb84271fcd37 Mon Sep 17 00:00:00 2001
 From: Timur Pocheptsov <timur.pocheptsov@qt.io>
 Date: Fri, 9 Jul 2021 16:14:16 +0200
-Subject: [PATCH 025/109] Diffie-Hellman parameters: remove useless 'fix'
+Subject: [PATCH 25/96] Diffie-Hellman parameters: remove useless 'fix'
 
 The workaround I had implemented based on alpha version of OpenSSL v3
 and what developers (OpenSSL) said about DH back then is not going to work
@@ -123,5 +123,5 @@ index 5e9faae2912..bf165f67ad0 100644
  BIGNUM *q_BN_bin2bn(const unsigned char *s, int len, BIGNUM *ret);
  #define q_SSL_CTX_set_tmp_dh(ctx, dh) q_SSL_CTX_ctrl((ctx), SSL_CTRL_SET_TMP_DH, 0, (char *)dh)
 -- 
-2.51.2
+2.53.0
 

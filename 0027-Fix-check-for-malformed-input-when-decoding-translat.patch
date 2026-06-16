@@ -1,7 +1,7 @@
-From f6eb177731bd2c6876ff2175a72eda0bb619da02 Mon Sep 17 00:00:00 2001
+From 6021d74a54df66712c1dbc0d26d7d75d186c9e34 Mon Sep 17 00:00:00 2001
 From: Volker Hilsheimer <volker.hilsheimer@qt.io>
 Date: Thu, 4 Jun 2020 10:37:59 +0200
-Subject: [PATCH 027/109] Fix check for malformed input when decoding
+Subject: [PATCH 27/96] Fix check for malformed input when decoding
  translations
 
 Any integer modulo 1 can never be anything else but 0, so the statement
@@ -36,5 +36,5 @@ index bdcd0166309..e4375e7e408 100644
              m += 4;
              if (!numerus--) {
 -- 
-2.51.2
+2.53.0
 
