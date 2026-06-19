@@ -110,7 +110,7 @@
 %define qtegldeviceintegration %mklibname qt%{api}egldeviceintegration %{major}
 %define qtegldeviceintegrationd %mklibname qt%{api}egldeviceintegration -d
 
-%bcond_without bootstrap
+%bcond_with bootstrap
 
 %bcond_with directfb
 # Docs require qdoc5 and qt5-tools to build
@@ -141,7 +141,7 @@ Release:	0.%{beta}.1
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/archive/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	1
+Release:	2
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
@@ -1582,6 +1582,8 @@ Helper library for Qt theme support.
 Summary:	Makefile generation system for Qt 5
 Group:		Development/KDE and Qt
 Requires:	%{name}-macros = %{EVRD}
+# qmake generates Makefiles -- doesn't really make sense without make
+Requires:	make
 
 %description -n qmake%{api}
 Makefile generation system for Qt 5.
