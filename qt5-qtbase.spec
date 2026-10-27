@@ -137,11 +137,11 @@ Version:	5.15.19
 %if "%{beta}" != ""
 %define qttarballdir qtbase-everywhere-src-%{version}-%{beta}
 Source0:	http://download.qt.io/development_releases/qt/%(echo %{version}|cut -d. -f1-2)/%{version}-%{beta}/submodules/%{qttarballdir}.tar.xz
-Release:	0.%{beta}.1
+Release:	0.%{beta}.2
 %else
 %define qttarballdir qtbase-everywhere-opensource-src-%{version}
 Source0:	http://download.qt.io/archive/qt/5.15/%{version}/submodules/%{qttarballdir}.tar.xz
-Release:	3
+Release:	4
 %endif
 License:	LGPLv3+
 Group:		Development/KDE and Qt
